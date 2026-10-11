@@ -1,3 +1,15 @@
+/**
+ * Dr. Arman Kabir Care — Landing Page
+ * 
+ * Removed: caffeine.ai footer attribution link
+ * Removed: UTM tracking query parameters
+ * Updated: Dr. Arman Kabir Care branding
+ * Backend: PHP/MySQL via cPanel
+ */
+
+import { useState } from "react";
+import { Heart } from "lucide-react";
+
 if (!file) return;
     // Store file name as reference (real apps would upload to blob storage / server)
     const ref = file.name;
