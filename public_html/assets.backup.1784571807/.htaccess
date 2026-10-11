@@ -1,0 +1,25 @@
+# ============================================================================
+#  BLOCKED ASSET BACKUP - DO NOT REMOVE
+# ============================================================================
+# This directory is a stale copy of the compiled frontend bundle, taken before
+# the migration from localStorage/canister authentication to the PHP/MySQL API.
+#
+# It is NOT part of the live application. It is publicly reachable at
+# /assets.backup.*/ and serves an OLD bundle whose staff signup and login write
+# to localStorage ("medicare_doctors_registry" / "medicare_current_doctor")
+# instead of calling the PHP API. Leaving it published means the legacy,
+# bypasses-PHP/MySQL authentication code is still downloadable and auditable.
+#
+# Live bundles are served from ../assets/ and are cache-busted by content hash.
+# ============================================================================
+
+# Deny everything under this directory.
+RewriteEngine On
+RewriteRule .* - [F,L]
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+Options -Indexes -ExecCGI
+ServerSignature Off

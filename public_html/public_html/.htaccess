@@ -1,0 +1,30 @@
+# ============================================================================
+#  BLOCKED LEGACY SITE COPY - DO NOT REMOVE
+# ============================================================================
+# This directory is a stale duplicate of the entire web root, extracted from an
+# old backup archive. It is NOT part of the live application and must never be
+# served.
+#
+# It contains UNHARDENED copies of:
+#   - setup.php           (DB setup wizard)
+#   - api/setup-test.php  (unauthenticated test / migrate / fresh / saveenv)
+#   - config.php          (credential file)
+#
+# `fresh` performs a DROP DATABASE and `saveenv` overwrites config.php, so
+# exposing this subtree lets any unauthenticated visitor destroy the database or
+# rewrite production credentials.
+#
+# The parent public_html/.htaccess already denies this path. This file is
+# defense-in-depth in case a subdirectory rule is ever evaluated first.
+# ============================================================================
+
+# Deny everything under this directory.
+RewriteEngine On
+RewriteRule .* - [F,L]
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+Options -Indexes -ExecCGI
+ServerSignature Off

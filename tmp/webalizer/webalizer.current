@@ -1,0 +1,797 @@
+# Webalizer V2.23-08 Incremental Data - 10/10/2026 17:40:18
+2026 10 10 17 40 18
+582 0 166 0 7 60 495864 173 152 0
+17 2 131 3 10
+0 0 0 0 0 0
+0 0 0 0 0 0
+9 0 7602 7 5 5
+143 0 150786 30 35 23
+98 0 78804 36 33 30
+36 0 29067 24 19 19
+188 0 143745 27 24 19
+37 0 29415 25 20 20
+42 0 33390 24 22 21
+29 0 23055 17 15 15
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+11 0 9192 6
+8 0 7254 2
+112 0 126588 20
+7 0 5565 2
+38 0 30210 4
+14 0 11130 9
+17 0 13515 7
+11 0 8745 6
+15 0 11925 8
+5 0 3975 2
+12 0 9987 5
+153 0 122082 13
+15 0 11925 8
+26 0 12720 2
+11 0 8745 3
+10 0 7950 7
+14 0 11130 9
+13 0 10335 6
+7 0 5565 1
+32 0 25440 26
+12 0 9540 8
+19 0 15999 9
+10 0 8397 5
+10 0 7950 5
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+490
+0
+0
+0
+0
+0
+0
+0
+0
+92
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+# -urls- 
+# End Of Table - urls
+# -sites- (monthly)
+103.211.30.87
+0 2 0 1590 1 1791227994
+-
+105.172.132.66.censys-scanner.com
+0 1 0 795 1 1791600210
+-
+139.155.126.16
+0 1 0 795 1 1791252085
+-
+123.207.65.62
+0 2 0 1590 2 1791592455
+-
+83.140.109.213
+0 1 0 795 1 1791098430
+-
+35.172.132.66.censys-scanner.com
+0 1 0 795 1 1791559230
+-
+146.192.62.34.bc.googleusercontent.com
+0 1 0 795 1 1791331307
+-
+119.91.20.139
+0 2 0 1590 2 1791437511
+-
+80.248.227.92
+0 1 0 795 1 1791614091
+-
+104.234.208.14
+0 1 0 795 1 1791448162
+-
+8.138.210.144
+0 2 0 1590 2 1791158020
+-
+45.138.12.9
+0 3 0 3726 0 0
+-
+fwdproxy-ncg-035.fbsv.net
+0 1 0 795 0 0
+-
+43.152.72.244
+0 1 0 795 1 1791491447
+-
+43.135.172.89
+0 1 0 795 1 1791283750
+-
+fwdproxy-gtn-039.fbsv.net
+0 1 0 795 0 0
+-
+43.157.150.69
+0 1 0 795 1 1791521790
+-
+vmd204238.contaboserver.net
+0 1 0 795 1 1791435995
+-
+43.130.72.177
+0 1 0 795 1 1791377916
+-
+43.161.217.205
+0 1 0 795 1 1791634157
+-
+204.172.132.66.censys-scanner.com
+0 1 0 795 1 1791099519
+-
+159.223.180.252
+0 4 0 4968 0 0
+-
+fwdproxy-ncg-037.fbsv.net
+0 1 0 795 1 1791227108
+-
+57.141.20.6
+0 1 0 795 1 1791227106
+-
+43.130.71.237
+0 1 0 795 1 1791473418
+-
+10.241.195.35.bc.googleusercontent.com
+0 1 0 795 1 1791393146
+-
+43.165.167.72
+0 1 0 795 1 1791220724
+-
+120.231.108.136.bc.googleusercontent.com
+0 1 0 795 1 1791493441
+-
+57.141.20.28
+0 1 0 795 1 1791227105
+-
+43.134.100.175
+0 1 0 795 1 1791629792
+-
+43.130.31.17
+0 1 0 795 1 1791302067
+-
+43.157.95.131
+0 1 0 795 1 1791262569
+-
+5.133.197.31
+0 1 0 795 1 1791105404
+-
+43.130.72.40
+0 1 0 795 1 1791374666
+-
+49.51.50.147
+0 1 0 795 1 1791605794
+-
+vmi1685991.contaboserver.net
+0 1 0 795 1 1791156418
+-
+1.12.70.96
+0 1 0 795 1 1791558472
+-
+175.178.110.121
+0 1 0 795 1 1791274268
+-
+57.141.20.34
+0 1 0 795 1 1791227143
+-
+195.178.110.106
+0 1 0 1242 0 0
+-
+43.153.54.138
+0 1 0 795 1 1791054500
+-
+1.15.52.154
+0 2 0 1590 2 1791408694
+-
+fwdproxy-snb-025.fbsv.net
+0 1 0 795 0 0
+-
+placeholder.sitelock.com
+0 7 0 5565 7 1791573972
+-
+43.159.149.216
+0 1 0 795 1 1791071447
+-
+ec2-100-48-63-27.compute-1.amazonaws.com
+0 1 0 795 1 1791074006
+-
+124.156.207.197
+0 20 0 7950 0 0
+-
+169.91.76.34.bc.googleusercontent.com
+0 45 0 52761 1 1791079306
+-
+43.161.251.162
+0 1 0 795 1 1791142066
+-
+43.153.87.54
+0 2 0 1590 2 1791319902
+-
+43.130.78.203
+0 1 0 795 1 1791305676
+-
+43.130.12.43
+0 1 0 795 1 1791651333
+-
+r5-130-82.monitoring.internet-measurement.com
+0 1 0 795 1 1791250107
+-
+43.156.41.180
+0 1 0 795 1 1791360247
+-
+192.121.123.119
+0 1 0 795 1 1791297315
+-
+43.163.80.48
+0 1 0 795 1 1791647644
+-
+43.159.128.247
+0 1 0 795 1 1791324785
+-
+47.106.188.159
+0 1 0 795 1 1791375218
+-
+vmi3031501.contaboserver.net
+0 2 0 1590 0 0
+-
+124.156.204.51
+0 1 0 795 1 1791610413
+-
+89.189.121.34.bc.googleusercontent.com
+0 2 0 1590 0 0
+-
+fwdproxy-ftw-007.fbsv.net
+0 1 0 795 0 0
+-
+29.159.132.66.censys-scanner.com
+0 1 0 795 1 1791654018
+-
+174.138.91.234
+0 2 0 1590 1 1791515271
+-
+ec2-3-145-104-54.us-east-2.compute.amazonaws.com
+0 3 0 2385 1 1791612543
+-
+static.57.252.109.65.clients.your-server.de
+0 2 0 1590 1 1791524602
+-
+80.94.95.173
+0 1 0 795 1 1791444180
+-
+fwdproxy-atn-058.fbsv.net
+0 1 0 795 0 0
+-
+193.235.141.160
+0 1 0 795 0 0
+-
+43.130.40.120
+0 1 0 795 1 1791094325
+-
+43.153.36.110
+0 1 0 795 1 1791394087
+-
+43.157.95.239
+0 1 0 795 1 1791189651
+-
+fwdproxy-dkl-028.fbsv.net
+0 1 0 795 1 1791227107
+-
+70.24.199.104.bc.googleusercontent.com
+0 21 0 23847 1 1791079484
+-
+147.185.132.64
+0 1 0 795 1 1791478213
+-
+43.153.49.151
+0 1 0 795 1 1791074806
+-
+fwdproxy-atn-057.fbsv.net
+0 1 0 795 0 0
+-
+45.149.175.27
+0 4 0 3180 0 0
+-
+fwdproxy-hil-001.fbsv.net
+0 1 0 795 1 1791227097
+-
+43.130.26.3
+0 1 0 795 1 1791113316
+-
+2a06:98c0:3600::103
+0 88 0 69960 0 0
+-
+43.130.91.95
+0 1 0 795 1 1791203303
+-
+199.244.88.224
+0 1 0 795 0 0
+-
+234.5.108.136.bc.googleusercontent.com
+0 2 0 1590 0 0
+-
+170.106.160.90
+0 1 0 795 1 1791543476
+-
+43.134.78.217
+0 1 0 795 1 1791356047
+-
+77.90.185.5
+0 2 0 1590 2 1791330789
+-
+193.235.141.145
+0 1 0 795 0 0
+-
+178.223.116.136.bc.googleusercontent.com
+0 1 0 795 1 1791405874
+-
+93.158.99.154
+0 1 0 795 1 1791400170
+-
+49.51.245.241
+0 1 0 795 1 1791437080
+-
+215.86.108.136.bc.googleusercontent.com
+0 2 0 1590 0 0
+-
+43.138.68.113
+0 1 0 795 1 1791107830
+-
+fwdproxy-snb-018.fbsv.net
+0 1 0 795 0 0
+-
+165.22.177.94
+0 2 0 1590 1 1791614960
+-
+205.210.31.52
+0 1 0 795 1 1791228857
+-
+crawl-66-249-65-161.googlebot.com
+0 1 0 795 0 0
+-
+178.128.33.151
+0 2 0 1590 1 1791332977
+-
+118.31.112.143
+0 1 0 795 1 1791084035
+-
+ec2-18-224-149-96.us-east-2.compute.amazonaws.com
+0 1 0 795 1 1791303132
+-
+161.35.225.72
+0 2 0 1590 1 1791165418
+-
+84.19.51.118
+0 3 0 2385 3 1791597616
+-
+29.99.172.144.static.cloudzy.com
+0 1 0 1242 0 0
+-
+129.226.193.111
+0 1 0 795 1 1791126665
+-
+130.49.10.115
+0 1 0 795 0 0
+-
+ec2-3-249-82-173.eu-west-1.compute.amazonaws.com
+0 1 0 795 1 1791492205
+-
+49.233.45.47
+0 2 0 1590 2 1791622239
+-
+31.59.41.197
+0 1 0 795 1 1791340595
+-
+43.165.198.224
+0 1 0 795 1 1791495480
+-
+crawl-66-249-74-102.googlebot.com
+0 1 0 795 0 0
+-
+static.147.60.76.144.clients.your-server.de
+0 2 0 1590 1 1791466445
+-
+crawl-66-249-74-100.googlebot.com
+0 2 0 1590 0 0
+-
+48.221.121.244
+0 1 0 795 0 0
+-
+4.240.25.22
+0 31 0 24645 0 0
+-
+49.51.132.100
+0 1 0 795 1 1791391418
+-
+53.146.94.167.censys-scanner.com
+0 1 0 795 1 1791567614
+-
+43.157.172.39
+0 1 0 795 1 1791168529
+-
+43.162.103.165
+0 1 0 795 1 1791090536
+-
+178.128.184.144
+0 1 0 795 0 0
+-
+ns504319.ip-192-99-15.net
+0 1 0 795 1 1791575445
+-
+ec2-100-50-65-86.compute-1.amazonaws.com
+0 1 0 795 1 1791582990
+-
+47.109.67.33
+0 1 0 795 1 1791470659
+-
+43.130.3.122
+0 1 0 795 1 1791562179
+-
+62.155.45.199.censys-scanner.com
+0 1 0 795 1 1791275358
+-
+192.175.111.230
+0 1 0 795 1 1791581923
+-
+43.128.156.124
+0 1 0 795 1 1791407754
+-
+43.131.39.179
+0 1 0 795 1 1791288242
+-
+43.166.247.82
+0 1 0 795 1 1791454203
+-
+43.157.181.189
+0 1 0 795 1 1791267056
+-
+43.166.7.113
+0 1 0 795 1 1791145055
+-
+43.157.156.190
+0 1 0 795 1 1791206633
+-
+20.70.173.30
+0 129 0 102555 1 1791372364
+-
+43.133.14.237
+0 2 0 1590 2 1791578995
+-
+106.54.62.156
+0 1 0 795 1 1791062169
+-
+139.59.97.86
+0 1 0 795 0 0
+-
+43.135.142.7
+0 1 0 795 1 1791410996
+-
+fwdproxy-ncg-030.fbsv.net
+0 1 0 795 1 1791227107
+-
+43.166.132.142
+0 1 0 795 1 1791458400
+-
+175.27.171.245
+0 1 0 795 1 1791299366
+-
+43.166.244.192
+0 2 0 1590 2 1791582603
+-
+139.155.134.17
+0 1 0 795 1 1791227983
+-
+88.218.45.14
+0 1 0 795 1 1791274061
+-
+56.121.155.104.bc.googleusercontent.com
+0 33 0 38304 1 1791079317
+-
+fwdproxy-ftw-003.fbsv.net
+0 1 0 795 1 1791227108
+-
+5.102.169.29
+0 15 0 11925 2 1791201539
+-
+120.27.8.103
+0 1 0 795 1 1791201985
+-
+43.164.0.21
+0 1 0 795 1 1791236306
+-
+152.42.242.56
+0 1 0 795 0 0
+-
+43.164.129.191
+0 1 0 795 1 1791565509
+-
+82.139.195.26
+0 1 0 795 1 1791555542
+-
+43.134.236.36
+0 1 0 795 1 1791239425
+-
+crawl-66-249-65-162.googlebot.com
+0 3 0 2385 1 1791227108
+-
+43.159.135.203
+0 1 0 795 1 1791527024
+-
+43.157.158.178
+0 1 0 795 1 1791477600
+-
+55.97.172.144.static.cloudzy.com
+0 1 0 1242 0 0
+-
+158.86.86.172.static.cloudzy.com
+0 1 0 1242 0 0
+-
+49.234.192.248
+0 1 0 795 1 1791502203
+-
+49.51.183.15
+0 1 0 795 1 1791548515
+-
+43.130.47.33
+0 1 0 795 1 1791223411
+-
+43.135.211.148
+0 1 0 795 1 1791185970
+-
+137.184.75.100
+0 2 0 1590 1 1791617079
+-
+43.153.62.161
+0 1 0 795 1 1791057926
+-
+199.244.88.228
+0 1 0 795 1 1791153601
+-
+170.106.11.141
+0 1 0 795 1 1791161906
+-
+103.61.240.193
+0 1 0 795 1 1791227718
+-
+158.173.244.25
+0 1 0 795 1 1791449709
+-
+# End Of Table - sites (monthly)
+# -sites- (daily)
+105.172.132.66.censys-scanner.com
+0 1 0 795 1 1791600210
+-
+123.207.65.62
+0 1 0 795 1 1791592455
+-
+80.248.227.92
+0 1 0 795 1 1791614091
+-
+43.161.217.205
+0 1 0 795 1 1791634157
+-
+43.134.100.175
+0 1 0 795 1 1791629792
+-
+49.51.50.147
+0 1 0 795 1 1791605794
+-
+43.130.12.43
+0 1 0 795 1 1791651333
+-
+43.163.80.48
+0 1 0 795 1 1791647644
+-
+124.156.204.51
+0 1 0 795 1 1791610413
+-
+29.159.132.66.censys-scanner.com
+0 1 0 795 1 1791654018
+-
+ec2-3-145-104-54.us-east-2.compute.amazonaws.com
+0 3 0 2385 1 1791612543
+-
+fwdproxy-atn-058.fbsv.net
+0 1 0 795 0 0
+-
+2a06:98c0:3600::103
+0 9 0 7155 0 0
+-
+165.22.177.94
+0 2 0 1590 1 1791614960
+-
+84.19.51.118
+0 1 0 795 1 1791597616
+-
+49.233.45.47
+0 1 0 795 1 1791622239
+-
+137.184.75.100
+0 2 0 1590 1 1791617079
+-
+# End Of Table - sites (daily)
+# -referrers- 
+http://www.google.com/url
+0 7
+http://www.drarmankabir.com/
+0 1
+https://www.facebook.com/
+0 3
+- (Direct Request)
+0 561
+http://drarmankabir.com/
+0 6
+http://mail.drarmankabir.com/
+0 1
+https://l.facebook.com/
+0 3
+# End Of Table - referrers
+# -agents- 
+Mozilla/5.0
+0 2
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36/Nutch-1.23-SN
+0 2
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (X11; Linux x86_64)
+0 3
+Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
+0 1
+Mozilla/5.0 (compatible; InternetMeasurement/1.0; +https://internet-measurement.com/)
+0 1
+Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/6.0)
+0 7
+Mozilla/5.0 (compatible; NetcraftSurveyAgent/1.0; +info@netcraft.com)
+0 1
+Mozilla/5.0 (Linux; Android 7.0; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4590.2 Mobile Safari/537.36 C
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+0 2
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 CCleaner/130.
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/122.0.6261.89 Mobile/15
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/358.1.731895952 Mobile/
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+0 11
+Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0
+0 2
+metabase-cve-2026-72898-detect/1.0 (benign detection probes only)
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Mobile/15E14
+0 4
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+0 101
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+0 3
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36
+0 1
+Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
+0 6
+Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)
+0 6
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36
+0 6
+Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0
+0 1
+Go-http-client/1.1
+0 3
+curl/8.3.0
+0 1
+http://drarmankabir.com/wp-admin/install.php?step=1
+0 88
+Mozilla/5.0 gitscan-go/0.3
+0 1
+Mozilla/5.0 (Fedora; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36
+0 4
+Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0
+0 6
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36
+0 1
+facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+0 12
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.1
+0 1
+GoogleOther
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E14
+0 82
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36
+0 15
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (compatible; t3versionsBot/1.2; +https://www.t3versions.com/bot)
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36
+0 4
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36
+0 2
+Mozilla/5.0 (Linux; Android 16; CPH2631 Build/BP2A.250605.015; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/
+0 2
+Hello from Palo Alto Networks, find out more about our scans in https://docs-cortex.paloaltonetworks.com/r/1/Cortex-Xpanse/Sc
+0 2
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36
+0 1
+Mozilla/5.0 (Linux; Android 16; 24117RN76G Build/BP2A.250605.031.A3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 C
+0 1
+python-requests/2.27.1
+0 1
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36
+0 4
+Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Sa
+0 3
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+0 3
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Mobile Safari/537.36
+0 1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+0 1
+serpstatbot/2.1 (advanced backlink tracking bot; https://serpstatbot.com/; abuse@serpstatbot.com)
+0 2
+Mozilla/5.0 (compatible; CMS-Checker/1.0; +https://example.com)
+0 3
+SonarPrime RedirectMap/1.0
+0 2
+# End Of Table - agents
+# -search strings- 
+# End Of Table - search strings
+# -usernames- 
+# End Of Table - usernames

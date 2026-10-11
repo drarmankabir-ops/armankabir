@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Block leaked debug logs and backup copies in the public assets directory.
+RewriteRule ^(error_log|.*\.(bak|old|orig|tmp|log|swp|save))$ - [F,L]
+RewriteRule ^.*\.(env|config|sql|md|gitignore|cache)$ - [F,L]
+
+# Also prevent listing of hidden/system files.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Block known sensitive extensions and files across the assets directory.
+<FilesMatch "^(error_log|.*\.(bak|old|orig|tmp|log|swp|save|env|config|sql|md|gitignore|cache))$">
+    Require all denied
+</FilesMatch>
+
+
