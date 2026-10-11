@@ -5714,3 +5714,47 @@ export default function LandingPage({
     </div>
   );
 }
+
+/**
+ * Footer Component
+ * Updated for PHP/MySQL backend on cPanel
+ */
+function LandingPageFooter({ siteConfig }: { siteConfig: any }) {
+  return (
+    <div className="border-t border-slate-700 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p className="text-xs text-slate-400 text-center">
+        © {new Date().getFullYear()}{" "}
+        {siteConfig?.footerSection?.copyrightText || "Dr. Arman Kabir Care"}
+        . Built with <Heart className="w-3 h-3 inline text-rose-400" /> for
+        healthcare excellence. Powered by PHP &amp; MySQL.
+      </p>
+      <a
+        href="https://drarmankabir.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs text-slate-400 hover:text-slate-200 transition-colors underline"
+      >
+        Visit Website
+      </a>
+    </div>
+  );
+}
+
+export default function LandingPage({
+  onLoginClick,
+  onAdminLoginClick,
+  isAdmin,
+  adminLogout,
+}: LandingPageProps) {
+  // ... [component logic] ...
+
+  return (
+    <div>
+      {/* Page content */}
+      
+      {/* Bottom bar with updated footer */}
+      <LandingPageFooter siteConfig={siteConfig} />
+    </div>
+  );
+}
+
