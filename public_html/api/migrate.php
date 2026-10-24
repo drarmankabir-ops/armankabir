@@ -13,7 +13,6 @@
  * 4. Validate integrity after each migration step
  *
  * NOTE: This script is designed to work with the PHP/MySQL backend.
- * No dfx (Internet Computer) or canister calls are used.
  *
  * Usage:
  * - CLI: php public_html/api/migrate.php --run [--dry-run] [--step=N]
@@ -477,7 +476,6 @@ Dr. Arman Kabir Care — PHP Migration Runner
 DESCRIPTION:
   Replaces the legacy bash scripts/migrate.sh for data migration.
   Migrates data from legacy backend to 8 domain-specific MySQL tables.
-  No dfx (Internet Computer) or canister calls.
 
 USAGE (CLI):
   php public_html/api/migrate.php [options]

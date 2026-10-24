@@ -10731,7 +10731,7 @@ new TextEncoder().encode("icfs-chunk/");
 new TextEncoder().encode("icfs-metadata/");
 new TextEncoder().encode("ynode/");
 var define_process_env_default = {};
-const DEFAULT_STORAGE_GATEWAY_URL = "https://blob.caffeine.ai";
+const DEFAULT_STORAGE_GATEWAY_URL = "/api";
 const DEFAULT_BUCKET_NAME = "default-bucket";
 const DEFAULT_PROJECT_ID = "0000000-0000-0000-0000-00000000000";
 let configCache = null;
@@ -10746,13 +10746,12 @@ async function loadConfig() {
     const response = await fetch(`${baseUrl}env.json`);
     const config = await response.json();
     if (!backendCanisterId && config.backend_canister_id === "undefined") {
-      console.error("CANISTER_ID_BACKEND is not set");
-      throw new Error("CANISTER_ID_BACKEND is not set");
+      console.info("[php] Backend is running in PHP mode without a canister dependency.");
     }
     const fullConfig = {
       backend_host: config.backend_host === "undefined" ? void 0 : config.backend_host,
-      backend_canister_id: config.backend_canister_id === "undefined" ? backendCanisterId : config.backend_canister_id,
-      storage_gateway_url: "https://blob.caffeine.ai",
+      backend_canister_id: void 0,
+      storage_gateway_url: "/api",
       bucket_name: DEFAULT_BUCKET_NAME,
       project_id: config.project_id !== "undefined" ? config.project_id : DEFAULT_PROJECT_ID,
       ii_derivation_origin: config.ii_derivation_origin === "undefined" ? void 0 : config.ii_derivation_origin
@@ -10760,13 +10759,9 @@ async function loadConfig() {
     configCache = fullConfig;
     return fullConfig;
   } catch {
-    if (!backendCanisterId) {
-      console.error("CANISTER_ID_BACKEND is not set");
-      throw new Error("CANISTER_ID_BACKEND is not set");
-    }
     const fallbackConfig = {
       backend_host: void 0,
-      backend_canister_id: backendCanisterId,
+      backend_canister_id: void 0,
       storage_gateway_url: DEFAULT_STORAGE_GATEWAY_URL,
       bucket_name: DEFAULT_BUCKET_NAME,
       project_id: DEFAULT_PROJECT_ID,
@@ -55500,18 +55495,7 @@ function Layout({ children, currentPageName }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "hidden md:block border-t border-border bg-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-6xl mx-auto px-6 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground text-center", children: [
             "© ",
             (/* @__PURE__ */ new Date()).getFullYear(),
-            ". Built with ❤ using",
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "a",
-              {
-                href: `https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`,
-                target: "_blank",
-                rel: "noopener noreferrer",
-                className: "hover:text-primary transition-colors",
-                children: "caffeine.ai"
-              }
-            )
+            ". Powered by PHP & MySQL"
           ] }) }) })
         ]
       }
@@ -63952,124 +63936,12 @@ function AppInner() {
   const [canisterActorState, setCanisterActorState] = reactExports.useState(null);
   const [backendDisconnected, setBackendDisconnected] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (canisterActorRef.current) return;
-    function resolveCanisterId2() {
-      var _a3;
-      const w2 = window;
-      const p0 = w2.__RESOLVED_CANISTER_ID_BACKEND;
-      if (p0 && p0 !== "undefined" && p0 !== "") return p0;
-      const p3 = w2.CANISTER_ID_BACKEND;
-      if (p3 && p3 !== "undefined" && p3 !== "") return p3;
-      const p4 = w2.__CANISTER_ID_BACKEND;
-      if (p4 && p4 !== "undefined" && p4 !== "") return p4;
-      const envObj = w2.__ENV__;
-      const p5 = envObj == null ? void 0 : envObj.CANISTER_ID_BACKEND;
-      if (p5 && p5 !== "undefined" && p5 !== "") return p5;
-      const p5v = envObj == null ? void 0 : envObj.VITE_CANISTER_ID_BACKEND;
-      if (p5v && p5v !== "undefined" && p5v !== "") return p5v;
-      try {
-        const metaVal = (_a3 = document.querySelector('meta[name="canister-id-backend"]')) == null ? void 0 : _a3.getAttribute("content");
-        if (metaVal && metaVal !== "undefined" && metaVal !== "")
-          return metaVal;
-      } catch {
-      }
-      try {
-        const scripts = document.querySelectorAll("script");
-        for (const script of Array.from(scripts)) {
-          const text = script.textContent ?? "";
-          if (!text.includes("CANISTER_ID_BACKEND")) continue;
-          const m1 = text.match(
-            /CANISTER_ID_BACKEND\s*[=:]\s*["']([a-z0-9-]{5,})["']/
-          );
-          if ((m1 == null ? void 0 : m1[1]) && m1[1] !== "undefined") return m1[1];
-          try {
-            const jsonMatch = text.match(/\{[^}]*CANISTER_ID_BACKEND[^}]*\}/);
-            if (jsonMatch) {
-              const parsed = JSON.parse(jsonMatch[0]);
-              if (parsed.CANISTER_ID_BACKEND && parsed.CANISTER_ID_BACKEND !== "undefined")
-                return parsed.CANISTER_ID_BACKEND;
-            }
-          } catch {
-          }
-        }
-      } catch {
-      }
-      try {
-        const g8 = globalThis.__CANISTER_ID_BACKEND;
-        if (g8 && g8 !== "undefined" && g8 !== "") return g8;
-      } catch {
-      }
-      return "";
-    }
-    function tryCreateActor() {
-      if (canisterActorRef.current) return true;
-      const canisterId = resolveCanisterId2();
-      if (!canisterId) return false;
-      try {
-        const actor = createActor(
-          canisterId,
-          async (file) => {
-            const bytes = await file.getBytes();
-            return new Uint8Array(bytes.buffer);
-          },
-          async (bytes) => {
-            const { ExternalBlob: ExternalBlob2 } = await __vitePreload(async () => {
-              const { ExternalBlob: ExternalBlob3 } = await Promise.resolve().then(() => backend);
-              return { ExternalBlob: ExternalBlob3 };
-            }, true ? void 0 : void 0);
-            return ExternalBlob2.fromBytes(
-              new Uint8Array(bytes.buffer)
-            );
-          }
-        );
-        if (!actor) {
-          console.error(
-            "[sync] createActor() returned null/undefined — setCanisterActor not called. Verify the canister ID is correct and the backend is reachable."
-          );
-          return false;
-        }
-        canisterActorRef.current = actor;
-        setCanisterActorState(actor);
-        setCanisterActor(actor);
-        setBackendDisconnected(false);
-        console.info(
-          `[sync] Canister actor initialized with ID: ${canisterId}`
-        );
-        window.__debugSync = () => console.log("canisterId:", canisterId, "actor:", getCanisterActor());
-        return true;
-      } catch (err) {
-        console.error("[sync] Could not create canister actor:", err);
-        return false;
-      }
-    }
-    if (tryCreateActor()) {
-      window.dispatchEvent(new CustomEvent("canisterReady"));
-      return;
-    }
-    console.warn(
-      "[sync] CANISTER_ID_BACKEND not yet available — will retry every 5s (up to 40 attempts).\nIf this is a Vercel deployment: add VITE_CANISTER_ID_BACKEND to your Vercel project\nEnvironment Variables and redeploy. The value is the canister ID from the Caffeine platform."
-    );
+    setCanisterActorState(null);
     setBackendDisconnected(true);
-    let retries = 0;
-    const MAX_RETRIES = 40;
-    const retryInterval = setInterval(() => {
-      retries++;
-      if (tryCreateActor()) {
-        clearInterval(retryInterval);
-        window.dispatchEvent(new CustomEvent("canisterReady"));
-        return;
-      }
-      if (retries >= MAX_RETRIES) {
-        clearInterval(retryInterval);
-        console.error(
-          `[sync] CANISTER_ID_BACKEND could not be resolved after ${MAX_RETRIES} attempts. Sync is disabled.
-FIX FOR VERCEL: Set VITE_CANISTER_ID_BACKEND in Vercel project Environment Variables.
-FIX FOR CAFFEINE: Ensure the backend canister is deployed and the platform has injected CANISTER_ID_BACKEND.
-Tried: __RESOLVED_CANISTER_ID_BACKEND, VITE_CANISTER_ID_BACKEND (env), CANISTER_ID_BACKEND (env), window.CANISTER_ID_BACKEND, window.__CANISTER_ID_BACKEND, __ENV__.CANISTER_ID_BACKEND, <meta name="canister-id-backend">, <script> tag scan, globalThis.__CANISTER_ID_BACKEND`
-        );
-      }
-    }, 5e3);
-    return () => clearInterval(retryInterval);
+    if (typeof setCanisterActor === "function") {
+      setCanisterActor(null);
+    }
+    return;
   }, []);
   const invalidateAll = reactExports.useCallback(() => {
     queryClient2.invalidateQueries({ queryKey: ["patients"] });

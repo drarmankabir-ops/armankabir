@@ -2928,15 +2928,7 @@ function AccountPanel({
 function Footer() {
   return (
     <p className="text-xs text-muted-foreground text-center mt-8">
-      © {new Date().getFullYear()}. Built with ❤ using{" "}
-      <a
-        href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-primary transition-colors"
-      >
-        caffeine.ai
-      </a>
+      © {new Date().getFullYear()}. Dr. Arman Kabir Care — Healthcare Management System powered by PHP &amp; MySQL.
     </p>
   );
 }

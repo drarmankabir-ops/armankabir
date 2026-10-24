@@ -1,7 +1,7 @@
-## 
+##
 
-This source code has been exported from [Caffeine](https://caffeine.ai/)
+This project is configured for a PHP/MySQL deployment.
 
-### Coming Soon
+### Local development
 
-We are working on tools to help you build locally and deploy your apps back to caffeine.
+Use the PHP app and MySQL/MariaDB backend directly, with frontend calls routed through /api endpoints.

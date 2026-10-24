@@ -5626,17 +5626,7 @@ export default function LandingPage({
           {/* Bottom bar */}
           <div className="border-t border-slate-700 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-slate-400 text-center">
-              © {new Date().getFullYear()}{" "}
-              {siteConfig.footerSection.copyrightText} Built with{" "}
-              <Heart className="w-3 h-3 inline text-rose-400" /> using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-slate-200"
-              >
-                caffeine.ai
-              </a>
+              © {new Date().getFullYear()} {siteConfig.footerSection.copyrightText} Powered by PHP &amp; MySQL.
             </p>
             <button
               type="button"

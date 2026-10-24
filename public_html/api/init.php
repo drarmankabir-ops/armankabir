@@ -2,7 +2,7 @@
 /**
  * Dr. Arman Kabir Care — Initialization & Setup Script
  * 
- * Replaces the legacy bash scripts/init.sh for canister initialization
+ * Handles PHP/MySQL application startup and setup checks.
  * Now handles:
  * - Database validation
  * - Migration execution
@@ -34,18 +34,6 @@ define('PROJECT_ROOT', realpath(__DIR__ . '/../../'));
 define('CONFIG_FILE', PROJECT_ROOT . '/public_html/config.php');
 define('MIGRATIONS_DIR', PROJECT_ROOT . '/server-data/migrations');
 define('LOGS_DIR', PROJECT_ROOT . '/logs');
-
-// Legacy canister IDs (for reference, no longer used)
-const LEGACY_CANISTER_IDS = [
-    'CANISTER_ID_AUTH_ROLES' => '<legacy-auth-roles-canister>',
-    'CANISTER_ID_PATIENT_DATA' => '<legacy-patient-data-canister>',
-    'CANISTER_ID_CLINICAL_DATA' => '<legacy-clinical-data-canister>',
-    'CANISTER_ID_ADMISSION_DATA' => '<legacy-admission-data-canister>',
-    'CANISTER_ID_APPOINTMENT_DATA' => '<legacy-appointment-data-canister>',
-    'CANISTER_ID_QUEUE_DATA' => '<legacy-queue-data-canister>',
-    'CANISTER_ID_ALERT_DATA' => '<legacy-alert-data-canister>',
-    'CANISTER_ID_SYNC_DEVICE' => '<legacy-sync-device-canister>',
-];
 
 // Migration order and dependencies
 const INIT_ORDER = [
@@ -333,17 +321,8 @@ ENVIRONMENT VARIABLES:
   DB_PASS               Database password (REQUIRED for production)
   JWT_SECRET            JWT secret key (REQUIRED for sessions)
 
-LEGACY CANISTER IDS (for reference only):
-
-  The following canister IDs were used in the legacy Internet Computer
-  deployment. They are NO LONGER USED. The app now runs on PHP/MySQL.
-
 HELP;
 
-    foreach (LEGACY_CANISTER_IDS as $key => $value) {
-        $help .= "\n  $key = $value";
-    }
-    
     $help .= <<<'HELP'
 
 MIGRATION ORDER (8 domains):

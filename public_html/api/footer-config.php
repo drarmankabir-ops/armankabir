@@ -2,9 +2,8 @@
 /**
  * Dr. Arman Kabir Care — Dynamic Footer Configuration
  * 
- * Replaces static footer links with dynamic PHP configuration
- * Loaded via cPanel environment variables
- * No external service dependencies (no Caffeine, no external CDNs)
+ * Replaces static footer links with dynamic PHP configuration.
+ * Loaded via cPanel environment variables.
  * 
  * Usage:
  * - Call from any frontend page to get footer configuration
