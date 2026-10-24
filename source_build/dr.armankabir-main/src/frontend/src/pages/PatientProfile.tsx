@@ -1019,7 +1019,7 @@ export default function PatientProfile() {
         } else {
           // Fallback: scan localStorage directly
           const doctorEmail = getDoctorEmail();
-          const keys = Object.keys(localStorage).filter(
+          const keys = storage.keys().filter(
             (k) =>
               k.startsWith(`visit_form_data_${targetVisitId}_`) ||
               k === `visit_form_data_${targetVisitId}_${doctorEmail}`,
@@ -1110,20 +1110,12 @@ export default function PatientProfile() {
     } catch {
       /* ignore */
     }
-    const loggedIn = storage.getItem("medicare_logged_in_doctor");
-    if (loggedIn) {
-      try {
-        return JSON.parse(loggedIn) as {
-          name?: string;
-          specialty?: string;
-          degree?: string;
-          photo?: string;
-        };
-      } catch {
-        /* ignore */
-      }
-    }
-    return null;
+    if (!currentDoctor) return null;
+    return {
+      name: currentDoctor.full_name,
+      specialty: currentDoctor.specialization,
+      photo: currentDoctor.photo_url,
+    };
   }
   const doctorInfo = getDoctorSidebarInfo();
 
@@ -2273,13 +2265,7 @@ export default function PatientProfile() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             {/* Incomplete Registration Banner */}
             {(() => {
-              const isIncomplete =
-                (patient as Patient & { registrationComplete?: boolean })
-                  .registrationComplete === false ||
-                (patientId &&
-                  storage.getItem(
-                    `patient_reg_incomplete_${patientId}`,
-                  ) === "true");
+              const isIncomplete = patient.registrationComplete === false;
               if (!isIncomplete) return null;
               return (
                 <div

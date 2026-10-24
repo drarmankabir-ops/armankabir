@@ -14,7 +14,7 @@ These files were reviewed on the `eliminate-browser-business-storage` branch. Th
   - Delete after confirming no component imports `getClinicalStore` or `saveClinicalStore`.
 
 - `source_build/dr.armankabir-main/src/frontend/src/lib/hybridStorage.ts`
-  - Large legacy compatibility layer containing no-op sync queues, canister migration stubs, and legacy clinical-storage names.
+  - Large legacy compatibility layer containing no-op sync queues and legacy clinical-storage names.
   - Delete after all imports are migrated to domain services.
 
 - `source_build/dr.armankabir-main/src/frontend/src/hooks/useAdminSave.ts`

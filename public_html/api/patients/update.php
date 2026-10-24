@@ -48,6 +48,7 @@ try {
         'patient_type' => 'patientType',
         'photo_url' => 'photo',
         'status' => 'status',
+        'registration_complete' => 'registrationComplete',
     ];
     
     foreach ($fields as $dbField => $inputKey) {
@@ -63,6 +64,16 @@ try {
                 $value = sanitizeEmail($input[$inputKey]);
             } elseif ($inputKey === 'bloodGroup') {
                 $value = $input[$inputKey] === 'unknown' ? null : sanitizeString($input[$inputKey]);
+            } elseif ($inputKey === 'registrationComplete') {
+                $value = filter_var(
+                    $input[$inputKey],
+                    FILTER_VALIDATE_BOOLEAN,
+                    FILTER_NULL_ON_FAILURE
+                );
+                if ($value === null) {
+                    errorResponse('Invalid registrationComplete value', 422);
+                }
+                $value = $value ? 1 : 0;
             } else {
                 $value = sanitizeString($input[$inputKey]);
             }

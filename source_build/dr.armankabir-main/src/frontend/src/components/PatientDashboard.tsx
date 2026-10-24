@@ -67,6 +67,7 @@ import {
 } from "../hooks/useAdminSave";
 import type { PatientAccount } from "../hooks/useAdminSave";
 import { getDoctorEmail, getVisitFormData } from "../hooks/useQueries";
+import { storage } from "../lib/storageAdapter";
 import {
   useGetClinicalNotesByPatient,
   useGetEncountersByPatient,
@@ -303,7 +304,7 @@ function RedFlagMonitor({
   const [rfTrendAlerts, setRfTrendAlerts] = useState<TrendAlert[]>([]);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
     try {
-      const raw = sessionStorage.getItem(`dismissed_flags_${patientId}`);
+      const raw = storage.getItem(`session:dismissed_flags_${patientId}`);
       return raw ? new Set(JSON.parse(raw) as string[]) : new Set<string>();
     } catch {
       return new Set<string>();
@@ -413,8 +414,8 @@ function RedFlagMonitor({
     next.add(id);
     setDismissedIds(next);
     try {
-      sessionStorage.setItem(
-        `dismissed_flags_${patientId}`,
+      storage.setItem(
+        `session:dismissed_flags_${patientId}`,
         JSON.stringify([...next]),
       );
     } catch {}

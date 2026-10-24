@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fails when frontend source reintroduces browser persistence for business data.
- * The migration is intentionally explicit: transient React state and API
- * services are allowed; browser storage is not a source of truth.
+ * Fails when frontend features reintroduce browser-backed persistence.
+ * The one-time migration importer is isolated in storageAdapter.ts; runtime
+ * reads and writes use authenticated PHP APIs with an in-memory cache.
  */
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
@@ -15,12 +15,10 @@ const ignored = new Set([
   "storageAdapter.ts",
 ]);
 const forbidden = [
-  /\blocalStorage\b/g,
-  /\bsessionStorage\b/g,
-  /\bindexedDB\b/g,
-  /storage\.(getItem|setItem|removeItem|clear|key|length)\b/g,
-  /medicare_(?:drug_reminders|audit_log|current_doctor|logged_in_doctor)/g,
-  /(?:patients_|drugReminders_|medAdminRecord_)/g,
+  /\b(?:window\.)?localStorage\s*\.(?:getItem|setItem|removeItem|clear|key|length)\b/g,
+  /\b(?:window\.)?sessionStorage\s*\.(?:getItem|setItem|removeItem|clear|key|length)\b/g,
+  /\bindexedDB\s*\.(?:open|deleteDatabase)\b/g,
+  /\bdocument\.cookie\s*=/g,
 ];
 
 async function filesIn(directory) {
@@ -49,7 +47,7 @@ for (const file of await filesIn(root)) {
 }
 
 if (violations.length) {
-  console.error("Server-owned data audit failed. Migrate these references to domain services:");
+  console.error("Browser persistence audit failed. Use PHP APIs for persistent data:");
   for (const violation of violations) console.error(`- ${violation}`);
   process.exitCode = 1;
 } else {

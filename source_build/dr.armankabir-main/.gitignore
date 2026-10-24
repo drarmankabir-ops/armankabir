@@ -42,15 +42,7 @@ ehthumbs.db
 backup/
 .old/
 
-# ICP/Motoko (Legacy - No longer used)
-# Kept for reference but not needed for cPanel deployment
-icp.yaml
-Dockerfile
-mops.toml
-mops.lock
-did/
-
-# Vercel (Legacy - No longer used)
+# Vercel (Legacy)
 vercel.json
 
 # Development

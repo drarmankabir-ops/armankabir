@@ -14,18 +14,24 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
-$owner = preferenceOwner($user);
+$owners = preferenceOwners($user);
 
 try {
     $db = preferencesDb();
 
-    $stmt = $db->prepare('SELECT COUNT(*) FROM user_preferences WHERE owner_key = :owner');
-    $stmt->execute([':owner' => $owner]);
+    $stmt = $db->prepare(
+        'SELECT COUNT(DISTINCT pref_key) FROM user_preferences
+         WHERE owner_key IN (:clinic_owner, :principal_owner)'
+    );
+    $stmt->execute([
+        ':clinic_owner' => $owners[0],
+        ':principal_owner' => $owners[count($owners) - 1],
+    ]);
 
     successResponse([
         'count' => (int) $stmt->fetchColumn(),
     ], 'Preference count retrieved');
 
 } catch (Throwable $e) {
-    dbErrorResponse($e, 'preferences/count.php', ['owner' => $owner]);
+    dbErrorResponse($e, 'preferences/count.php', ['owners' => $owners]);
 }

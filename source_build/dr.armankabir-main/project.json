@@ -10,7 +10,7 @@
     "Clinical alerts (Sepsis, AKI, NEWS2, hypoglycemia) auto-calculated from vitals",
     "Fully admin-editable public landing page with interactive clinic maps, appointment booking, and bilingual toggle",
     "Educational classroom with Announcements, Lecture Notes, Video Lectures, and Picture Gallery tabs",
-    "Offline-first with canister cloud sync, build-time canister ID embedding for reliable Vercel deployments"
+    "Server-backed PHP/MySQL data access through REST API endpoints"
   ],
   "category": "healthcare-app",
   "tags": [

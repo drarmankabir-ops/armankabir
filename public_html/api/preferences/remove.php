@@ -15,7 +15,6 @@ handleCors();
 requireMethod('POST');
 
 $user = requireAuth();
-$owner = preferenceOwner($user);
 
 try {
     $input = getJsonInput();
@@ -26,14 +25,17 @@ try {
     }
 
     $key = assertPreferenceKey($input['key']);
+    $owner = preferenceOwner($user, $key);
 
     $db = preferencesDb();
 
     $stmt = $db->prepare(
-        'DELETE FROM user_preferences WHERE owner_key = :owner AND pref_key = :key'
+        'DELETE FROM user_preferences
+         WHERE pref_key = :key AND owner_key IN (:owner, :legacy_owner)'
     );
     $stmt->execute([
         ':owner' => $owner,
+        ':legacy_owner' => preferenceOwner($user),
         ':key'   => $key,
     ]);
 

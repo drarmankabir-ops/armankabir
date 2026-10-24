@@ -100,16 +100,42 @@ export function useCreateVitals() { const qc = useQueryClient(); return useMutat
 export function useGetAllBeds() { return useQuery({ queryKey: ['beds'], queryFn: () => admissionService.getAllBeds() }); }
 export function useGetBedsByWard(ward: string | null) { return useQuery({ queryKey: ['beds', ward], queryFn: () => admissionService.getBedsByWard(ward!), enabled: !!ward }); }
 export function useCreateBed() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: Parameters<typeof admissionService.createBed>[0]) => admissionService.createBed(data), onSuccess: () => qc.invalidateQueries({ queryKey: ['beds'] }) }); }
+export function useAdmitPatient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof admissionService.admit>[0]) => admissionService.admit(data),
+    onSuccess: (_, data) => {
+      qc.invalidateQueries({ queryKey: ['admissions', data.patientId] });
+      qc.invalidateQueries({ queryKey: ['beds'] });
+    },
+  });
+}
+export function useDischargePatient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { patientId: number; dischargedBy?: string }) => {
+      const admissions = await admissionService.getByPatient(data.patientId);
+      const activeAdmission = admissions.find((admission) => admission.status !== 'discharged');
+      if (!activeAdmission) {
+        throw new Error('No active admission exists for this patient.');
+      }
+      return admissionService.discharge(Number(activeAdmission.id));
+    },
+    onSuccess: (_, data) => {
+      qc.invalidateQueries({ queryKey: ['admissions', data.patientId] });
+      qc.invalidateQueries({ queryKey: ['patient', data.patientId] });
+      qc.invalidateQueries({ queryKey: ['beds'] });
+    },
+  });
+}
 export function useCreateBedRecord() { return useCreateBed(); }
 export function useAssignBed() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: { bedId: number; patientId: number }) => admissionService.assignBed(data.bedId, data.patientId), onSuccess: () => qc.invalidateQueries({ queryKey: ['beds'] }) }); }
 
 export function useSyncStatus() { return useQuery({ queryKey: ['syncStatus'], queryFn: async () => ({ isOnline: navigator.onLine, pendingChanges: false, lastSyncAt: new Date() }) }); }
 export function isNetworkOnline() { return navigator.onLine; }
 
-/** Removed legacy browser-storage and canister compatibility helpers. */
+/** Removed legacy browser-storage compatibility helpers. */
 export function createPatientInStorage(): never { throw new Error('Use patientService.create()'); }
-export function setCanisterActor(): never { throw new Error('Canister integrations are not supported.'); }
-export function getCanisterActor(): null { return null; }
 export function getDoctorEmail(email?: string) { return email ?? ''; }
 export function storageKey(): never { throw new Error('Business data must use a domain API service.'); }
 export function loadFromStorage(): never { throw new Error('Business data must use a domain API service.'); }

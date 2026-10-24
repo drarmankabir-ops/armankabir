@@ -7,8 +7,8 @@
  *   - preferenceOwner()        : resolves the authenticated principal
  *   - assertPreferenceKey()    : validates the key + rejects credential material
  *
- * The store is a per-principal key/value map. Keys are scoped to the owning
- * principal, so one user can never read or overwrite another user's data.
+ * The store separates shared clinic records from personal account preferences.
+ * Patient sessions remain isolated from staff and clinic-wide records.
  */
 
 require_once __DIR__ . '/../database.php';
@@ -111,14 +111,39 @@ function ensurePreferencesSchema(PDO $db): array
 }
 
 /**
- * Resolve the authenticated principal into a stable ownership key.
+ * Resolve an authenticated principal and preference key into an ownership key.
  *
  * Prefixes keep the namespace unambiguous so a staff id of "3" can never
  * collide with a patient id of "3".
  *
- * @return string e.g. "user:12", "patient:45", "admin_content:7"
+ * @return string e.g. "clinic:1", "user:12", "patient:45"
  */
-function preferenceOwner(?array $user): string
+function isPersonalPreferenceKey(string $key): bool
+{
+    $key = strtolower($key);
+    if (str_starts_with($key, 'session:')) {
+        return true;
+    }
+
+    return in_array($key, [
+        'theme',
+        'sidebar_collapsed',
+        'sidebar_state',
+        'patient_language',
+        'language',
+        'user_id',
+        'app_current_user_email',
+        'medicare_last_sync',
+        'medicare_last_sync_at',
+        'medicare_last_login',
+    ], true);
+}
+
+/**
+ * Shared legacy clinical/operational records use a clinic-wide namespace for
+ * staff accounts. Personal UI/session preferences remain per account.
+ */
+function preferenceOwner(?array $user, ?string $key = null): string
 {
     if (!$user) {
         errorResponse('Authentication required. Please log in.', 401);
@@ -141,7 +166,31 @@ function preferenceOwner(?array $user): string
         errorResponse('Unable to resolve the current account. Please sign in again.', 401);
     }
 
+    if ($type === 'user' && $key !== null && !isPersonalPreferenceKey($key)) {
+        return 'clinic:1';
+    }
+
     return $type . ':' . (int) $id;
+}
+
+/**
+ * Storage scopes visible to the authenticated principal.
+ *
+ * @return string[]
+ */
+function preferenceOwners(?array $user): array
+{
+    if (!$user) {
+        errorResponse('Authentication required. Please log in.', 401);
+    }
+
+    $type = (string) ($user['session_type'] ?? 'user');
+    $owner = preferenceOwner($user);
+    if ($type === 'user') {
+        return ['clinic:1', $owner];
+    }
+
+    return [$owner];
 }
 
 /**
@@ -172,7 +221,8 @@ function assertPreferenceKey(mixed $key): string
         errorResponse('Invalid preference key. Control characters are not allowed.', 422);
     }
 
-    if (in_array(strtolower($key), forbiddenPreferenceKeys(), true)) {
+    $forbiddenKeys = array_map('strtolower', forbiddenPreferenceKeys());
+    if (in_array(strtolower($key), $forbiddenKeys, true)) {
         authError('preferences', 'Rejected attempt to persist credential material', [
             'key'        => $key,
             'request_id' => getRequestId(),

@@ -862,9 +862,7 @@ export default function BedManagement() {
         : b,
     ) as unknown[];
     saveClinicalStore(store);
-    // No canister sync — data is server-side via PHP
     const updatedBeds = (store.beds as BedRecord[]) ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds);
     refetch();
     toast.warning(
       `Bed ${bed.bedNumber} reservation expired and released — ${bed.reservedForPatient ?? "patient"} did not arrive`,
@@ -983,11 +981,9 @@ export default function BedManagement() {
       ...b,
       id: BigInt(String(b.id ?? 0)),
     }));
-    store.beds = normalised.map(updater) as unknown[];
+    store.beds = normalised.map(updater    ) as unknown[];
     saveClinicalStore(store);
-    // No canister sync — data is server-side via PHP
     const updatedBeds = (store.beds as BedRecord[]) ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds);
     refetch();
   }
 
@@ -1133,9 +1129,7 @@ export default function BedManagement() {
       return b;
     }) as unknown[];
     saveClinicalStore(store);
-    // No canister sync — data is server-side via PHP
     const updatedBeds = (store.beds as BedRecord[]) ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds);
     refetch();
     setShowTransferDialog(false);
     setTransferBedId("");

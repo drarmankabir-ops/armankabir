@@ -15,7 +15,7 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
-$owner = preferenceOwner($user);
+$owners = preferenceOwners($user);
 
 try {
     $rawIndex = getParam('index', 0);
@@ -38,11 +38,15 @@ try {
     // portable across MySQL/MariaDB.
     $stmt = $db->prepare(
         'SELECT pref_key FROM user_preferences
-         WHERE owner_key = :owner
+         WHERE owner_key IN (:clinic_owner, :principal_owner)
+         GROUP BY pref_key
          ORDER BY pref_key ASC
          LIMIT 1 OFFSET ' . $index
     );
-    $stmt->execute([':owner' => $owner]);
+    $stmt->execute([
+        ':clinic_owner' => $owners[0],
+        ':principal_owner' => $owners[count($owners) - 1],
+    ]);
 
     $key = $stmt->fetchColumn();
 
@@ -52,5 +56,5 @@ try {
     ], 'Preference key retrieved');
 
 } catch (Throwable $e) {
-    dbErrorResponse($e, 'preferences/key.php', ['owner' => $owner]);
+    dbErrorResponse($e, 'preferences/key.php', ['owners' => $owners]);
 }

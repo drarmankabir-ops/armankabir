@@ -1099,12 +1099,8 @@ export default function EmergencyPrescription() {
           .filter(Boolean),
         pastSurgicalHistory: null,
         patientType: "emergency",
+        registrationComplete: false,
       });
-
-      // Mark registration as incomplete for emergency patients
-      try {
-        storage.setItem(`patient_reg_incomplete_${newPat.id}`, "true");
-      } catch {}
 
       setSelectedPatient(newPat);
       setIsNewPatient(true);

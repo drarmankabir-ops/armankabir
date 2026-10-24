@@ -79,6 +79,7 @@ export interface CreatePatientData {
   pastSurgicalHistory?: string | null;
   patientType?: string;
   photo?: string | null;
+  registrationComplete?: boolean;
 }
 
 export interface UpdatePatientData extends Partial<CreatePatientData> {
@@ -136,6 +137,7 @@ export const patientService = {
       pastSurgicalHistory: data.pastSurgicalHistory || null,
       patientType: data.patientType ?? 'outdoor',
       photo: data.photo || null,
+      registrationComplete: data.registrationComplete !== false,
     };
     const result = await post<Record<string, any>>('/patients/create.php', payload);
     return mapFromApi<Patient>(result, patientMapping, patientTransforms)!;
@@ -160,6 +162,7 @@ export const patientService = {
     if (data.pastSurgicalHistory !== undefined) payload.pastSurgicalHistory = data.pastSurgicalHistory;
     if (data.patientType !== undefined) payload.patientType = data.patientType;
     if (data.photo !== undefined) payload.photo = data.photo;
+    if (data.registrationComplete !== undefined) payload.registrationComplete = data.registrationComplete;
     const result = await post<Record<string, any>>('/patients/update.php', payload);
     return mapFromApi<Patient>(result, patientMapping, patientTransforms)!;
   },
@@ -168,4 +171,5 @@ export const patientService = {
   async delete(id: number): Promise<void> {
     await del('/patients/delete.php', { id });
   },
+
 };

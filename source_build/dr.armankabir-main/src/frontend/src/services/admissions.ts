@@ -20,32 +20,26 @@ export const admissionService = {
   async admit(data: {
     patientId: number;
     ward?: string;
-    bedId?: number;
-    admittedBy?: string;
+    bedNumber?: string;
+    admissionDate?: string;
+    department?: string;
     diagnosis?: string;
-    notes?: string;
   }): Promise<any> {
     return post<any>('/admissions/create.php', {
-      patient_id: data.patientId,
+      patientId: data.patientId,
       ward: data.ward,
-      bed_id: data.bedId,
-      admitted_by: data.admittedBy,
+      bedNumber: data.bedNumber,
+      admissionDate: data.admissionDate,
+      department: data.department,
       diagnosis: data.diagnosis,
-      notes: data.notes,
     });
   },
 
   /** Discharge a patient */
-  async discharge(admissionId: number, data: {
-    dischargeDate?: string;
-    dischargeSummary?: string;
-    dischargedBy?: string;
-  }): Promise<void> {
+  async discharge(admissionId: number, data: { dischargeSummary?: string }): Promise<void> {
     await post('/admissions/discharge.php', {
-      admission_id: admissionId,
-      discharge_date: data.dischargeDate,
-      discharge_summary: data.dischargeSummary,
-      discharged_by: data.dischargedBy,
+      id: admissionId,
+      dischargeSummary: data.dischargeSummary,
     });
   },
 
@@ -68,11 +62,11 @@ export const admissionService = {
 
   /** Assign a patient to a bed */
   async assignBed(bedId: number, patientId: number): Promise<void> {
-    await post('/beds/assign.php', { bed_id: bedId, patient_id: patientId });
+    await post('/beds/assign.php', { bedId, patientId });
   },
 
   /** Release a bed */
-  async releaseBed(bedId: number): Promise<void> {
-    await post('/beds/release.php', { bed_id: bedId });
+  async releaseBed(bedId: number, status = 'cleaning', notes?: string): Promise<void> {
+    await post('/beds/release.php', { bedId, status, notes });
   },
 };

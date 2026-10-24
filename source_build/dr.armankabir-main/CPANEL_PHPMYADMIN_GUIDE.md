@@ -275,7 +275,6 @@ curl -v https://yourdomain.com/admin/settings
 **Symptom:** Page loads slowly, large JS/CSS files, no compression
 
 **Causes:**
-- Unnecessary ICP dependencies (~500KB unused)
 - Unoptimized images
 - GZIP not enabled in .htaccess
 
@@ -285,11 +284,10 @@ curl -v https://yourdomain.com/admin/settings
 curl -I https://yourdomain.com | grep -i gzip
 # Should show: Content-Encoding: gzip
 
-# 2. Remove ICP packages (optional)
+# 2. Rebuild the frontend against the PHP API
 cd src/frontend
-pnpm remove @dfinity/agent @dfinity/auth-client @dfinity/candid \
-  @dfinity/identity @dfinity/principal @icp-sdk/core
-pnpm build
+npm ci
+npm run build
 bash ../../deploy.sh
 
 # 3. Optimize images
@@ -317,9 +315,9 @@ ls -la | head
 # Should show: drwxr-xr-x (755) for directories
 ```
 
-### Issue: PHP Not Working (if backend uses PHP)
+### Issue: PHP API Not Working
 
-**Note:** Current app is React frontend only. If you add PHP backend:
+The application uses PHP endpoints under `/api`. If an API request fails:
 
 1. Save PHP files in appropriate directory (not in public_html root)
 2. Configure PHP version in cPanel: **Software → Select PHP Version**

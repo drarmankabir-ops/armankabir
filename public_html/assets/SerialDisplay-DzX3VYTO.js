@@ -1,8 +1,26 @@
-import { i as createLucideIcon, j as jsxRuntimeExports, r as reactExports, ab as TriangleAlert, bE as Wifi, bF as WifiOff, A as AnimatePresence, m as motion, a3 as Users, X } from "./index-DJeWhCy-.js";
-import { U as UserPlus } from "./user-plus-BJkC4ige.js";
-import { M as MonitorPlay } from "./monitor-play-DHOzn285.js";
-import { S as Search } from "./search-BLymxia-.js";
-import { P as Plus } from "./plus-CHPIrJ6M.js";
+import { c as createLucideIcon, j as jsxRuntimeExports, r as reactExports, o as useEmailAuth, m as motion, s as storage, X } from "./index-DB3-P7-3.js";
+import { g as getDoctorEmail } from "./useQueries-BzG5iKzm.js";
+import { T as TriangleAlert } from "./triangle-alert-DyS7o7G0.js";
+import { U as UserPlus } from "./user-plus-DqqtX_zx.js";
+import { W as Wifi, a as WifiOff } from "./wifi-Ijj05nuG.js";
+import { A as AnimatePresence } from "./index-tUZISnlx.js";
+import { U as Users } from "./users-B0f2CR3R.js";
+import { S as Search } from "./search-Sa5xbG12.js";
+import { P as Plus } from "./plus-EM3jMXn0.js";
+import "./useMutation-B-WOXLO7.js";
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$3 = [
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "m21 3-7 7", key: "1l2asr" }],
+  ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
+  ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
+];
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$3);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -10,12 +28,18 @@ import { P as Plus } from "./plus-CHPIrJ6M.js";
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2 = [
-  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
-  ["path", { d: "m21 3-7 7", key: "1l2asr" }],
-  ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
-  ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
+  [
+    "path",
+    {
+      d: "M10 7.75a.75.75 0 0 1 1.142-.638l3.664 2.249a.75.75 0 0 1 0 1.278l-3.664 2.25a.75.75 0 0 1-1.142-.64z",
+      key: "1pctta"
+    }
+  ],
+  ["path", { d: "M12 17v4", key: "1riwvh" }],
+  ["path", { d: "M8 21h8", key: "1ev6f3" }],
+  ["rect", { x: "2", y: "3", width: "20", height: "14", rx: "2", key: "x3v2xh" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$2);
+const MonitorPlay = createLucideIcon("monitor-play", __iconNode$2);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -52,9 +76,6 @@ const __iconNode = [
   ["line", { x1: "16", x2: "22", y1: "9", y2: "15", key: "5ykzw1" }]
 ];
 const VolumeX = createLucideIcon("volume-x", __iconNode);
-function todayKey() {
-  return `clinic_serials_${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}`;
-}
 const DEFAULT_VIDEO_URL = "https://www.youtube.com/embed/videoseries?list=PLbpi6ZahtOH6Ar_3GPy3workfN8S9-fvo&autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&modestbranding=1";
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -66,24 +87,17 @@ function nowTime() {
 function todayKeyLocal() {
   return `clinic_serials_${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}`;
 }
-function canAddWalkIn() {
-  try {
-    const raw = localStorage.getItem("medicare_current_doctor");
-    if (!raw) return false;
-    const user = JSON.parse(raw);
-    const allowedRoles = ["doctor", "consultant_doctor", "staff", "admin"];
-    return allowedRoles.includes(user.role ?? "");
-  } catch {
-    return false;
-  }
+function canAddWalkInByRole(role) {
+  const allowedRoles = ["doctor", "consultant_doctor", "staff", "admin"];
+  return !!role && allowedRoles.includes(role);
 }
 function getAllPatientNames() {
   const results = [];
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
       if (!(key == null ? void 0 : key.startsWith("patients_"))) continue;
-      const arr = JSON.parse(localStorage.getItem(key) || "[]");
+      const arr = JSON.parse(storage.getItem(key) || "[]");
       for (const p of arr) {
         if (p.fullName)
           results.push({ name: p.fullName, phone: p.phone ?? "" });
@@ -95,15 +109,12 @@ function getAllPatientNames() {
 }
 function resolveVideoUrl() {
   try {
-    const email = localStorage.getItem("app_current_user_email");
-    if (email) {
-      const custom = localStorage.getItem(`serialDisplayVideoUrl_${email}`);
-      if (custom == null ? void 0 : custom.trim()) return toDisplayEmbedUrl(custom.trim());
-    }
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
+    const email = getDoctorEmail();
+    if (email) ;
+    for (let i = 0; i < storage.length; i++) {
+      const k = storage.key(i);
       if (k == null ? void 0 : k.startsWith("serialDisplayVideoUrl_")) {
-        const v = localStorage.getItem(k);
+        const v = storage.getItem(k);
         if (v == null ? void 0 : v.trim()) return toDisplayEmbedUrl(v.trim());
       }
     }
@@ -179,26 +190,6 @@ class QueueErrorBoundary extends reactExports.Component {
       ] }) });
     }
     return this.props.children;
-  }
-}
-const QUEUE_NOTE_SUBTYPE = "queue_display";
-async function tryPullQueueFromCanister() {
-  try {
-    const actor = window.__canisterActorForQueue;
-    if (!actor || !navigator.onLine) return [];
-    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    const notes = await actor.getClinicalNotesByType(0n, "General");
-    const queueNotes = notes.filter((n) => n.noteSubtype === QUEUE_NOTE_SUBTYPE).sort((a, b) => Number(b.createdAt - a.createdAt));
-    if (queueNotes.length === 0) return [];
-    const parsed = JSON.parse(queueNotes[0].content);
-    if (parsed !== null && typeof parsed === "object" && "date" in parsed && parsed.date === today && "entries" in parsed) {
-      return safeParseQueue(
-        JSON.stringify(parsed.entries)
-      );
-    }
-    return [];
-  } catch {
-    return [];
   }
 }
 function WalkInModal({ open, onClose, onAdd }) {
@@ -496,10 +487,10 @@ function SerialDisplayInner() {
   const [hasError, setHasError] = reactExports.useState(false);
   const [videoUrl, setVideoUrl] = reactExports.useState(() => resolveVideoUrl());
   const [videoLoadError, setVideoLoadError] = reactExports.useState(false);
+  const { currentDoctor } = useEmailAuth();
+  const allowWalkIn = canAddWalkInByRole(currentDoctor == null ? void 0 : currentDoctor.role);
   const [showWalkIn, setShowWalkIn] = reactExports.useState(false);
-  const allowWalkIn = canAddWalkIn();
   const prevNowServingIdRef = reactExports.useRef(null);
-  const lastCanisterPollRef = reactExports.useRef(0);
   reactExports.useEffect(() => {
     const iv = setInterval(() => setTime(/* @__PURE__ */ new Date()), 1e3);
     return () => clearInterval(iv);
@@ -554,24 +545,11 @@ function SerialDisplayInner() {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
   reactExports.useEffect(() => {
-    const load = async () => {
+    const load = () => {
       try {
-        const raw = localStorage.getItem(todayKeyLocal());
+        const raw = storage.getItem(todayKeyLocal());
         const localEntries = safeParseQueue(raw);
-        const now = Date.now();
-        let merged = localEntries;
-        if (now - lastCanisterPollRef.current >= 5e3) {
-          lastCanisterPollRef.current = now;
-          const remoteEntries = await tryPullQueueFromCanister();
-          if (remoteEntries.length > 0) {
-            merged = mergeQueues(localEntries, remoteEntries);
-            try {
-              localStorage.setItem(todayKey(), JSON.stringify(merged));
-            } catch {
-            }
-          }
-        }
-        setSerials(merged);
+        setSerials(localEntries);
         setHasError(false);
       } catch (err) {
         console.error("SerialDisplay poll error:", err);
@@ -622,7 +600,7 @@ function SerialDisplayInner() {
     const updated = [...serials, newEntry];
     setSerials(updated);
     try {
-      localStorage.setItem(todayKeyLocal(), JSON.stringify(updated));
+      storage.setItem(todayKeyLocal(), JSON.stringify(updated));
       const bc = new BroadcastChannel("clinic_queue_sync");
       bc.postMessage(updated);
       bc.close();

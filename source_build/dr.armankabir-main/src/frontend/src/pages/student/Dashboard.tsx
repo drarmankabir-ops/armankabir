@@ -14,8 +14,7 @@ export default function StudentDashboard() {
   const { toast } = useToast();
 
   // Get student ID from the auth state (set during login)
-  const studentId = Number(location.state?.userId) || 
-                    (typeof window !== 'undefined' ? parseInt(localStorage.getItem('user_id') || '0') : 0);
+  const studentId = Number(location.state?.userId) || 0;
 
   const { data: dashboard, isLoading } = useStudentDashboard(studentId);
 
@@ -63,7 +62,7 @@ export default function StudentDashboard() {
           <StatCard>
             <StatCard.Title>{t('my_courses')}</StatCard.Title>
             <StatCard.Value>{my_courses.length}</StatCard.Value>
-            <StatCard.Change positive>{true}>{t('courses_enrolled')}</StatCard.Change>
+            <StatCard.Change positive>{t('courses_enrolled')}</StatCard.Change>
           </StatCard>
           <StatCard>
             <StatCard.Title>{t('courses_completed')}</StatCard.Title>

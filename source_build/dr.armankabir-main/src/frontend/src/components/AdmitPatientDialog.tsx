@@ -146,6 +146,10 @@ export default function AdmitPatientDialog({
     }
 
     const isIntern = viewerRole === "intern_doctor";
+    if (isIntern) {
+      toast.error("PHP admissions do not support draft approval yet.");
+      return;
+    }
     const selectedConsultant = selectedConsultantEmail
       ? consultants.find((c) => c.email === selectedConsultantEmail)
       : null;
@@ -153,38 +157,15 @@ export default function AdmitPatientDialog({
     admitMutation.mutate(
       {
         patientId,
-        hospitalName: hospitalName.trim(),
         ward: ward.trim(),
-        bed: bed.trim(),
-        admittedOn: new Date(admittedOn).toISOString(),
-        admittedBy: doctorName,
-        admittedByRole: viewerRole ?? "consultant_doctor",
-        reasonForAdmission: reason.trim() || suggestedReason,
-        carriedOverComplaints: carryComplaints ? extractedComplaints : [],
-        carriedOverDiagnosis: carryDiagnosis ? extractedDiagnosis : [],
-        carriedOverDrugHistory: carryDrugHistory ? extractedDrugHistory : [],
-        carriedOverPrescriptions: carryPrescriptions
-          ? extractedPrescriptionIds
-          : [],
-        isIntern,
-        ...(selectedConsultant
-          ? {
-              consultantAssignment: {
-                email: selectedConsultant.email,
-                name: selectedConsultant.name,
-                assignedAt: new Date().toISOString(),
-                assignedBy: getDoctorEmail(),
-              },
-            }
-          : {}),
+        bedNumber: bed.trim(),
+        admissionDate: new Date(admittedOn).toISOString(),
+        department: hospitalName.trim(),
+        diagnosis: reason.trim() || suggestedReason,
       },
       {
         onSuccess: () => {
-          toast.success(
-            isIntern
-              ? "Admission created as draft — awaiting approval by Consultant or MO."
-              : "Patient admitted successfully. Admission history created.",
-          );
+          toast.success("Patient admitted successfully. Admission history created.");
           onClose();
         },
         onError: () =>

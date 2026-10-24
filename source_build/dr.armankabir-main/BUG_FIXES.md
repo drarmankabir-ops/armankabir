@@ -8,11 +8,11 @@
 - **Fix**: Changed to `ExpiresDefault "access plus 2 days"`
 - **Impact**: .htaccess was likely failing silently, breaking SPA routing
 
-### ✓ BUG #2: scripts/deploy.sh References ICP (CRITICAL)
+### ✓ BUG #2: Obsolete deployment path
 - **File**: `scripts/deploy.sh`
-- **Issue**: Old ICP deployment script trying to build Motoko canisters with `mops`
-- **Fix**: Marked as deprecated, redirects to cPanel deployment
-- **Impact**: Would cause build failures if accidentally executed
+- **Issue**: The old deployment path referenced unsupported backend targets.
+- **Fix**: It now delegates to the PHP/MySQL-aware cPanel deployment script.
+- **Impact**: Deployment follows the supported PHP API architecture.
 
 ### ✓ BUG #3: deploy.sh Lacks Error Handling
 - **File**: `deploy.sh` (root)
@@ -31,19 +31,9 @@
 - **Fix**: Created `env.json` and `.env.example` with sensible defaults
 - **Impact**: Consistent environment configuration
 
-### ✓ BUG #5: Frontend Has ICP Dependencies
-- **Files**: `src/frontend/package.json`
-- **Issue**: Contains `@dfinity/agent`, `@icp-sdk/core` - ICP packages not needed for cPanel
-- **Note**: These won't break cPanel but will add unnecessary bundle size (~500KB)
-- **Recommendation**: Remove ICP packages if not using them in code
-  ```bash
-  # Optional: Run from src/frontend/
-  pnpm remove @dfinity/agent @dfinity/auth-client @dfinity/candid @dfinity/identity @dfinity/principal @icp-sdk/core
-  ```
-
 ### ✓ BUG #6: Updated .gitignore
 - **File**: `.gitignore`
-- **Issue**: Outdated for cPanel, listed ICP/Vercel as active
+- **Issue**: Outdated for cPanel and listed legacy deployment platforms as active
 - **Fix**: Added comments marking legacy configs, cleaner exclusions
 - **Impact**: Cleaner repository state
 
@@ -79,7 +69,7 @@
 2. Verify deployment in `public_html`
 3. Test application in browser
 4. Check cPanel error logs if issues occur
-5. (Optional) Remove unused ICP dependencies for smaller bundle size
+5. Confirm application requests are served by the PHP API
 
 ## Files Modified
 

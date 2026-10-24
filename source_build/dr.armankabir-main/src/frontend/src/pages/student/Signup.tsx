@@ -1,21 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, CardContent, CardHeader, Input, Label } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-
-import { useClassroom } from '@/hooks/useClassroom';
-import { StudentSignupData } from '@/services/classroomService';
+import { post } from '@/lib/apiClient';
+import type { StudentSignupData, StudentSignupResponse } from '@/services/classroomService';
 
 export default function StudentSignupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
-  const [router] = useNavigationState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<StudentSignupData>({
     resolver: yupResolver(
@@ -37,28 +33,13 @@ export default function StudentSignupPage() {
   const onSubmit = async (values: StudentSignupData) => {
     setIsSubmitting(true);
     try {
-      const result = await classroomService.createCourse is not defined wait wait no wait. Let me look at the actual classroom service - it's createCourse not signup. But we need a signup method. Let me use the proper method.
-
-Actually, I need to add a signup method to the classroom service, or I can use the existing patterns. Let me check what's available.
-
-Looking at the service, I see createCourse but not signup. I need to either add a signup method or use the auth flow differently. Let me use the pattern from the existing auth system.
-
-Actually, let me just use a POST to the API endpoint directly or create a signup method. Since the signup API exists at /api/classroom/auth/signup, I can use that.
-
-Let me use fetch or the apiClient.
-
-Actually, let me create a proper signup using the existing API pattern.
-
-import { post } from '@/lib/apiClient';
-
-const response = await post('/api/classroom/auth/signup', values);
-console.log(response);
-
-setIsSubmitting(false);
-navigate('/student/pending');
-    } catch (error: any) {
-      console.error('Signup error:', error);
-      // Error shown by form resolver
+      await post<StudentSignupResponse>('/classroom/auth/signup.php', values);
+      navigate('/student/pending');
+    } catch (error) {
+      form.setError('root', {
+        message: error instanceof Error ? error.message : t('signup_failed'),
+      });
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -69,12 +50,17 @@ navigate('/student/pending');
         <h2 className="text-xl font-bold">{t('student_signup')}</h2>
       </CardHeader>
       <CardContent>
+        {form.formState.errors.root && (
+          <p role="alert" className="text-sm text-destructive">
+            {form.formState.errors.root.message}
+          </p>
+        )}
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
           <div className="space-y-4">
             <Label htmlFor="name">{t('name')}</Label>
             <Input
               id="name"
-              {...register('name')}
+              {...form.register('name')}
               placeholder={t('name_placeholder')}
               className="h-10"
               required
@@ -83,7 +69,7 @@ navigate('/student/pending');
             <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
-              {...register('email')}
+              {...form.register('email')}
               type="email"
               placeholder={t('email_placeholder')}
               className="h-10"
@@ -93,7 +79,7 @@ navigate('/student/pending');
             <Label htmlFor="password">{t('password')}</Label>
             <Input
               id="password"
-              {...register('password')}
+              {...form.register('password')}
               type="password"
               placeholder={t('password_placeholder')}
               className="h-10"
@@ -103,7 +89,7 @@ navigate('/student/pending');
             <Label htmlFor="student_id">{t('student_id')}</Label>
             <Input
               id="student_id"
-              {...register('student_id')}
+              {...form.register('student_id')}
               placeholder={t('student_id_placeholder')}
               className="h-10"
               required

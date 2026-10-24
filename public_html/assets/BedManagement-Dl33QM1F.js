@@ -1,14 +1,17 @@
-import { i as createLucideIcon, U as useGetAllBeds, V as useAssignBed, W as useCreateBedRecord, r as reactExports, Y as loadFromAllDoctorKeys, j as jsxRuntimeExports, Z as Bed, B as Button, I as Input, D as Dialog, s as DialogContent, t as DialogHeader, v as DialogTitle, b as CircleCheck, u as ue, L as Label, $ as saveClinicalEntitiesWithSync, C as ChevronUp, a as ChevronDown, c as Clock, a0 as getCanisterActor } from "./index-DJeWhCy-.js";
-import { S as ScrollArea } from "./scroll-area-DUDQuZCi.js";
-import { P as Plus } from "./plus-CHPIrJ6M.js";
-import { B as Building2 } from "./building-2-CMX9_teL.js";
-import { L as Layers } from "./layers-DwYKTjmE.js";
-import { S as Sparkles } from "./sparkles-BXWJULex.js";
-import { S as Search } from "./search-BLymxia-.js";
-import { f as formatDistanceToNow, d as differenceInDays } from "./formatDistanceToNow-C2IQJfe9.js";
+import { c as createLucideIcon, r as reactExports, j as jsxRuntimeExports, B as Button, I as Input, D as Dialog, p as DialogContent, q as DialogHeader, t as DialogTitle, b as CircleCheck, u as ue, L as Label, s as storage, C as ChevronUp, a as ChevronDown } from "./index-DB3-P7-3.js";
+import { S as ScrollArea } from "./scroll-area-B8JvH1pV.js";
+import { b as useGetAllBeds, c as useAssignBed, d as useCreateBedRecord, l as loadFromAllDoctorKeys } from "./useQueries-BzG5iKzm.js";
+import { B as Bed } from "./bed-D0RS6gS2.js";
+import { P as Plus } from "./plus-EM3jMXn0.js";
+import { B as Building2 } from "./building-2-Cgwvatpa.js";
+import { L as Layers } from "./layers-9ExhfesL.js";
+import { S as Sparkles } from "./sparkles-BALOavvP.js";
+import { S as Search } from "./search-Sa5xbG12.js";
+import { f as formatDistanceToNow, L as LogOut, d as differenceInDays } from "./formatDistanceToNow-Cni8Ir6M.js";
 import { f as format } from "./format-C8K1a6Fc.js";
-import { C as CircleAlert } from "./circle-alert-3N-VW3xt.js";
-import { L as LogOut } from "./log-out-BVpvzsgE.js";
+import { C as CircleAlert } from "./circle-alert-DnbBE6-I.js";
+import { C as Clock } from "./clock-CXAMxnnW.js";
+import "./useMutation-B-WOXLO7.js";
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -49,21 +52,8 @@ const __iconNode = [
   ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
 ];
 const Timer = createLucideIcon("timer", __iconNode);
-const CLINICAL_STORAGE_KEY = "medicare_clinical_data";
 function getClinicalStore() {
-  try {
-    const raw = localStorage.getItem(CLINICAL_STORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-function saveClinicalStore(store) {
-  try {
-    localStorage.setItem(CLINICAL_STORAGE_KEY, JSON.stringify(store));
-  } catch {
-  }
+  return {};
 }
 const normBigInt = (val) => {
   try {
@@ -227,7 +217,6 @@ function seedBedsIfEmpty() {
     }
   ];
   store.beds = seeds;
-  saveClinicalStore(store);
 }
 const STATUS_CONFIG = {
   Empty: {
@@ -440,7 +429,7 @@ function ExpectedAdmissionsPanel({
   const [expanded, setExpanded] = reactExports.useState(true);
   const todayAdmissions = reactExports.useMemo(() => {
     try {
-      const raw = localStorage.getItem("appointments");
+      const raw = storage.getItem("appointments");
       if (!raw) return [];
       const all = JSON.parse(raw);
       const today = format(/* @__PURE__ */ new Date(), "yyyy-MM-dd");
@@ -766,7 +755,7 @@ function BedManagement() {
   const [newHospitalName, setNewHospitalName] = reactExports.useState("");
   const [newBedType, setNewBedType] = reactExports.useState("General");
   const allPatients = reactExports.useMemo(
-    () => loadFromAllDoctorKeys("patients"),
+    () => loadFromAllDoctorKeys(),
     []
   );
   function handleReservationExpired(bed) {
@@ -784,9 +773,6 @@ function BedManagement() {
         reservedForPatient: null
       } : b
     );
-    saveClinicalStore(store);
-    const updatedBeds = store.beds ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds, getCanisterActor());
     refetch();
     ue.warning(
       `Bed ${bed.bedNumber} reservation expired and released — ${bed.reservedForPatient ?? "patient"} did not arrive`,
@@ -874,9 +860,6 @@ function BedManagement() {
       id: BigInt(String(b.id ?? 0))
     }));
     store.beds = normalised.map(updater);
-    saveClinicalStore(store);
-    const updatedBeds = store.beds ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds, getCanisterActor());
     refetch();
   }
   function initiateDischarge(bed) {
@@ -993,9 +976,6 @@ function BedManagement() {
         };
       return b;
     });
-    saveClinicalStore(store);
-    const updatedBeds = store.beds ?? [];
-    saveClinicalEntitiesWithSync("beds", updatedBeds, getCanisterActor());
     refetch();
     setShowTransferDialog(false);
     setTransferBedId("");

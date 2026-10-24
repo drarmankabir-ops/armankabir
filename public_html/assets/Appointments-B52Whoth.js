@@ -1,24 +1,43 @@
-import { i as createLucideIcon, j as jsxRuntimeExports, m as motion, k as CalendarDays, T as Tabs, l as TabsList, n as TabsTrigger, o as Stethoscope, p as TabsContent, r as reactExports, q as useEmailAuth, B as Button, M as Monitor, A as AnimatePresence, h as Badge, b as CircleCheck, D as Dialog, s as DialogContent, t as DialogHeader, v as DialogTitle, L as Label, I as Input, w as DialogFooter, c as Clock, S as Select, d as SelectTrigger, e as SelectValue, f as SelectContent, g as SelectItem, H as Hospital, x as useCreatePatient, u as ue, y as useGetAllPatients, z as LoaderCircle, E as enqueueSync, F as _canisterActorRef } from "./index-DJeWhCy-.js";
-import { T as Table, a as TableHeader, b as TableRow, c as TableHead, d as TableBody, e as TableCell } from "./table-CnbMZ7S8.js";
-import { T as Textarea } from "./textarea-BQiWEu5n.js";
-import { b as ReceiptsHistoryList, M as MoneyReceipt } from "./MoneyReceipt-CSWlD73e.js";
-import { P as PatientForm } from "./PatientForm-BCKQSbNc.js";
-import { b as buildFollowUpMessage } from "./whatsappTemplates-BiipONU2.js";
-import { B as BedDouble } from "./bed-double-DSQN6_I2.js";
-import { R as Receipt } from "./receipt-DqXr-L3S.js";
-import { P as Plus } from "./plus-CHPIrJ6M.js";
-import { T as Trash2 } from "./trash-2-B3l-ZhdV.js";
-import { C as CircleAlert } from "./circle-alert-3N-VW3xt.js";
-import { M as MessageCircle } from "./message-circle-qSON-RM2.js";
-import { P as Pen } from "./pen-CfMhwJvZ.js";
-import { S as Search } from "./search-BLymxia-.js";
-import { U as UserPlus } from "./user-plus-BJkC4ige.js";
-import { U as UserSearch } from "./user-search-CBqVxlq_.js";
-import "./rotate-ccw-DEYXgLqp.js";
-import "./printer-BQUreT8L.js";
-import "./download-qc_8yQ5r.js";
-import "./camera-DpsioLhp.js";
-import "./eye-DZPhoU57.js";
+import { c as createLucideIcon, j as jsxRuntimeExports, m as motion, T as Tabs, i as TabsList, k as TabsTrigger, l as Stethoscope, n as TabsContent, r as reactExports, o as useEmailAuth, B as Button, h as Badge, b as CircleCheck, D as Dialog, p as DialogContent, q as DialogHeader, t as DialogTitle, L as Label, I as Input, v as DialogFooter, S as Select, d as SelectTrigger, e as SelectValue, f as SelectContent, g as SelectItem, s as storage, u as ue, w as LoaderCircle } from "./index-DB3-P7-3.js";
+import { T as Table, a as TableHeader, b as TableRow, c as TableHead, d as TableBody, e as TableCell } from "./table-D9C3ptke.js";
+import { T as Textarea } from "./textarea-9Q59lYHS.js";
+import { b as ReceiptsHistoryList, M as MoneyReceipt } from "./MoneyReceipt-iFnGVwsh.js";
+import { P as PatientForm } from "./PatientForm-BrbQeIgL.js";
+import { u as useCreatePatient, a as useGetAllPatients } from "./useQueries-BzG5iKzm.js";
+import { b as buildFollowUpMessage, H as Hospital } from "./whatsappTemplates-BZKePGNq.js";
+import { C as CalendarDays } from "./calendar-days-D6PlifYi.js";
+import { B as BedDouble } from "./bed-double-C4tN6lZy.js";
+import { R as Receipt } from "./receipt-GTn3XSyX.js";
+import { P as Plus } from "./plus-EM3jMXn0.js";
+import { A as AnimatePresence } from "./index-tUZISnlx.js";
+import { T as Trash2 } from "./trash-2-D1BgKOhm.js";
+import { C as CircleAlert } from "./circle-alert-DnbBE6-I.js";
+import { C as Clock } from "./clock-CXAMxnnW.js";
+import { M as MessageCircle } from "./message-circle-D7yYjJpL.js";
+import { P as Pen } from "./pen-Chgikfa-.js";
+import { S as Search } from "./search-Sa5xbG12.js";
+import { U as UserPlus } from "./user-plus-DqqtX_zx.js";
+import { U as UserSearch } from "./user-search-DKGj0PbK.js";
+import "./rotate-ccw-CU6rnb5G.js";
+import "./printer--7V_ZnVo.js";
+import "./download-DDWNGd4X.js";
+import "./triangle-alert-DyS7o7G0.js";
+import "./eye-BdHa3PxK.js";
+import "./useMutation-B-WOXLO7.js";
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$4 = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }],
+  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
+];
+const CalendarCheck = createLucideIcon("calendar-check", __iconNode$4);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -26,20 +45,6 @@ import "./eye-DZPhoU57.js";
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$3 = [
-  ["path", { d: "M8 2v4", key: "1cmpym" }],
-  ["path", { d: "M16 2v4", key: "4m81vk" }],
-  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
-  ["path", { d: "M3 10h18", key: "8toen8" }],
-  ["path", { d: "m9 16 2 2 4-4", key: "19s6y9" }]
-];
-const CalendarCheck = createLucideIcon("calendar-check", __iconNode$3);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2 = [
   ["polyline", { points: "22 12 16 12 14 15 10 15 8 12 2 12", key: "o97t9d" }],
   [
     "path",
@@ -49,14 +54,14 @@ const __iconNode$2 = [
     }
   ]
 ];
-const Inbox = createLucideIcon("inbox", __iconNode$2);
+const Inbox = createLucideIcon("inbox", __iconNode$3);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$1 = [
+const __iconNode$2 = [
   ["path", { d: "M10 12h11", key: "6m4ad9" }],
   ["path", { d: "M10 18h11", key: "11hvi2" }],
   ["path", { d: "M10 6h11", key: "c7qv1k" }],
@@ -64,7 +69,19 @@ const __iconNode$1 = [
   ["path", { d: "M4 6h1v4", key: "cnovpq" }],
   ["path", { d: "M6 18H4c0-1 2-2 2-3s-1-1.5-2-1", key: "m9a95d" }]
 ];
-const ListOrdered = createLucideIcon("list-ordered", __iconNode$1);
+const ListOrdered = createLucideIcon("list-ordered", __iconNode$2);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1 = [
+  ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
+  ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
+  ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
+];
+const Monitor = createLucideIcon("monitor", __iconNode$1);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -86,80 +103,21 @@ function todayStr() {
 }
 function loadSerials() {
   try {
-    return JSON.parse(localStorage.getItem(todayKey()) || "[]");
+    return JSON.parse(storage.getItem(todayKey()) || "[]");
   } catch {
     return [];
   }
 }
 function saveSerials(data) {
-  localStorage.setItem(todayKey(), JSON.stringify(data));
-}
-async function syncAppointmentToCanister(op, entry) {
-  const actor = _canisterActorRef();
-  if (!actor || !navigator.onLine) {
-    enqueueSync({
-      timestamp: Date.now(),
-      operation: op,
-      entityType: "appointment",
-      entityId: entry.id,
-      data: entry
-    });
-    return;
-  }
-  try {
-    if (op === "delete") {
-      await actor.deleteAppointment(entry.id);
-    } else {
-      await actor.bulkUpsertAppointments([entry]);
-    }
-  } catch (e) {
-    console.warn("Canister appointment sync failed, queuing:", e);
-    enqueueSync({
-      timestamp: Date.now(),
-      operation: op,
-      entityType: "appointment",
-      entityId: entry.id,
-      data: entry
-    });
-  }
-}
-async function syncQueueEntryToCanister(op, entry) {
-  const actor = _canisterActorRef();
-  const enriched = { ...entry, queueDate: todayStr() };
-  if (!actor || !navigator.onLine) {
-    enqueueSync({
-      timestamp: Date.now(),
-      operation: op,
-      entityType: "queueEntry",
-      entityId: entry.id,
-      data: enriched
-    });
-    return;
-  }
-  try {
-    if (op === "delete") {
-      await actor.deleteQueueEntry(entry.id);
-    } else {
-      await actor.bulkUpsertQueueEntries([enriched]);
-    }
-  } catch (e) {
-    console.warn("Canister queue-entry sync failed, queuing:", e);
-    enqueueSync({
-      timestamp: Date.now(),
-      operation: op,
-      entityType: "queueEntry",
-      entityId: entry.id,
-      data: enriched
-    });
-  }
+  storage.setItem(todayKey(), JSON.stringify(data));
 }
 function loadAppointments() {
   try {
     const a = JSON.parse(
-      localStorage.getItem("clinic_appointments") || "[]"
+      storage.getItem("clinic_appointments") || "[]"
     );
     const b = JSON.parse(
-      localStorage.getItem("public_appointment_requests") || "[]"
+      storage.getItem("public_appointment_requests") || "[]"
     );
     const converted = b.filter((x) => x.preferredDate || x.date).map((x) => ({
       id: x.id || x.patientName,
@@ -192,7 +150,7 @@ function loadAppointments() {
   }
 }
 function saveAppointments(data) {
-  localStorage.setItem(
+  storage.setItem(
     "clinic_appointments",
     JSON.stringify(
       data.filter((d) => !d._isPublic)
@@ -241,12 +199,12 @@ function lookupPatientByRegOrPhone(query) {
   if (!query.trim()) return null;
   const norm = normalizeRegNo(query);
   const isPhone = /^[0-9+\-() ]{7,}$/.test(query.trim()) && !query.includes("/");
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
     if (!(key == null ? void 0 : key.startsWith("patients_"))) continue;
     try {
       const arr = JSON.parse(
-        localStorage.getItem(key) || "[]"
+        storage.getItem(key) || "[]"
       );
       let found;
       if (isPhone) {
@@ -367,7 +325,7 @@ function DoctorSerialTab() {
     saveSerials(data);
     const nowServing = data.find((s) => s.status === "in-progress") || null;
     const queue = data.filter((s) => s.status === "waiting");
-    localStorage.setItem(
+    storage.setItem(
       "medicare_serial_queue",
       JSON.stringify({ nowServing, queue })
     );
@@ -390,24 +348,19 @@ function DoctorSerialTab() {
     setForm({ name: "", phone: "" });
     setAddOpen(false);
     ue.success(`Serial #${next} added for ${entry.patientName}`);
-    syncQueueEntryToCanister("create", entry);
   }
   function updateStatus(id, status) {
     const updated = serials.map((s) => s.id === id ? { ...s, status } : s);
     persist(updated);
-    const entry = updated.find((s) => s.id === id);
-    if (entry) syncQueueEntryToCanister("update", entry);
+    updated.find((s) => s.id === id);
   }
   function deleteSerial(id) {
-    const entry = serials.find((s) => s.id === id);
+    serials.find((s) => s.id === id);
     persist(serials.filter((s) => s.id !== id));
     ue.success("Serial removed");
-    if (entry) syncQueueEntryToCanister("delete", entry);
   }
   function resetQueue() {
-    for (const entry of serials) {
-      syncQueueEntryToCanister("delete", entry);
-    }
+    persist([]);
     persist([]);
     setResetOpen(false);
     ue.success("Queue reset for today");
@@ -652,7 +605,7 @@ function sendWhatsApp(appt) {
   var _a;
   const DOCTOR_NUMBERS = {
     "Dr. Arman Kabir": "8801751959262",
-    "Dr. Samia Shikder": "8801751959262"
+    "Dr. Samia Shikder": "8801957212210"
   };
   const docName = appt.doctor || "Dr. Arman Kabir";
   const docNum = DOCTOR_NUMBERS[docName] || "8801751959262";
@@ -822,7 +775,6 @@ function ChamberAppointmentsTab() {
         appointments.map((a) => a.id === editTarget.id ? updatedEntry : a)
       );
       ue.success("Appointment updated");
-      syncAppointmentToCanister("update", updatedEntry);
     } else {
       const entry = {
         id: uid(),
@@ -843,15 +795,13 @@ function ChamberAppointmentsTab() {
       ue.success(
         `Appointment scheduled for ${entry.patientName} — Serial #${serial}`
       );
-      syncAppointmentToCanister("create", entry);
     }
     setAddOpen(false);
   }
   function deleteAppt(id) {
-    const entry = appointments.find((a) => a.id === id);
+    appointments.find((a) => a.id === id);
     persist(appointments.filter((a) => a.id !== id));
     ue.success("Appointment deleted");
-    if (entry) syncAppointmentToCanister("delete", entry);
   }
   const chamberOnly = appointments.filter(
     (a) => !a.appointmentType || a.appointmentType === "chamber"
@@ -1476,7 +1426,6 @@ function AdmittedPatientsTab() {
         appointments.map((a) => a.id === editTarget.id ? updatedEntry : a)
       );
       ue.success("Admission appointment updated");
-      syncAppointmentToCanister("update", updatedEntry);
     } else {
       const entry = {
         id: uid(),
@@ -1500,7 +1449,6 @@ function AdmittedPatientsTab() {
       ue.success(
         `Admission scheduled for ${entry.patientName} — Daily Serial #${serial}`
       );
-      syncAppointmentToCanister("create", entry);
     }
     setAddOpen(false);
   }
@@ -1510,14 +1458,13 @@ function AdmittedPatientsTab() {
       (a) => a.id === timePickerTarget.id ? { ...a, visitTime: timePickerVal } : a
     );
     persist(updated);
-    const entry = updated.find((a) => a.id === timePickerTarget.id);
+    updated.find((a) => a.id === timePickerTarget.id);
     setTimePickerTarget(null);
     ue.success(`Visit time set to ${timePickerVal}`);
-    if (entry) syncAppointmentToCanister("update", entry);
   }
   reactExports.useEffect(() => {
     const today = todayStr();
-    const admittedVisitKeys = Object.keys(localStorage).filter(
+    const admittedVisitKeys = storage.keys().filter(
       (k) => k.startsWith("visits_")
     );
     const currentAll = loadAppointments();
@@ -1525,12 +1472,12 @@ function AdmittedPatientsTab() {
     const updated = [...currentAll];
     for (const key of admittedVisitKeys) {
       try {
-        const visits = JSON.parse(localStorage.getItem(key) || "[]");
+        const visits = JSON.parse(storage.getItem(key) || "[]");
         for (const visit of visits) {
           if (visit.visitType !== "admitted" && visit.isAdmitted !== true)
             continue;
           const patKey = key.replace("visits_", "patients_");
-          const patients = JSON.parse(localStorage.getItem(patKey) || "[]");
+          const patients = JSON.parse(storage.getItem(patKey) || "[]");
           const patient = patients.find(
             (p) => String(p.id) === String(visit.patientId)
           );
@@ -2143,14 +2090,14 @@ function AdmittedPatientsTab() {
 function loadPublicBookings() {
   try {
     return JSON.parse(
-      localStorage.getItem("public_appointment_requests") || "[]"
+      storage.getItem("public_appointment_requests") || "[]"
     );
   } catch {
     return [];
   }
 }
 function savePublicBookings(data) {
-  localStorage.setItem("public_appointment_requests", JSON.stringify(data));
+  storage.setItem("public_appointment_requests", JSON.stringify(data));
 }
 function PublicBookingRequestsTab() {
   const [bookings, setBookings] = reactExports.useState(loadPublicBookings);

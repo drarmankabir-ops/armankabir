@@ -253,14 +253,14 @@ function loadVisitData(visitId: number | undefined): VisitExtendedData | null {
   if (!visitId) return null;
   try {
     const doctorEmail = getDoctorEmail();
-    const keys = Object.keys(localStorage).filter(
+    const keys = storage.keys().filter(
       (k) =>
         k.startsWith(`visit_form_data_${visitId}_`) ||
         k === `visit_form_data_${visitId}_${doctorEmail}`,
     );
     if (keys.length === 0) {
       // Try all keys that include the visitId
-      const allKeys = Object.keys(localStorage).filter((k) =>
+      const allKeys = storage.keys().filter((k) =>
         k.includes(`visit_form_data_${visitId}`),
       );
       if (allKeys.length > 0) {

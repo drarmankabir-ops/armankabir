@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,20 +35,12 @@ import { motion } from "motion/react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Layout from "./Layout";
 import { useAdminAuth } from "./hooks/useAdminAuth";
-import { storage } from "@/lib/storageAdapter";
 import {
-  appendAuditLog,
-  loadPatientRegistry,
-  loadRegistry,
-  savePatientRegistry,
-  saveRegistry,
-  STAFF_ROLE_LABELS,
-} from "./hooks/useAdminSave";
+  initializeServerStorage,
+  resetServerStorage,
+  storage,
+} from "@/lib/storageAdapter";
 import {
-  ROLE_HIERARCHY_ORDER,
-  STAFF_ROLE_COLORS,
-} from "./types";
-import type { StaffRole } from "./types";
   appendAuditLog,
   loadPatientRegistry,
   loadRegistry,
@@ -60,18 +53,6 @@ import {
   STAFF_ROLE_LABELS,
 } from "./types";
 import type { StaffRole } from "./types";
-import { storage } from "@/lib/storageAdapter";
-  appendAuditLog,
-  loadPatientRegistry,
-  loadRegistry,
-  ROLE_HIERARCHY_ORDER,
-  savePatientRegistry,
-  saveRegistry,
-  STAFF_ROLE_COLORS,
-  STAFF_ROLE_LABELS,
-} from "./hooks/useAdminSave";
-import type { StaffRole } from "./types";
-import { storage } from "@/lib/storageAdapter";
 
 const AppointmentPayment = lazy(() => import("./pages/AppointmentPayment"));
 const Appointments = lazy(() => import("./pages/Appointments"));
@@ -1197,8 +1178,6 @@ interface DrugReminder {
 }
 
 function AppRoot() {
-  // Clean up legacy business data from localStorage on startup
-
   const {
     currentDoctor,
     currentPatient,
@@ -1207,11 +1186,55 @@ function AppRoot() {
     isInitializing,
   } = useEmailAuth();
   const {
+    adminId,
     adminLogin,
     isAdmin: isAdminState,
     adminLogout: adminLogoutFn,
   } = useAdminAuth();
 
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
+  const storageOwner = currentDoctor
+    ? `user:${currentDoctor.id}`
+    : currentPatient
+      ? `patient:${currentPatient.patient_id}`
+      : adminId
+        ? `user:${adminId}`
+        : null;
+
+  useEffect(() => {
+    const onStorageError = (event: Event) => {
+      const detail = (event as CustomEvent<{ message?: string }>).detail;
+      toast.error(`Could not save data to PHP: ${detail?.message ?? "Unknown error"}`);
+    };
+    window.addEventListener("server-storage-error", onStorageError);
+    return () => window.removeEventListener("server-storage-error", onStorageError);
+  }, []);
+
+  useEffect(() => {
+    if (!storageOwner) {
+      resetServerStorage();
+      setStorageReady(false);
+      setStorageError(null);
+      return;
+    }
+    let cancelled = false;
+    setStorageReady(false);
+    setStorageError(null);
+    initializeServerStorage(storageOwner)
+      .then(() => {
+        if (!cancelled) setStorageReady(true);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setStorageError(
+          error instanceof Error ? error.message : "Unknown storage initialization error",
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [storageOwner]);
   // Auto-logout on inactivity — active only when someone is logged in
   const isLoggedIn = !!(currentDoctor || currentPatient);
   const handleInactivityLogout = useCallback(() => {
@@ -1255,7 +1278,7 @@ function AppRoot() {
   const queryClient = useQueryClient();
 
   // invalidateAll: called after every successful data refresh
-  // so React Query re-fetches from the updated localStorage cache.
+  // so React Query re-fetches from the PHP-backed cache.
   const invalidateAll = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["patients"] });
     queryClient.invalidateQueries({ queryKey: ["patient"] });
@@ -1284,7 +1307,7 @@ function AppRoot() {
   // ── Staff (Nurse/Intern) medication alert checker ─────────────────────────────
   const staffFiredRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (!currentDoctor) return;
+    if (!currentDoctor || !storageReady) return;
     const role = currentDoctor.role;
     if (role !== "nurse" && role !== "intern_doctor") return;
 
@@ -1428,7 +1451,7 @@ function AppRoot() {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [currentDoctor]);
+  }, [currentDoctor, storageReady]);
 
   const loadNavReminders = useCallback(() => {
     if (!currentPatient) return;
@@ -1438,7 +1461,7 @@ function AppRoot() {
       );
       let patId = "";
       if (currentPatient.registerNumber) {
-        const keys = Object.keys(localStorage).filter((k) =>
+        const keys = storage.keys().filter((k) =>
           k.startsWith("patients_"),
         );
         outer: for (const key of keys) {
@@ -1463,17 +1486,17 @@ function AppRoot() {
         patId ? allReminders.filter((r) => r.patientId === patId) : [],
       );
     } catch {}
-  }, [currentPatient]);
+  }, [currentPatient, storageReady]);
 
   useEffect(() => {
-    if (currentPatient && !currentDoctor) {
+    if (storageReady && currentPatient && !currentDoctor) {
       loadNavReminders();
     }
-  }, [currentPatient, currentDoctor, loadNavReminders]);
+  }, [storageReady, currentPatient, currentDoctor, loadNavReminders]);
 
   // Background reminder checker
   useEffect(() => {
-    if (!currentPatient || currentDoctor) return;
+    if (!storageReady || !currentPatient || currentDoctor) return;
     const interval = setInterval(() => {
       const now = new Date();
       const hhmm = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
@@ -1497,7 +1520,7 @@ function AppRoot() {
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, [navReminders, currentPatient, currentDoctor]);
+  }, [storageReady, navReminders, currentPatient, currentDoctor]);
 
   const saveNavReminders = (updated: DrugReminder[], patientId: string) => {
     setNavReminders(updated);
@@ -1515,6 +1538,7 @@ function AppRoot() {
 
   // Count combined pending
   useEffect(() => {
+    if (!storageReady) return;
     const count = () => {
       const staffPending = loadRegistry().filter(
         (d) => d.status === "pending",
@@ -1527,12 +1551,12 @@ function AppRoot() {
     count();
     const iv = setInterval(count, 5000);
     return () => clearInterval(iv);
-  }, []);
+  }, [storageReady]);
 
   const getPortalPatientId = useMemo(() => {
     if (!currentPatient?.registerNumber) return "";
     try {
-      const keys = Object.keys(localStorage).filter((k) =>
+      const keys = storage.keys().filter((k) =>
         k.startsWith("patients_"),
       );
       for (const key of keys) {
@@ -1550,7 +1574,7 @@ function AppRoot() {
       }
     } catch {}
     return "";
-  }, [currentPatient]);
+  }, [currentPatient, storageReady]);
 
 
   const isSerialDisplay =
@@ -1558,10 +1582,10 @@ function AppRoot() {
     window.location.pathname === "/serial-display";
   if (isSerialDisplay) return <SerialDisplay />;
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminError("");
-    const ok = adminLogin(adminUser, adminPass);
+    const ok = await adminLogin(adminUser, adminPass);
     if (ok) {
       setShowAdminModal(false);
       setAdminUser("");
@@ -1587,6 +1611,44 @@ function AppRoot() {
             <Stethoscope className="w-5 h-5 text-primary" />
           </div>
           <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  if ((currentDoctor || currentPatient || isAdminState) && !storageReady) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="max-w-lg text-center space-y-4">
+          {storageError ? (
+            <>
+              <p className="font-semibold text-destructive">
+                Could not load your data from PHP storage.
+              </p>
+              <p className="text-sm text-muted-foreground">{storageError}</p>
+              <Button
+                onClick={() => {
+                  setStorageError(null);
+                  initializeServerStorage(storageOwner ?? "")
+                    .then(() => setStorageReady(true))
+                    .catch((error: unknown) =>
+                      setStorageError(
+                        error instanceof Error ? error.message : "Unknown error",
+                      ),
+                    );
+                }}
+              >
+                Retry
+              </Button>
+            </>
+          ) : (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Loading and migrating your data to PHP storage…
+              </p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -2019,7 +2081,7 @@ function PatientPortalView({
   const patientId = useMemo(() => {
     if (currentPatient.registerNumber) {
       try {
-        const keys = Object.keys(localStorage).filter((k) =>
+        const keys = storage.keys().filter((k) =>
           k.startsWith("patients_"),
         );
         for (const key of keys) {

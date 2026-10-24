@@ -606,7 +606,7 @@ export interface AdmissionHistory {
   admissionHistoryStatus: "complete" | "draft_awaiting_approval";
   dailyProgressNotes: unknown[];
   dischargedOn: string | null;
-  status: "active" | "discharged";
+  status: "active" | "admitted" | "discharged" | "transferred";
   createdAt: string;
   consultantAssignment?: ConsultantAssignment;
 }

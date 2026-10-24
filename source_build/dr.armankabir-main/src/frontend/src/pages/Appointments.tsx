@@ -1711,7 +1711,7 @@ function AdmittedPatientsTab() {
   // Auto-generate today's admission slot for admitted patients from visit form
   useEffect(() => {
     const today = todayStr();
-    const admittedVisitKeys = Object.keys(localStorage).filter((k) =>
+    const admittedVisitKeys = storage.keys().filter((k) =>
       k.startsWith("visits_"),
     );
     const currentAll = loadAppointments();

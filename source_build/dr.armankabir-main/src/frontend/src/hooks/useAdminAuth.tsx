@@ -10,6 +10,7 @@ import { authService } from "../services/auth";
 
 export function useAdminAuth() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [adminId, setAdminId] = useState<number | null>(null);
 
   const adminLogin = useCallback(
     async (username: string, password: string): Promise<boolean> => {
@@ -17,6 +18,7 @@ export function useAdminAuth() {
         const result = await authService.signIn(username, password);
         if (result.user) {
           setIsAdmin(true);
+          setAdminId(result.user.id);
           return true;
         }
       } catch {
@@ -30,7 +32,8 @@ export function useAdminAuth() {
   const adminLogout = useCallback(async () => {
     await authService.signOut();
     setIsAdmin(false);
+    setAdminId(null);
   }, []);
 
-  return { isAdmin, adminLogin, adminLogout };
+  return { isAdmin, adminId, adminLogin, adminLogout };
 }

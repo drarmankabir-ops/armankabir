@@ -312,7 +312,6 @@ export default function AdminCoursesPage() {
               </p>
             </div>
           </div>
-        </div>
 
         <div className="flex gap-3 pt-4">
           <Button type="submit" disabled={mode === 'list'}>
@@ -322,6 +321,7 @@ export default function AdminCoursesPage() {
             {t('cancel')}
           </Button>
         </div>
+        </form>
       </CardContent>
     </Card>
   );

@@ -15,7 +15,6 @@ handleCors();
 requireMethod('POST');
 
 $user = requireAuth();
-$owner = preferenceOwner($user);
 
 try {
     $input = getJsonInput();
@@ -26,6 +25,7 @@ try {
     }
 
     $key = assertPreferenceKey($input['key']);
+    $owner = preferenceOwner($user, $key);
 
     if (!array_key_exists('value', $input)) {
         errorResponse('Missing required fields', 400, ['missing_fields' => ['value']]);

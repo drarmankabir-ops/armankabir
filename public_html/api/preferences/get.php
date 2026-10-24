@@ -20,8 +20,8 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
-$owner = preferenceOwner($user);
 $key = assertPreferenceKey(getParam('key'));
+$owner = preferenceOwner($user, $key);
 
 try {
     $db = preferencesDb();

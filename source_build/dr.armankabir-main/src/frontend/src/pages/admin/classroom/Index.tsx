@@ -255,7 +255,7 @@ export default function AdminClassroomIndex() {
             <EmptyState>
               <EmptyState.Icon />
               <EmptyState.Title>{t('no_announcements')}</EmptyState.Title>
-              <EmptyState.Description>{t 'create_first_announcement'}</EmptyState.Description>
+              <EmptyState.Description>{t('create_first_announcement')}</EmptyState.Description>
               <Button onClick={() => navigate('/admin/classroom/announcements/new')} className="mt-2">
                 {t('create_announcement')}
               </Button>

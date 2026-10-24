@@ -9,34 +9,7 @@
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
-
-if (!file) return;
-    // Store file name as reference (real apps would upload to blob storage / server)
-    const ref = file.name;
-    setStored(ref);
-    toast.success("Investigation interpretation reference PDF saved.");
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const handleDelete = () => {
-    // Remove from server-side via API call instead of localStorage
-    setStored(null);
-    toast.success("Reference PDF removed.");
-  };function loadPublicBookings(): PublicBooking[] {
-  // Fetch from server-side API instead of localStorage
-  // This prevents JSON parse errors and data loss
-  try {
-    // Will be handled by useEffect with API call below
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function savePublicBookings(data: PublicBooking[]) {
-  // Save to server-side API instead of localStorage
-  // Prevents 43 JSON parse errors and storage issues
-}import AdminFrontPagePanel from "@/components/AdminFrontPagePanel";
+import AdminFrontPagePanel from "@/components/AdminFrontPagePanel";
 import EmergencyConsultationModal from "@/components/EmergencyConsultationModal";
 import GallerySection from "@/components/GallerySection";
 import PrescriptionPDFManager from "@/components/PrescriptionPDFManager";
@@ -332,8 +305,6 @@ function ClassroomContent({
   // Gallery lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
-const LS_KEY = "treatmentReferencePDF";
-  );
 
   const openLightbox = (idx: number) => {
     setLightboxIdx(idx);
@@ -5739,22 +5710,3 @@ function LandingPageFooter({ siteConfig }: { siteConfig: any }) {
     </div>
   );
 }
-
-export default function LandingPage({
-  onLoginClick,
-  onAdminLoginClick,
-  isAdmin,
-  adminLogout,
-}: LandingPageProps) {
-  // ... [component logic] ...
-
-  return (
-    <div>
-      {/* Page content */}
-      
-      {/* Bottom bar with updated footer */}
-      <LandingPageFooter siteConfig={siteConfig} />
-    </div>
-  );
-}
-

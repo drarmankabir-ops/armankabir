@@ -53,6 +53,7 @@ import { Component, useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { useEmailAuth } from "../hooks/useEmailAuth";
+import { storage } from "../lib/storageAdapter";
 import {
   autoPopulateDrugReminders,
   getDoctorEmail,
@@ -1498,7 +1499,7 @@ function UpgradedPrescriptionEMRInner(props: UpgradedPrescriptionEMRProps) {
       try {
         const doctorEmail = getDoctorEmail();
         // Try to find the most recent visit's drug history key for this patient
-        const visitKeys = Object.keys(localStorage).filter(
+        const visitKeys = storage.keys().filter(
           (k) =>
             k.startsWith("visit_form_data_") && k.endsWith(`_${doctorEmail}`),
         );

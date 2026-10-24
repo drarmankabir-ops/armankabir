@@ -1,50 +1,27 @@
 /**
- * Server-backed preference boundary.
+ * Synchronous in-memory compatibility cache backed by authenticated PHP storage.
  *
- * Storage is a per-account key/value map served by `/api/preferences/*`.
- * Keys are scoped to the authenticated principal, so accounts never share data.
- *
- * Authentication material is refused client-side as defence in depth; the PHP
- * layer rejects these keys independently (see forbiddenPreferenceKeys()).
+ * Browser storage is read only by the one-time importer. After import, values
+ * are hydrated from PHP and all writes are sent to the PHP preferences API.
  */
 import { get, post } from './apiClient';
 
 const MAX_KEY_LENGTH = 191;
+const CACHE = new Map<string, string>();
+let initialized = false;
+let initializedOwner: string | null = null;
+let initialization: Promise<void> | null = null;
+let writeQueue = Promise.resolve();
+let generation = 0;
 
-// Mirrors forbiddenPreferenceKeys() in api/preferences/bootstrap.php.
-const credentialKeyPattern =
-  /^(staff_auth|phpauthtoken|auth_?token|access_?token|refresh_?token|session_?token|jwt|id_?token|medicare_(current|logged_in)_doctor|password|password_?hash|secret|api_?key|csrf_?token)$/i;
-
-function assertPreferenceKey(key: string): void {
-  if (typeof key !== 'string' || key.trim() === '') {
-    throw new Error(`Invalid preference key: ${String(key)}`);
-  }
-  if (key.length > MAX_KEY_LENGTH) {
-    throw new Error(`Preference key is too long: ${key.slice(0, 32)}`);
-  }
-  // eslint-disable-next-line no-control-regex
-  if (/[\u0000-\u001F\u007F]/.test(key)) {
-    throw new Error('Preference key contains control characters.');
-  }
-  if (credentialKeyPattern.test(key)) {
-    throw new Error(`Refusing to store credential material: ${key}`);
-  }
-}/**
- * Server-backed preference boundary.
- *
- * Storage is a per-account key/value map served by `/api/preferences/*`.
- * Keys are scoped to the authenticated principal, so accounts never share data.
- *
- * Authentication material is refused client-side as defence in depth; the PHP
- * layer rejects these keys independently (see forbiddenPreferenceKeys()).
- */
-import { get, post } from './apiClient';
-
-const MAX_KEY_LENGTH = 191;
-
-// Mirrors forbiddenPreferenceKeys() in api/preferences/bootstrap.php.
-const credentialKeyPattern =
-  /^(staff_auth|phpauthtoken|auth_?token|access_?token|refresh_?token|session_?token|jwt|id_?token|medicare_(current|logged_in)_doctor|password|password_?hash|secret|api_?key|csrf_?token)$/i;
+const forbiddenCredentialKey =
+  /(auth|token|password|secret|credential|csrf)/i;
+const forbiddenCredentialKeys = new Set([
+  'staff_auth',
+  'phpauthtoken',
+  'medicare_current_doctor',
+  'medicare_logged_in_doctor',
+]);
 
 function assertPreferenceKey(key: string): void {
   if (typeof key !== 'string' || key.trim() === '') {
@@ -56,52 +33,183 @@ function assertPreferenceKey(key: string): void {
   if (/[\u0000-\u001F\u007F]/.test(key)) {
     throw new Error('Preference key contains control characters.');
   }
-  if (credentialKeyPattern.test(key)) {
-    throw new Error(`Refusing to store credential material: ${key}`);
+  if (isCredentialKey(key)) {
+    throw new Error(`Refusing to persist credential material: ${key}`);
   }
 }
 
-export const storage = {
-  async getItem(key: string): Promise<string | null> {
-    assertPreferenceKey(key);
-    try {
-      return (await get<{ value?: string | null }>('/preferences/get.php', { key }))?.value ?? null;
-    } catch {
-      return null;
+function isCredentialKey(key: string): boolean {
+  return forbiddenCredentialKey.test(key) || forbiddenCredentialKeys.has(key.toLowerCase());
+}
+
+function reportWriteFailure(error: unknown): void {
+  const message = error instanceof Error ? error.message : String(error);
+  window.dispatchEvent(
+    new CustomEvent('server-storage-error', { detail: { message } }),
+  );
+}
+
+function persist(operation: () => Promise<unknown>): void {
+  const owner = initializedOwner;
+  if (!owner) {
+    reportWriteFailure(new Error('PHP storage is not initialized for an account.'));
+    return;
+  }
+  writeQueue = writeQueue
+    .then(() => {
+      if (owner !== initializedOwner) return;
+      return operation();
+    })
+    .catch((error: unknown) => {
+      reportWriteFailure(error);
+    });
+}
+
+function browserStores(): Storage[] {
+  if (typeof window === 'undefined') return [];
+  return [window.localStorage, window.sessionStorage];
+}
+
+function legacyEntries(): Array<{
+  key: string;
+  sourceKey: string;
+  value: string;
+  store: Storage;
+}> {
+  const entries = new Map<
+    string,
+    { key: string; sourceKey: string; value: string; store: Storage }
+  >();
+  for (const [storeIndex, store] of browserStores().entries()) {
+    for (let index = 0; index < store.length; index++) {
+      const sourceKey = store.key(index);
+      if (sourceKey === null || isCredentialKey(sourceKey)) continue;
+      const key = storeIndex === 1 ? `session:${sourceKey}` : sourceKey;
+      try {
+        assertPreferenceKey(key);
+      } catch {
+        continue;
+      }
+      const value = store.getItem(sourceKey);
+      if (value !== null) entries.set(key, { key, sourceKey, value, store });
     }
-  },
-  async setItem(key: string, value: string): Promise<void> {
+  }
+  return [...entries.values()];
+}
+
+async function migrateLegacyEntries(expectedGeneration: number): Promise<void> {
+  const entries = legacyEntries();
+  const batchSize = 5;
+
+  for (let offset = 0; offset < entries.length; offset += batchSize) {
+    const batch = entries.slice(offset, offset + batchSize);
+    await post<{ imported: number }>('/preferences/import.php', {
+      entries: batch.map(({ key, value }) => ({ key, value })),
+    });
+    if (expectedGeneration !== generation) return;
+    for (const entry of batch) {
+      CACHE.set(entry.key, entry.value);
+      entry.store.removeItem(entry.sourceKey);
+    }
+  }
+  for (const store of browserStores()) {
+    for (let index = store.length - 1; index >= 0; index--) {
+      const key = store.key(index);
+      if (key !== null && isCredentialKey(key)) store.removeItem(key);
+    }
+  }
+}
+
+async function hydrateFromServer(expectedGeneration: number): Promise<void> {
+  await migrateLegacyEntries(expectedGeneration);
+  if (expectedGeneration !== generation) return;
+  const values = await get<Record<string, string>>('/preferences/list.php');
+  if (expectedGeneration !== generation) return;
+  CACHE.clear();
+  for (const [key, value] of Object.entries(values ?? {})) {
+    if (typeof value === 'string') CACHE.set(key, value);
+  }
+  initialized = true;
+}
+
+export function initializeServerStorage(owner: string): Promise<void> {
+  if (initialized && initializedOwner === owner) return Promise.resolve();
+  if (initialization && initializedOwner === owner) return initialization;
+  initialized = false;
+  initializedOwner = owner;
+  CACHE.clear();
+  const currentGeneration = ++generation;
+  initialization = writeQueue.then(() =>
+    hydrateFromServer(currentGeneration).catch((error: unknown) => {
+      if (currentGeneration !== generation) return;
+      initializedOwner = null;
+      initialization = null;
+      throw error;
+    }),
+  );
+  return initialization;
+}
+
+export function resetServerStorage(): void {
+  generation++;
+  initialized = false;
+  initializedOwner = null;
+  initialization = null;
+  CACHE.clear();
+}
+
+export const storage = {
+  getItem(key: string): string | null {
     assertPreferenceKey(key);
-    await post('/preferences/set.php', { key, value });
+    return CACHE.get(key) ?? null;
   },
-  async removeItem(key: string): Promise<void> {
+  setItem(key: string, value: string): void {
     assertPreferenceKey(key);
-    await post('/preferences/remove.php', { key });
+    CACHE.set(key, String(value));
+    persist(() => post('/preferences/set.php', { key, value: String(value) }));
   },
-  async clear(): Promise<void> {
-    await post('/preferences/clear.php', {});
+  removeItem(key: string): void {
+    assertPreferenceKey(key);
+    CACHE.delete(key);
+    persist(() => post('/preferences/remove.php', { key }));
   },
-  async length(): Promise<number> {
-    return (await get<{ count?: number }>('/preferences/count.php'))?.count ?? 0;
+  clear(): void {
+    CACHE.clear();
+    persist(() => post('/preferences/clear.php', {}));
   },
-  async key(index: number): Promise<string | null> {
-    return (await get<{ key?: string | null }>('/preferences/key.php', { index }))?.key ?? null;
+  get length(): number {
+    return CACHE.size;
+  },
+  key(index: number): string | null {
+    return [...CACHE.keys()][index] ?? null;
+  },
+  keys(): string[] {
+    return [...CACHE.keys()];
   },
 };
 
-export async function getJson<T>(key: string): Promise<T | null> {
-  const raw = await storage.getItem(key);
+export function getJson<T>(key: string): T | null {
+  const raw = storage.getItem(key);
   if (raw === null) return null;
-  try { return JSON.parse(raw) as T; } catch { return null; }
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
 }
 
-export function setJson(key: string, data: unknown): Promise<void> {
-  return storage.setItem(key, JSON.stringify(data));
+export function setJson(key: string, data: unknown): void {
+  storage.setItem(key, JSON.stringify(data));
 }
 
-export async function getItemOr<T>(key: string, defaultValue: T): Promise<T> {
-  return (await getJson<T>(key)) ?? defaultValue;
+export function getItemOr<T>(key: string, defaultValue: T): T {
+  return getJson<T>(key) ?? defaultValue;
 }
 
-export function setItemJson(key: string, data: unknown): Promise<void> { return setJson(key, data); }
-export function removeItemKey(key: string): Promise<void> { return storage.removeItem(key); }
+export function setItemJson(key: string, data: unknown): void {
+  setJson(key, data);
+}
+
+export function removeItemKey(key: string): void {
+  storage.removeItem(key);
+}

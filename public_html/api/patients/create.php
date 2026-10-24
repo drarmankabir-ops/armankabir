@@ -34,6 +34,14 @@ $weight = isset($input['weight']) ? floatval($input['weight']) : null;
 $height = isset($input['height']) ? floatval($input['height']) : null;
 $patientType = in_array($input['patientType'] ?? 'outdoor', ['outdoor', 'indoor', 'emergency', 'admitted']) ? $input['patientType'] : 'outdoor';
 $photoUrl = isset($input['photo']) ? sanitizeString($input['photo']) : null;
+$registrationComplete = filter_var(
+    $input['registrationComplete'] ?? true,
+    FILTER_VALIDATE_BOOLEAN,
+    FILTER_NULL_ON_FAILURE
+);
+if ($registrationComplete === null) {
+    errorResponse('Invalid registrationComplete value', 422);
+}
 
 // Validate email format
 if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -92,7 +100,7 @@ try {
             :register_number, :full_name, :name_bn, :date_of_birth, :gender,
             :phone, :email, :address, :blood_group, :weight, :height,
             :allergies, :chronic_conditions, :past_surgical_history,
-            :patient_type, :photo_url, 1, :created_by
+            :patient_type, :photo_url, :registration_complete, :created_by
         )
     ');
     
@@ -113,6 +121,7 @@ try {
         ':past_surgical_history' => $pastSurgicalHistory,
         ':patient_type' => $patientType,
         ':photo_url' => $photoUrl,
+        ':registration_complete' => $registrationComplete ? 1 : 0,
         ':created_by' => $user['id'],
     ]);
     

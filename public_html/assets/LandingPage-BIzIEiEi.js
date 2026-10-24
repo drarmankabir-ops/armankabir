@@ -1,33 +1,40 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-DJeWhCy-.js","assets/index-JEdqxkTH.css"])))=>i.map(i=>d[i]);
-import { i as createLucideIcon, j as jsxRuntimeExports, ar as Root, as as Content, at as Close, X, ac as cn, au as Title, av as Portal, aw as Overlay, r as reactExports, T as Tabs, l as TabsList, n as TabsTrigger, p as TabsContent, B as Button, u as ue, L as Label, I as Input, ah as CirclePlus, ax as saveFrontPageContentWithSync, D as Dialog, s as DialogContent, t as DialogHeader, ab as TriangleAlert, v as DialogTitle, S as Select, d as SelectTrigger, e as SelectValue, f as SelectContent, g as SelectItem, m as motion, o as Stethoscope, h as Badge, ay as ShieldCheck, az as Menu, A as AnimatePresence, k as CalendarDays, _ as __vitePreload, z as LoaderCircle, c as Clock, b as CircleCheck, ao as ChevronRight, a3 as Users } from "./index-DJeWhCy-.js";
-import { T as Textarea } from "./textarea-BQiWEu5n.js";
-import { P as Pencil } from "./pencil-BZAaPpo6.js";
-import { R as RotateCcw } from "./rotate-ccw-DEYXgLqp.js";
-import { S as Search } from "./search-BLymxia-.js";
-import { S as Send } from "./send-cdrsuHAc.js";
-import { P as Phone } from "./phone-Co67JhRS.js";
-import { I as Image, S as Star, u as useDoctorContent } from "./useDoctorContent-Cx8T-OwA.js";
-import { U as Upload } from "./upload-10Urw3kY.js";
-import { T as Trash2 } from "./trash-2-B3l-ZhdV.js";
-import { C as Card, a as CardHeader, c as CardTitle, b as CardContent } from "./card-COhiAhz1.js";
-import { F as FileText } from "./file-text-DJrK52te.js";
-import { E as Eye } from "./eye-DZPhoU57.js";
-import { P as Plus } from "./plus-CHPIrJ6M.js";
-import { T as Table, a as TableHeader, b as TableRow, c as TableHead, d as TableBody, e as TableCell } from "./table-CnbMZ7S8.js";
-import { H as Heart, C as ChevronLeft } from "./heart-CnN_F_j3.js";
-import { B as Building2 } from "./building-2-CMX9_teL.js";
-import { M as Mail } from "./mail-yvZvzeI4.js";
-import { B as BookOpen } from "./book-open-Bi6sJ5u3.js";
-import { M as MapPin } from "./map-pin-BVGvB4pd.js";
-import { E as ExternalLink } from "./external-link-YRWS9f1T.js";
-import { D as Download } from "./download-qc_8yQ5r.js";
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-DB3-P7-3.js","assets/index-CoJ7Jt-u.css"])))=>i.map(i=>d[i]);
+import { c as createLucideIcon, V as post, W as get, j as jsxRuntimeExports, Y as Dialog, Z as DialogContent, $ as DialogClose, X, N as cn, a0 as DialogTitle, a1 as DialogPortal, a2 as DialogOverlay, r as reactExports, T as Tabs, i as TabsList, k as TabsTrigger, n as TabsContent, B as Button, u as ue, L as Label, I as Input, a3 as useQueryClient, D as Dialog$1, p as DialogContent$1, q as DialogHeader, t as DialogTitle$1, S as Select, d as SelectTrigger, e as SelectValue, f as SelectContent, g as SelectItem, s as storage$1, m as motion, l as Stethoscope, h as Badge, a4 as ShieldCheck, _ as __vitePreload, w as LoaderCircle, b as CircleCheck } from "./index-DB3-P7-3.js";
+import { T as Textarea } from "./textarea-9Q59lYHS.js";
+import { P as Pencil } from "./pencil-0CDrhXlY.js";
+import { R as RotateCcw } from "./rotate-ccw-CU6rnb5G.js";
+import { C as CirclePlus } from "./circle-plus-C6CF2Lz7.js";
+import { u as useQuery, a as useMutation } from "./useMutation-B-WOXLO7.js";
+import { T as TriangleAlert } from "./triangle-alert-DyS7o7G0.js";
+import { S as Search } from "./search-Sa5xbG12.js";
+import { S as Send } from "./send-Bn5S8lb8.js";
+import { P as Phone } from "./phone-DWVB8PiW.js";
+import { U as Upload } from "./upload-BFWkVTjD.js";
+import { T as Trash2 } from "./trash-2-D1BgKOhm.js";
+import { C as Card, a as CardHeader, c as CardTitle, b as CardContent } from "./card-B4gNPtgd.js";
+import { F as FileText } from "./file-text-DyZo-FtI.js";
+import { E as Eye } from "./eye-BdHa3PxK.js";
+import { P as Plus } from "./plus-EM3jMXn0.js";
+import { T as Table, a as TableHeader, b as TableRow, c as TableHead, d as TableBody, e as TableCell } from "./table-D9C3ptke.js";
+import { A as AnimatePresence } from "./index-tUZISnlx.js";
+import { C as CalendarDays } from "./calendar-days-D6PlifYi.js";
+import { H as Heart, C as ChevronLeft } from "./heart-Gew8RFo6.js";
+import { B as Building2 } from "./building-2-Cgwvatpa.js";
+import { M as Mail } from "./mail-C-NhmMk2.js";
+import { B as BookOpen } from "./book-open-BT2b_DUY.js";
+import { M as MapPin } from "./map-pin-D2GnpAZg.js";
+import { C as Clock } from "./clock-CXAMxnnW.js";
+import { E as ExternalLink } from "./external-link-CDJxSJQn.js";
+import { C as ChevronRight } from "./chevron-right-DVt6Brk1.js";
+import { D as Download } from "./download-DDWNGd4X.js";
+import { U as Users } from "./users-B0f2CR3R.js";
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [
+const __iconNode$e = [
   [
     "path",
     {
@@ -37,14 +44,14 @@ const __iconNode$b = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$b);
+const Award = createLucideIcon("award", __iconNode$e);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [
+const __iconNode$d = [
   ["path", { d: "M12 11v4", key: "a6ujw6" }],
   ["path", { d: "M14 13h-4", key: "1pl8zg" }],
   ["path", { d: "M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2", key: "1ksdt3" }],
@@ -52,7 +59,41 @@ const __iconNode$a = [
   ["path", { d: "M6 6v14", key: "1s15cj" }],
   ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
 ];
-const BriefcaseMedical = createLucideIcon("briefcase-medical", __iconNode$a);
+const BriefcaseMedical = createLucideIcon("briefcase-medical", __iconNode$d);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$c = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M8 12h8", key: "1wcyev" }]
+];
+const CircleMinus = createLucideIcon("circle-minus", __iconNode$c);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$b = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
+  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
+  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
+];
+const Image = createLucideIcon("image", __iconNode$b);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$a = [
+  ["path", { d: "m3 11 18-5v12L3 14v-3z", key: "n962bs" }],
+  ["path", { d: "M11.6 16.8a3 3 0 1 1-5.8-1.6", key: "1yl0tm" }]
+];
+const Megaphone = createLucideIcon("megaphone", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -60,10 +101,11 @@ const BriefcaseMedical = createLucideIcon("briefcase-medical", __iconNode$a);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$9 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M8 12h8", key: "1wcyev" }]
+  ["path", { d: "M4 12h16", key: "1lakjw" }],
+  ["path", { d: "M4 18h16", key: "19g7jn" }],
+  ["path", { d: "M4 6h16", key: "1o0s65" }]
 ];
-const CircleMinus = createLucideIcon("circle-minus", __iconNode$9);
+const Menu = createLucideIcon("menu", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -71,10 +113,11 @@ const CircleMinus = createLucideIcon("circle-minus", __iconNode$9);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$8 = [
-  ["path", { d: "m3 11 18-5v12L3 14v-3z", key: "n962bs" }],
-  ["path", { d: "M11.6 16.8a3 3 0 1 1-5.8-1.6", key: "1yl0tm" }]
+  ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }],
+  ["path", { d: "M8 12a2 2 0 0 0 2-2V8H8", key: "1jfesj" }],
+  ["path", { d: "M14 12a2 2 0 0 0 2-2V8h-2", key: "1dq9mh" }]
 ];
-const Megaphone = createLucideIcon("megaphone", __iconNode$8);
+const MessageSquareQuote = createLucideIcon("message-square-quote", __iconNode$8);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -82,11 +125,9 @@ const Megaphone = createLucideIcon("megaphone", __iconNode$8);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$7 = [
-  ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }],
-  ["path", { d: "M8 12a2 2 0 0 0 2-2V8H8", key: "1jfesj" }],
-  ["path", { d: "M14 12a2 2 0 0 0 2-2V8h-2", key: "1dq9mh" }]
+  ["polygon", { points: "3 11 22 2 13 21 11 13 3 11", key: "1ltx0t" }]
 ];
-const MessageSquareQuote = createLucideIcon("message-square-quote", __iconNode$7);
+const Navigation = createLucideIcon("navigation", __iconNode$7);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -94,16 +135,6 @@ const MessageSquareQuote = createLucideIcon("message-square-quote", __iconNode$7
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$6 = [
-  ["polygon", { points: "3 11 22 2 13 21 11 13 3 11", key: "1ltx0t" }]
-];
-const Navigation = createLucideIcon("navigation", __iconNode$6);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$5 = [
   ["path", { d: "M13 2a9 9 0 0 1 9 9", key: "1itnx2" }],
   ["path", { d: "M13 6a5 5 0 0 1 5 5", key: "11nki7" }],
   [
@@ -114,14 +145,14 @@ const __iconNode$5 = [
     }
   ]
 ];
-const PhoneCall = createLucideIcon("phone-call", __iconNode$5);
+const PhoneCall = createLucideIcon("phone-call", __iconNode$6);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$4 = [
+const __iconNode$5 = [
   [
     "path",
     {
@@ -131,14 +162,14 @@ const __iconNode$4 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings = createLucideIcon("settings", __iconNode$4);
+const Settings = createLucideIcon("settings", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$3 = [
+const __iconNode$4 = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -148,7 +179,23 @@ const __iconNode$3 = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$3);
+const SquarePen = createLucideIcon("square-pen", __iconNode$4);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$3 = [
+  [
+    "path",
+    {
+      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
+      key: "r04s7s"
+    }
+  ]
+];
+const Star = createLucideIcon("star", __iconNode$3);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -194,20 +241,52 @@ const __iconNode = [
   ["line", { x1: "8", x2: "14", y1: "11", y2: "11", key: "durymu" }]
 ];
 const ZoomIn = createLucideIcon("zoom-in", __iconNode);
+const landingService = {
+  /** Load front page content from server */
+  async loadContent() {
+    try {
+      return await get("/frontpage/get.php");
+    } catch {
+      return null;
+    }
+  },
+  /** Save front page content to server */
+  async saveContent(data) {
+    try {
+      await post("/frontpage/save.php", data);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  /** Get site configuration from frontpage content */
+  async getSiteConfig() {
+    try {
+      const result = await get("/frontpage/get.php", { key: "siteConfig" });
+      return (result == null ? void 0 : result.siteConfig) ?? null;
+    } catch {
+      return null;
+    }
+  },
+  /** Update site configuration via frontpage save */
+  async updateSiteConfig(config) {
+    await post("/frontpage/save.php", { siteConfig: config });
+  }
+};
 function Sheet({ ...props }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Root, { "data-slot": "sheet", ...props });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { "data-slot": "sheet", ...props });
 }
 function SheetPortal({
   ...props
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Portal, { "data-slot": "sheet-portal", ...props });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogPortal, { "data-slot": "sheet-portal", ...props });
 }
 function SheetOverlay({
   className,
   ...props
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Overlay,
+    DialogOverlay,
     {
       "data-slot": "sheet-overlay",
       className: cn(
@@ -227,7 +306,7 @@ function SheetContent({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(SheetPortal, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(SheetOverlay, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      Content,
+      DialogContent,
       {
         "data-slot": "sheet-content",
         className: cn(
@@ -241,7 +320,7 @@ function SheetContent({
         ...props,
         children: [
           children,
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Close, { className: "ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogClose, { className: "ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "size-4" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Close" })
           ] })
@@ -265,7 +344,7 @@ function SheetTitle({
   ...props
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Title,
+    DialogTitle,
     {
       "data-slot": "sheet-title",
       className: cn("text-foreground font-semibold", className),
@@ -1102,116 +1181,76 @@ const DEFAULT_SITE_CONFIG = {
     },
     {
       doctorName: "Dr. Samia Shikder",
-      whatsappNumber: "8801751959262",
+      whatsappNumber: "880195721221",
       prefilledMessage: "Hello Dr. Samia, I need an emergency consultation."
     }
   ]
 };
-const STORAGE_KEY$2 = "siteConfig";
-function deepMerge(base, overrides) {
-  const result = { ...base };
-  for (const key of Object.keys(overrides)) {
-    const val = overrides[key];
-    if (Array.isArray(val)) {
-      result[key] = val;
-    } else if (val !== null && val !== void 0 && typeof val === "object" && typeof result[key] === "object" && result[key] !== null && !Array.isArray(result[key])) {
-      result[key] = deepMerge(
-        result[key],
-        val
-      );
-    } else if (val !== void 0) {
-      result[key] = val;
-    }
-  }
-  return result;
-}
-function loadConfig() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY$2);
-    if (!raw) return DEFAULT_SITE_CONFIG;
-    return deepMerge(
-      DEFAULT_SITE_CONFIG,
-      JSON.parse(raw)
-    );
-  } catch {
-    return DEFAULT_SITE_CONFIG;
-  }
-}
-function saveConfig(cfg, actor) {
-  localStorage.setItem(STORAGE_KEY$2, JSON.stringify(cfg));
-  saveFrontPageContentWithSync(actor ?? null);
-}
-function resolveActor() {
-  var _a;
-  try {
-    const mod = require("../hooks/useQueries");
-    return ((_a = mod.getCanisterActor) == null ? void 0 : _a.call(mod)) ?? null;
-  } catch {
-    return null;
-  }
-}
 function useSiteConfig() {
-  const [config, setConfig] = reactExports.useState(loadConfig);
-  const updateHero = reactExports.useCallback((hero) => {
-    setConfig((prev) => {
-      const next = { ...prev, heroSection: { ...prev.heroSection, ...hero } };
-      saveConfig(next, resolveActor());
-      return next;
-    });
-  }, []);
-  const updateAbout = reactExports.useCallback((about) => {
-    setConfig((prev) => {
-      const next = {
-        ...prev,
-        aboutSection: { ...prev.aboutSection, ...about }
-      };
-      saveConfig(next, resolveActor());
-      return next;
-    });
-  }, []);
-  const updateFooter = reactExports.useCallback((footer) => {
-    setConfig((prev) => {
-      const next = {
-        ...prev,
-        footerSection: { ...prev.footerSection, ...footer }
-      };
-      saveConfig(next, resolveActor());
-      return next;
-    });
-  }, []);
+  const queryClient = useQueryClient();
+  const { data: config = DEFAULT_SITE_CONFIG, isLoading } = useQuery({
+    queryKey: ["siteConfig"],
+    queryFn: async () => {
+      try {
+        const result = await landingService.getSiteConfig();
+        return result ?? DEFAULT_SITE_CONFIG;
+      } catch {
+        return DEFAULT_SITE_CONFIG;
+      }
+    }
+  });
+  const mutation = useMutation({
+    mutationFn: async (updated) => {
+      await landingService.updateSiteConfig(updated);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
+    }
+  });
+  const updateHero = reactExports.useCallback(
+    (hero) => {
+      mutation.mutate({ heroSection: { ...config.heroSection, ...hero } });
+    },
+    [mutation, config.heroSection]
+  );
+  const updateAbout = reactExports.useCallback(
+    (about) => {
+      mutation.mutate({ aboutSection: { ...config.aboutSection, ...about } });
+    },
+    [mutation, config.aboutSection]
+  );
+  const updateFooter = reactExports.useCallback(
+    (footer) => {
+      mutation.mutate({ footerSection: { ...config.footerSection, ...footer } });
+    },
+    [mutation, config.footerSection]
+  );
   const updateEmergencyContacts = reactExports.useCallback(
     (contacts) => {
-      setConfig((prev) => {
-        const next = { ...prev, emergencyContacts: contacts };
-        saveConfig(next, resolveActor());
-        return next;
-      });
+      mutation.mutate({ emergencyContacts: contacts });
     },
-    []
+    [mutation]
   );
-  const resetSection = reactExports.useCallback((section) => {
-    setConfig((prev) => {
-      const next = {
-        ...prev,
-        [section]: DEFAULT_SITE_CONFIG[section]
-      };
-      saveConfig(next, resolveActor());
-      return next;
-    });
-  }, []);
+  const resetSection = reactExports.useCallback(
+    (section) => {
+      mutation.mutate({ [section]: DEFAULT_SITE_CONFIG[section] });
+    },
+    [mutation]
+  );
   return {
     config,
     updateHero,
     updateAbout,
     updateFooter,
     updateEmergencyContacts,
-    resetSection
+    resetSection,
+    isLoading
   };
 }
 function loadEmergencyContacts() {
   var _a;
   try {
-    const raw = localStorage.getItem("siteConfig");
+    const raw = storage$1.getItem("siteConfig");
     if (!raw) return DEFAULT_SITE_CONFIG.emergencyContacts;
     const cfg = JSON.parse(raw);
     if ((_a = cfg == null ? void 0 : cfg.emergencyContacts) == null ? void 0 : _a.length) return cfg.emergencyContacts;
@@ -1233,11 +1272,11 @@ function findPatientByRegNumber(regNum) {
   if (!regNum.trim()) return null;
   const norm = normalizeRegNo(regNum);
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < storage$1.length; i++) {
+      const key = storage$1.key(i);
       if (!(key == null ? void 0 : key.startsWith("patients_"))) continue;
       try {
-        const raw2 = localStorage.getItem(key);
+        const raw2 = storage$1.getItem(key);
         if (!raw2) continue;
         const arr = JSON.parse(raw2);
         if (!Array.isArray(arr)) continue;
@@ -1248,7 +1287,7 @@ function findPatientByRegNumber(regNum) {
       } catch {
       }
     }
-    const raw = localStorage.getItem("medicare_patients");
+    const raw = storage$1.getItem("medicare_patients");
     if (raw) {
       const arr = JSON.parse(raw);
       if (Array.isArray(arr)) {
@@ -1266,7 +1305,7 @@ function calcAge(dob) {
   if (!dob) return "";
   try {
     let ms;
-    if (typeof dob === "string" && dob.startsWith("__bigint__")) {
+    if (typeof dob === "string" && dob.startsWith("__number__")) {
       ms = Number(BigInt(dob.slice(10)) / 1000000n);
     } else if (typeof dob === "number") {
       ms = dob > 1e15 ? Math.floor(dob / 1e6) : dob;
@@ -1354,11 +1393,11 @@ Sent from Dr. Arman Kabir's Care portal.`;
     setRegLookupMsg("");
     onClose();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", "data-ocid": "emergency.dialog", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-md", "data-ocid": "emergency.dialog", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogHeader, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mb-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-5 h-5 text-destructive" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { className: "text-destructive text-lg font-bold", children: "Emergency Consultation" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { className: "text-destructive text-lg font-bold", children: "Emergency Consultation" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Fill in your details and we will connect you with a doctor via WhatsApp immediately." })
     ] }),
@@ -1502,17 +1541,17 @@ const HEADING_KEY$1 = "galleryHeading";
 const DEFAULT_HEADING$1 = "Our Clinic Gallery";
 function loadPhotos() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY$1);
+    const raw = storage$1.getItem(STORAGE_KEY$1);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 }
 function savePhotos(photos) {
-  localStorage.setItem(STORAGE_KEY$1, JSON.stringify(photos));
+  storage$1.setItem(STORAGE_KEY$1, JSON.stringify(photos));
 }
 function loadHeading$1() {
-  return localStorage.getItem(HEADING_KEY$1) || DEFAULT_HEADING$1;
+  return storage$1.getItem(HEADING_KEY$1) || DEFAULT_HEADING$1;
 }
 function GallerySection({ isAdmin }) {
   const [photos, setPhotos] = reactExports.useState(loadPhotos);
@@ -1577,7 +1616,7 @@ function GallerySection({ isAdmin }) {
   };
   const saveHeading = () => {
     const h = headingDraft.trim() || DEFAULT_HEADING$1;
-    localStorage.setItem(HEADING_KEY$1, h);
+    storage$1.setItem(HEADING_KEY$1, h);
     setHeading(h);
     setEditHeading(false);
     ue.success("Gallery heading updated.");
@@ -1821,7 +1860,7 @@ const PDF_NAME_KEY = "prescription_pad_pdf_name";
 function PrescriptionPDFManager() {
   const fileInputRef = reactExports.useRef(null);
   const [pdfName, setPdfName] = reactExports.useState(
-    () => localStorage.getItem(PDF_NAME_KEY)
+    () => storage$1.getItem(PDF_NAME_KEY)
   );
   const [uploading, setUploading] = reactExports.useState(false);
   const handleFileChange = (e) => {
@@ -1836,8 +1875,8 @@ function PrescriptionPDFManager() {
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result;
-      localStorage.setItem(PDF_KEY, base64);
-      localStorage.setItem(PDF_NAME_KEY, file.name);
+      storage$1.setItem(PDF_KEY, base64);
+      storage$1.setItem(PDF_NAME_KEY, file.name);
       setPdfName(file.name);
       setUploading(false);
       ue.success("Prescription PDF template uploaded.");
@@ -1850,14 +1889,14 @@ function PrescriptionPDFManager() {
     reader.readAsDataURL(file);
   };
   const handleDelete = () => {
-    localStorage.removeItem(PDF_KEY);
-    localStorage.removeItem(PDF_NAME_KEY);
+    storage$1.removeItem(PDF_KEY);
+    storage$1.removeItem(PDF_NAME_KEY);
     setPdfName(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     ue.success("PDF template removed.");
   };
   const handlePreview = () => {
-    const stored = localStorage.getItem(PDF_KEY);
+    const stored = storage$1.getItem(PDF_KEY);
     if (!stored) {
       ue.error("No PDF template stored.");
       return;
@@ -1978,17 +2017,17 @@ const DEFAULT_TESTIMONIALS = [
 ];
 function loadTestimonials() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = storage$1.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : DEFAULT_TESTIMONIALS;
   } catch {
     return DEFAULT_TESTIMONIALS;
   }
 }
 function saveTestimonials(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  storage$1.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 function loadHeading() {
-  return localStorage.getItem(HEADING_KEY) || DEFAULT_HEADING;
+  return storage$1.getItem(HEADING_KEY) || DEFAULT_HEADING;
 }
 function StarRating({
   value,
@@ -2068,7 +2107,7 @@ function TestimonialsSection({
   };
   const saveHeading = () => {
     const h = headingDraft.trim() || DEFAULT_HEADING;
-    localStorage.setItem(HEADING_KEY, h);
+    storage$1.setItem(HEADING_KEY, h);
     setHeading(h);
     setEditHeading(false);
     ue.success("Heading updated.");
@@ -2223,12 +2262,12 @@ function TestimonialsSection({
           )) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Dialog,
+          Dialog$1,
           {
             open: dialogOpen,
             onOpenChange: (v) => !v && setDialogOpen(false),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", "data-ocid": "testimonials.dialog", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: editId ? "Edit Testimonial" : "Add Testimonial" }) }),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-md", "data-ocid": "testimonials.dialog", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: editId ? "Edit Testimonial" : "Add Testimonial" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 pt-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { htmlFor: "t-name", children: "Patient Name *" }),
@@ -2309,17 +2348,101 @@ function TestimonialsSection({
     }
   );
 }
+function useDoctorContent() {
+  const queryClient = useQueryClient();
+  const [overrides, setOverrides] = reactExports.useState({});
+  const [isLoading, setIsLoading] = reactExports.useState(true);
+  reactExports.useEffect(() => {
+    async function fetchContent() {
+      try {
+        const config = await landingService.getSiteConfig();
+        const doctorOverrides = (config == null ? void 0 : config.doctorContentOverrides) ?? {};
+        setOverrides(doctorOverrides ?? {});
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch doctor content:", error);
+        setIsLoading(false);
+      }
+    }
+    fetchContent();
+  }, [queryClient]);
+  const mutation = useMutation({
+    mutationFn: async (newOverrides) => {
+      await landingService.updateSiteConfig({
+        doctorContentOverrides: newOverrides
+      });
+    },
+    onSuccess: () => {
+      async function refetch() {
+        try {
+          const config = await landingService.getSiteConfig();
+          const doctorOverrides = (config == null ? void 0 : config.doctorContentOverrides) ?? {};
+          setOverrides(doctorOverrides ?? {});
+          setIsLoading(false);
+          queryClient.invalidateQueries({ queryKey: ["doctorContent"] });
+        } catch (error) {
+          console.error("Failed to refetch doctor content:", error);
+        }
+      }
+      refetch();
+    }
+  });
+  const getContent = reactExports.useCallback(
+    (doctorKey) => {
+      const doctorOverrides = overrides[doctorKey] || {};
+      const phone = (doctorOverrides == null ? void 0 : doctorOverrides.phone) ?? "";
+      const phone2 = (doctorOverrides == null ? void 0 : doctorOverrides.phone2) ?? "";
+      return {
+        ...doctorOverrides,
+        phone: phone !== "" ? phone : void 0,
+        phone2: phone2 !== "" ? phone2 : void 0
+      };
+    },
+    [overrides]
+  );
+  const updateField = reactExports.useCallback(
+    (doctorKey, path, value) => {
+      const updated = { ...overrides };
+      if (!updated[doctorKey]) updated[doctorKey] = {};
+      const parts = path.split(".");
+      let obj = updated[doctorKey];
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!obj[parts[i]] || typeof obj[parts[i]] !== "object") {
+          obj[parts[i]] = {};
+        }
+        obj = obj[parts[i]];
+      }
+      obj[parts[parts.length - 1]] = value;
+      mutation.mutate(updated);
+    },
+    [overrides, mutation]
+  );
+  const updateChambers = reactExports.useCallback(
+    (doctorKey, chambers) => {
+      const updated = {
+        ...overrides,
+        [doctorKey]: {
+          ...overrides[doctorKey] || {},
+          chambers
+        }
+      };
+      mutation.mutate(updated);
+    },
+    [overrides, mutation]
+  );
+  const getAll = reactExports.useCallback(() => {
+    return overrides;
+  }, [overrides]);
+  return { getContent, updateField, updateChambers, getAll, isLoading };
+}
 function loadPublicBookings() {
   try {
-    return JSON.parse(
-      localStorage.getItem("public_appointment_requests") || "[]"
-    );
+    return [];
   } catch {
     return [];
   }
 }
 function savePublicBookings(data) {
-  localStorage.setItem("public_appointment_requests", JSON.stringify(data));
 }
 const DAY_ORDER = [
   "Sunday",
@@ -2449,15 +2572,6 @@ function ClassroomContent({
   );
   const [lightboxOpen, setLightboxOpen] = reactExports.useState(false);
   const [lightboxIdx, setLightboxIdx] = reactExports.useState(0);
-  const galleryImages = (cls.gallery ?? []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (g) => ({
-      id: g.id ?? "",
-      dataUrl: g.dataUrl ?? "",
-      caption: g.caption ?? "",
-      category: g.category ?? ""
-    })
-  );
   const openLightbox = (idx) => {
     setLightboxIdx(idx);
     setLightboxOpen(true);
@@ -2856,13 +2970,13 @@ function ClassroomContent({
                 )
               ] }, ann.title + String(realIdx));
             }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: addAnn, onOpenChange: setAddAnn, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              DialogContent,
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: addAnn, onOpenChange: setAddAnn, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              DialogContent$1,
               {
                 className: "max-w-sm",
                 "data-ocid": "classroom.ann.dialog",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add Announcement" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Add Announcement" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Title" }),
@@ -3147,13 +3261,13 @@ function ClassroomContent({
                 note.title + String(realIdx)
               );
             }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: addNote, onOpenChange: setAddNote, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              DialogContent,
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: addNote, onOpenChange: setAddNote, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              DialogContent$1,
               {
                 className: "max-w-sm",
                 "data-ocid": "classroom.notes.dialog",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add Lecture Note" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Add Lecture Note" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Title" }),
@@ -3295,13 +3409,13 @@ function ClassroomContent({
                 )
               ] }, vid.title + String(realIdx));
             }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: addVideo, onOpenChange: setAddVideo, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              DialogContent,
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: addVideo, onOpenChange: setAddVideo, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              DialogContent$1,
               {
                 className: "max-w-sm",
                 "data-ocid": "classroom.videos.dialog",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add Video" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Add Video" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Title" }),
@@ -3542,13 +3656,13 @@ function ClassroomContent({
                 );
               }) })
             ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: addSchedule, onOpenChange: setAddSchedule, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              DialogContent,
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: addSchedule, onOpenChange: setAddSchedule, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              DialogContent$1,
               {
                 className: "max-w-sm",
                 "data-ocid": "classroom.schedule.dialog",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Add Schedule Entry" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Add Schedule Entry" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Day" }),
@@ -3845,8 +3959,8 @@ function CVContent({
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: showPdfEdit, onOpenChange: setShowPdfEdit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-sm", "data-ocid": "cv.pdf.dialog", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Update CV PDF URL" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: showPdfEdit, onOpenChange: setShowPdfEdit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-sm", "data-ocid": "cv.pdf.dialog", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Update CV PDF URL" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "PDF URL or Path" }),
@@ -3884,13 +3998,13 @@ function CVContent({
         ] })
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: showCvEdit, onOpenChange: setShowCvEdit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      DialogContent,
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: showCvEdit, onOpenChange: setShowCvEdit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      DialogContent$1,
       {
         className: "max-w-2xl max-h-[85vh] overflow-y-auto",
         "data-ocid": "cv.edit.dialog",
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Edit CV Content" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Edit CV Content" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
@@ -4242,7 +4356,7 @@ function CVContent({
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-2xl font-bold text-primary", children: doc.name.split(" ").slice(1, 3).map((w) => w[0]).join("") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-foreground", children: doc.name }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: `font-medium mt-1 ${color}`, children: doc.degree }),
-      (doc.posts || []).map((post) => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-0.5", children: post }, post)),
+      (doc.posts || []).map((post2) => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground mt-0.5", children: post2 }, post2)),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-sm mt-0.5", children: doc.specialization }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-sm", children: doc.hospital }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-4 mt-3 text-sm text-muted-foreground", children: [
@@ -4382,8 +4496,8 @@ function ProfileEditDialog({
     ue.success("Profile updated successfully");
     onClose();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", "data-ocid": "profile.edit.dialog", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open, onOpenChange: (v) => !v && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-md", "data-ocid": "profile.edit.dialog", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle$1, { children: [
       "Edit Profile — ",
       doc.name
     ] }) }),
@@ -4414,13 +4528,13 @@ function ProfileEditDialog({
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "Posts" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          form.posts.map((post, i) => (
+          form.posts.map((post2, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: posts are ordered
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Input,
                 {
-                  value: post,
+                  value: post2,
                   onChange: (e) => setForm((f) => {
                     const updated = [...f.posts];
                     updated[i] = e.target.value;
@@ -4535,20 +4649,20 @@ function ProfileEditDialog({
 function TreatmentReferencePDFAdmin() {
   const LS_KEY = "treatmentReferencePDF";
   const [stored, setStored] = reactExports.useState(
-    () => localStorage.getItem(LS_KEY)
+    () => storage.getItem(LS_KEY)
   );
   const fileRef = reactExports.useRef(null);
   const handleUpload = (e) => {
     var _a;
     const file = (_a = e.target.files) == null ? void 0 : _a[0];
     if (!file) return;
-    localStorage.setItem(LS_KEY, file.name);
+    storage.setItem(LS_KEY, file.name);
     setStored(file.name);
     ue.success(`Treatment reference PDF "${file.name}" uploaded`);
     if (fileRef.current) fileRef.current.value = "";
   };
   const handleDelete = () => {
-    localStorage.removeItem(LS_KEY);
+    storage.removeItem(LS_KEY);
     setStored(null);
     ue.success("Treatment reference PDF removed");
   };
@@ -4616,20 +4730,19 @@ function TreatmentReferencePDFAdmin() {
 function DifferentialDiagnosisPDFAdmin() {
   const LS_KEY = "ddReferencePDF";
   const [stored, setStored] = reactExports.useState(
-    () => localStorage.getItem(LS_KEY)
+    () => storage.getItem(LS_KEY)
   );
   const fileRef = reactExports.useRef(null);
   const handleUpload = (e) => {
     var _a;
     const file = (_a = e.target.files) == null ? void 0 : _a[0];
     if (!file) return;
-    localStorage.setItem(LS_KEY, file.name);
+    storage.setItem(LS_KEY, file.name);
     setStored(file.name);
     ue.success(`DD reference PDF "${file.name}" uploaded`);
     if (fileRef.current) fileRef.current.value = "";
   };
   const handleDelete = () => {
-    localStorage.removeItem(LS_KEY);
     setStored(null);
     ue.success("DD reference PDF removed");
   };
@@ -4693,7 +4806,7 @@ function StaffApprovalsAdmin() {
   const refresh = reactExports.useCallback(() => {
     try {
       const registry = JSON.parse(
-        localStorage.getItem("medicare_doctors_registry") || "[]"
+        storageAdapter.getItem("medicare_doctors_registry") || "[]"
       );
       setAccounts(registry.filter((d) => d.status === "pending"));
     } catch {
@@ -4705,12 +4818,12 @@ function StaffApprovalsAdmin() {
   const approve = (id) => {
     try {
       const registry = JSON.parse(
-        localStorage.getItem("medicare_doctors_registry") || "[]"
+        storageAdapter.getItem("medicare_doctors_registry") || "[]"
       );
       const idx = registry.findIndex((d) => d.id === id);
       if (idx >= 0) {
         registry[idx] = { ...registry[idx], status: "approved" };
-        localStorage.setItem(
+        storage.setItem(
           "medicare_doctors_registry",
           JSON.stringify(registry)
         );
@@ -4723,12 +4836,12 @@ function StaffApprovalsAdmin() {
   const reject = (id) => {
     try {
       const registry = JSON.parse(
-        localStorage.getItem("medicare_doctors_registry") || "[]"
+        storageAdapter.getItem("medicare_doctors_registry") || "[]"
       );
       const idx = registry.findIndex((d) => d.id === id);
       if (idx >= 0) {
         registry[idx] = { ...registry[idx], status: "rejected" };
-        localStorage.setItem(
+        storage.setItem(
           "medicare_doctors_registry",
           JSON.stringify(registry)
         );
@@ -4797,7 +4910,7 @@ function StaffApprovalsAdmin() {
 function InterpretationRefPDFAdmin() {
   const LS_KEY = "interpretationReferencePDF";
   const [stored, setStored] = reactExports.useState(
-    () => localStorage.getItem(LS_KEY)
+    () => storage.getItem(LS_KEY)
   );
   const fileRef = reactExports.useRef(null);
   const handleUpload = (e) => {
@@ -4805,13 +4918,11 @@ function InterpretationRefPDFAdmin() {
     const file = (_a = e.target.files) == null ? void 0 : _a[0];
     if (!file) return;
     const ref = file.name;
-    localStorage.setItem(LS_KEY, ref);
     setStored(ref);
     ue.success("Investigation interpretation reference PDF saved.");
     if (fileRef.current) fileRef.current.value = "";
   };
   const handleDelete = () => {
-    localStorage.removeItem(LS_KEY);
     setStored(null);
     ue.success("Reference PDF removed.");
   };
@@ -5137,11 +5248,11 @@ function LandingPage({
       return rn.trim().toLowerCase();
     };
     const isPhone = /^[0-9+\-() ]{7,}$/.test(query.trim()) && !query.includes("/");
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
       if (!(key == null ? void 0 : key.startsWith("patients_"))) continue;
       try {
-        const arr = JSON.parse(localStorage.getItem(key) || "[]");
+        const arr = JSON.parse(storage.getItem(key) || "[]");
         let found;
         if (isPhone) {
           found = arr.find(
@@ -5233,7 +5344,7 @@ function LandingPage({
   function getOrAssignSerial(name, date) {
     try {
       const existing = JSON.parse(
-        localStorage.getItem("clinic_appointments") || "[]"
+        storage.getItem("clinic_appointments") || "[]"
       );
       const match = existing.find(
         (a) => {
@@ -5244,7 +5355,7 @@ function LandingPage({
       if (match) return match.serialNumber;
       const daySerials = existing.filter((a) => a.serialDate === date && a.serialNumber).map((a) => a.serialNumber);
       const pub = JSON.parse(
-        localStorage.getItem("public_appointment_requests") || "[]"
+        storage.getItem("public_appointment_requests") || "[]"
       );
       const pubDay = pub.filter(
         (a) => (a.preferredDate || a.date) === date && a.serialNumber
@@ -5697,7 +5808,7 @@ function LandingPage({
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-4", children: [
                     (() => {
                       const photoKey = key === "arman" ? "medicare_doctor_photo_arman" : "medicare_doctor_photo_samia";
-                      const savedPhoto = localStorage.getItem(photoKey);
+                      const savedPhoto = storage.getItem(photoKey);
                       return savedPhoto ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 rounded-2xl shrink-0 overflow-hidden border-2 border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "img",
                         {
@@ -5716,13 +5827,13 @@ function LandingPage({
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "font-display text-xl font-bold text-foreground", children: doc.name }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-primary font-medium text-sm", children: doc.degree }),
-                      (doc.posts || []).map((post) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      (doc.posts || []).map((post2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "p",
                         {
                           className: "text-xs text-muted-foreground mt-0.5",
-                          children: post
+                          children: post2
                         },
-                        post
+                        post2
                       )),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-sm", children: doc.specialization })
                     ] })
@@ -5797,12 +5908,12 @@ function LandingPage({
                               reader.onload = (ev) => {
                                 var _a2;
                                 const photoKey = key === "arman" ? "medicare_doctor_photo_arman" : "medicare_doctor_photo_samia";
-                                localStorage.setItem(
+                                storage.setItem(
                                   photoKey,
                                   (_a2 = ev.target) == null ? void 0 : _a2.result
                                 );
                                 __vitePreload(async () => {
-                                  const { toast: toast2 } = await import("./index-DJeWhCy-.js").then((n) => n.bQ);
+                                  const { toast: toast2 } = await import("./index-DB3-P7-3.js").then((n) => n.b5);
                                   return { toast: toast2 };
                                 }, true ? __vite__mapDeps([0,1]) : void 0).then(
                                   ({ toast: toast2 }) => toast2.success(
@@ -5825,6 +5936,7 @@ function LandingPage({
         );
       }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(GallerySection, { isAdmin }),
     siteConfig.aboutSection.visible && /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "section",
       {
@@ -6367,12 +6479,12 @@ function LandingPage({
       }) })
     ] }) }),
     editChamberKey && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Dialog,
+      Dialog$1,
       {
         open: !!editChamberKey,
         onOpenChange: (o) => !o && setEditChamberKey(null),
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", "data-ocid": "chamber.dialog", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-md", "data-ocid": "chamber.dialog", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle$1, { children: [
             editChamberIdx === -1 ? "Add Chamber" : "Edit Chamber",
             " —",
             " ",
@@ -6553,7 +6665,6 @@ function LandingPage({
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(TestimonialsSection, { isAdmin }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(GallerySection, { isAdmin }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("section", { id: "appointments", className: "py-16 bg-muted/30 px-4 sm:px-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-2xl mx-auto", id: "booking-section", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         motion.div,
@@ -6822,7 +6933,7 @@ function LandingPage({
                   const existingBookings = (() => {
                     try {
                       return JSON.parse(
-                        localStorage.getItem(
+                        storage.getItem(
                           "public_appointment_requests"
                         ) || "[]"
                       );
@@ -7407,8 +7518,8 @@ function LandingPage({
         ] })
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog, { open: privacyModalOpen, onOpenChange: setPrivacyModalOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { className: "max-w-md", "data-ocid": "privacy.dialog", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Privacy Policy" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog$1, { open: privacyModalOpen, onOpenChange: setPrivacyModalOpen, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent$1, { className: "max-w-md", "data-ocid": "privacy.dialog", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$1, { children: "Privacy Policy" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-muted-foreground space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We collect patient information solely for medical care purposes. Data is stored securely and never shared with third parties without consent." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Your personal data (name, contact information, medical history) is used only to facilitate appointments, clinical records, and communications from your doctor." }),

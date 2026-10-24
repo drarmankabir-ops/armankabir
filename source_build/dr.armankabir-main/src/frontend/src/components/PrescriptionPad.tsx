@@ -14,6 +14,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getDoctorEmail, getPrescriptionHeaderImage } from "../hooks/useQueries";
+import { storage } from "../lib/storageAdapter";
 import type { Prescription } from "../types";
 import type { PrescriptionHeaderType } from "../types";
 import { getPrescriptionHeaderText } from "./PrescriptionHeaderPanel";
@@ -402,7 +403,7 @@ export default function PrescriptionPad({
 
   useEffect(() => {
     if (!linkedVisitId) return;
-    const matchKey = Object.keys(localStorage).find((k) =>
+    const matchKey = storage.keys().find((k) =>
       k.includes(`visit_form_data_${linkedVisitId}`),
     );
     if (!matchKey) return;

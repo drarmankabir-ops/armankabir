@@ -33,7 +33,6 @@ import {
 } from "../hooks/useQueries";
 import { useRolePermissions } from "../hooks/useRolePermissions";
 import type { Patient } from "../types";
-import { storage } from "../lib/storageAdapter";
 
 const SKELETON_KEYS = ["sk1", "sk2", "sk3", "sk4", "sk5", "sk6"];
 
@@ -44,17 +43,6 @@ function getAge(dateOfBirth?: number): string {
     (Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000),
   );
   return `${age}y`;
-}
-
-function isIncompleteRegistration(patientId: number | string): boolean {
-  try {
-    return (
-      storage.getItem(`patient_reg_incomplete_${String(patientId)}`) ===
-      "true"
-    );
-  } catch {
-    return false;
-  }
 }
 
 function PatientCard({
@@ -74,7 +62,7 @@ function PatientCard({
   const photo = (patient as Record<string, unknown>).photo as
     | string
     | undefined;
-  const incomplete = isIncompleteRegistration(patient.id);
+  const incomplete = patient.registrationComplete === false;
 
   const handleClick = () => {
     navigate({
@@ -224,7 +212,7 @@ export default function Patients() {
         .toLowerCase()
         .includes(search.toLowerCase());
     if (!matchesSearch) return false;
-    if (showIncompleteOnly && !isIncompleteRegistration(p.id)) return false;
+    if (showIncompleteOnly && p.registrationComplete !== false) return false;
     return true;
   });
 

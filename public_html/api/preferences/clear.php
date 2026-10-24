@@ -4,8 +4,8 @@
  *
  * POST /api/preferences/clear.php
  *
- * Removes every preference owned by the authenticated principal.
- * Scoped to the caller, so one user can never wipe another user's data.
+ * Removes the caller's personal preferences. Clinic-wide records are preserved
+ * because one staff member must not be able to erase shared operational data.
  */
 
 require_once __DIR__ . '/bootstrap.php';
