@@ -8,6 +8,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { doctors } from "../data/doctorsData";
+import type { DoctorKey } from "../data/doctorsData";
 import { landingService } from "../services/landing";
 
 /**
@@ -62,13 +64,19 @@ export function useDoctorContent() {
   const getContent = useCallback(
     (doctorKey: string): Record<string, unknown> => {
       const doctorOverrides = overrides[doctorKey] || {};
-      // Ensure phone fields have default values
+      const doctorDefaults = doctors[doctorKey as DoctorKey] || {};
       const phone = doctorOverrides?.phone ?? '';
       const phone2 = doctorOverrides?.phone2 ?? '';
       return {
+        ...doctorDefaults,
         ...doctorOverrides,
-        phone: phone !== '' ? phone : undefined,
-        phone2: phone2 !== '' ? phone2 : undefined,
+        name:
+          typeof doctorOverrides.name === "string" &&
+          doctorOverrides.name.trim()
+            ? doctorOverrides.name
+            : doctorDefaults.name,
+        phone: phone !== '' ? phone : doctorDefaults.phone,
+        phone2: phone2 !== '' ? phone2 : doctorDefaults.phone2,
       };
     },
     [overrides],

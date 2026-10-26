@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { doctors } from "@/data/doctorsData";
 import type { DoctorKey } from "@/data/doctorsData";
 import { useDoctorContent } from "@/hooks/useDoctorContent";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -3392,8 +3393,24 @@ export default function LandingPage({
     setMobileMenuOpen(false);
   };
 
-  const armanDoc = getContent("arman");
-  const samiaDoc = getContent("samia");
+  const armanContent = getContent("arman");
+  const samiaContent = getContent("samia");
+  const armanDoc = {
+    ...doctors.arman,
+    ...armanContent,
+    name:
+      typeof armanContent.name === "string" && armanContent.name.trim()
+        ? armanContent.name
+        : doctors.arman.name,
+  };
+  const samiaDoc = {
+    ...doctors.samia,
+    ...samiaContent,
+    name:
+      typeof samiaContent.name === "string" && samiaContent.name.trim()
+        ? samiaContent.name
+        : doctors.samia.name,
+  };
   const allDocs = { arman: armanDoc, samia: samiaDoc };
 
   return (
