@@ -46,6 +46,7 @@ import { doctors } from "@/data/doctorsData";
 import type { DoctorKey } from "@/data/doctorsData";
 import { useDoctorContent } from "@/hooks/useDoctorContent";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { storage } from "@/lib/storageAdapter";
 import {
   AlertTriangle,
   Award,
