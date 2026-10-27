@@ -3785,7 +3785,8 @@ export default function LandingPage({
                             key === "arman"
                               ? "medicare_doctor_photo_arman"
                               : "medicare_doctor_photo_samia";
-                          const savedPhoto = storage.getItem(photoKey);
+                          const savedPhoto =
+                            typeof doc.photo === "string" ? doc.photo : null;
                           return savedPhoto ? (
                             <div className="w-16 h-16 rounded-2xl shrink-0 overflow-hidden border-2 border-border">
                               <img
@@ -3881,19 +3882,10 @@ export default function LandingPage({
                                   if (!file) return;
                                   const reader = new FileReader();
                                   reader.onload = (ev) => {
-                                    const photoKey =
-                                      key === "arman"
-                                        ? "medicare_doctor_photo_arman"
-                                        : "medicare_doctor_photo_samia";
-                                    storage.setItem(
-                                      photoKey,
-                                      ev.target?.result as string,
-                                    );
-                                    import("sonner").then(({ toast }) =>
-                                      toast.success(
-                                        "Photo updated — refresh to see",
-                                      ),
-                                    );
+                                    const photo = ev.target?.result;
+                                    if (typeof photo !== "string") return;
+                                    updateField(key, "photo", photo);
+                                    toast.success("Photo updated");
                                   };
                                   reader.readAsDataURL(file);
                                 }}

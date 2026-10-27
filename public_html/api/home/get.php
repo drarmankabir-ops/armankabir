@@ -23,6 +23,7 @@ try {
     // Fetch all home-related setting keys
     $stmt = $db->query("SELECT setting_key, setting_value, setting_group, updated_at FROM site_settings 
                         WHERE setting_key IN (
+                            'heroSection', 'aboutSection', 'footerSection',
                             'heroTaglineEn', 'heroTaglineBn', 'heroDescriptionEn', 'heroDescriptionBn',
                             'heroCta1Label', 'heroCta2Label',
                             'aboutClinicNameEn', 'aboutClinicNameBn', 'aboutDescriptionEn', 'aboutDescriptionBn',
@@ -41,9 +42,14 @@ try {
         // Decode JSON if it's stored as JSON string
         if (is_string($value)) {
             $decoded = json_decode($value, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            if (json_last_error() === JSON_ERROR_NONE) {
                 $value = $decoded;
             }
+        }
+
+        if (in_array($key, ['heroSection', 'aboutSection', 'footerSection'], true)) {
+            $data[$key] = is_array($value) ? $value : [];
+            continue;
         }
         
         // Store by category
@@ -80,7 +86,7 @@ try {
         'heroDescriptionBn' => 'জীবনের প্রতিটি পর্যায়ে বিশেষজ্ঞ রোগ নির্ণয়, সহানুভূতিশীল চিকিৎসা ও বিশ্বস্ত সেবা।',
         'cta1Label' => 'Book Appointment',
         'cta2Label' => 'Emergency',
-    ], $data['heroSection']);
+    ], is_array($data['heroSection']) ? $data['heroSection'] : []);
     
     $data['aboutSection'] = array_merge([
         'visible' => true,
@@ -93,7 +99,7 @@ try {
         'doctorCount' => 2,
         'specialties' => ['Internal Medicine', 'Respiratory Medicine', 'Diabetes & Endocrinology', 'General Practice'],
         'affiliations' => ['BSMMU', 'DMCH', 'Dhaka Medical College', 'National Institute of Diseases of Chest & Hospital']
-    ], $data['aboutSection']);
+    ], is_array($data['aboutSection']) ? $data['aboutSection'] : []);
     
     $data['footerSection'] = array_merge([
         'addressEn' => 'Dhaka, Bangladesh',
@@ -103,7 +109,7 @@ try {
         'openingHours' => 'Sat--Thu: 9 AM - 8 PM',
         'copyrightText' => 'Dr. Arman Kabir\'s Care. All rights reserved.',
         'socialLinks' => []
-    ], $data['footerSection']);
+    ], is_array($data['footerSection']) ? $data['footerSection'] : []);
     
     successResponse($data);
 } catch (\Exception $e) {

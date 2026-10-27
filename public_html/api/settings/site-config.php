@@ -64,8 +64,8 @@ try {
     } elseif ($method === 'POST') {
         // ── POST: Update site config ────────────────────────────────────────────
         
-        $user = getAuthUser();
-        $userId = $user ? $user['id'] : null;
+        $user = requireRole(['admin', 'admin_content']);
+        $userId = ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null;
 
         $input = getJsonInput();
 

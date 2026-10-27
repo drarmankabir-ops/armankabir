@@ -23,9 +23,9 @@ require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
 
-// Try to authenticate
-$user = getAuthUser();
-$userId = $user ? $user['id'] : null;
+// Only site administrators may change public-facing content.
+$user = requireRole(['admin', 'admin_content']);
+$userId = ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null;
 
 $input = getJsonInput();
 

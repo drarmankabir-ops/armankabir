@@ -85,8 +85,17 @@ export const landingService = {
   /** Get site configuration from frontpage content */
   async getSiteConfig(): Promise<SiteConfig | null> {
     try {
-      const result = await get<{ siteConfig?: SiteConfig }>('/frontpage/get.php', { key: 'siteConfig' });
-      return result?.siteConfig ?? null;
+      const result = await get<{
+        siteConfig?: SiteConfig;
+        doctorContentOverrides?: Record<string, Record<string, unknown>>;
+      }>('/frontpage/get.php');
+      if (!result?.siteConfig && !result?.doctorContentOverrides) return null;
+      return {
+        ...(result.siteConfig ?? {}),
+        ...(result.doctorContentOverrides
+          ? { doctorContentOverrides: result.doctorContentOverrides }
+          : {}),
+      } as SiteConfig;
     } catch {
       return null;
     }

@@ -72,6 +72,28 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   ],
 };
 
+function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
+  return {
+    ...DEFAULT_SITE_CONFIG,
+    ...config,
+    heroSection: {
+      ...DEFAULT_SITE_CONFIG.heroSection,
+      ...(config?.heroSection ?? {}),
+    },
+    aboutSection: {
+      ...DEFAULT_SITE_CONFIG.aboutSection,
+      ...(config?.aboutSection ?? {}),
+    },
+    footerSection: {
+      ...DEFAULT_SITE_CONFIG.footerSection,
+      ...(config?.footerSection ?? {}),
+    },
+    emergencyContacts: Array.isArray(config?.emergencyContacts)
+      ? config.emergencyContacts
+      : DEFAULT_SITE_CONFIG.emergencyContacts,
+  };
+}
+
 export function useSiteConfig() {
   const queryClient = useQueryClient();
 
@@ -80,7 +102,7 @@ export function useSiteConfig() {
     queryFn: async () => {
       try {
         const result = await landingService.getSiteConfig();
-        return result ?? DEFAULT_SITE_CONFIG;
+        return withSiteConfigDefaults(result);
       } catch {
         return DEFAULT_SITE_CONFIG;
       }
