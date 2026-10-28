@@ -193,6 +193,7 @@ function ClassroomContent({
   const { getContent } = useDoctorContent();
   const doc = getContent(doctorKey);
   const cls = doc.classroom;
+  const galleryImages = Array.isArray(cls.gallery) ? cls.gallery : [];
 
   // Permission: admin OR consultant editing their own classroom
   const canEdit =

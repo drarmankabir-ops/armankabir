@@ -2760,6 +2760,7 @@ function ClassroomContent({
   const { getContent } = useDoctorContent();
   const doc = getContent(doctorKey);
   const cls = doc.classroom;
+  const galleryImages = Array.isArray(cls.gallery) ? cls.gallery : [];
   const canEdit = isAdmin || isConsultantDoctor && currentDoctorId === doctorKey;
   const color = doctorKey === "arman" ? "text-primary" : "text-rose-600";
   const bg = doctorKey === "arman" ? "bg-primary/10" : "bg-rose-100";
