@@ -6,7 +6,7 @@
  * Overrides are managed via the landingService on the server.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { doctors } from "../data/doctorsData";
 import type { DoctorKey } from "../data/doctorsData";
@@ -18,46 +18,20 @@ import { landingService } from "../services/landing";
  */
 export function useDoctorContent() {
   const queryClient = useQueryClient();
-  const [overrides, setOverrides] = useState<Record<string, Record<string, unknown>>>({});
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch doctor content on mount
-  useEffect(() => {
-    async function fetchContent() {
-      try {
-        const config = await landingService.getSiteConfig();
-        const doctorOverrides = (config as any)?.doctorContentOverrides ?? {};
-        setOverrides(doctorOverrides ?? {});
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch doctor content:", error);
-        setIsLoading(false);
-      }
-    }
-
-    fetchContent();
-  }, [queryClient]);
+  const { data: config, isLoading } = useQuery({
+    queryKey: ["siteConfig"],
+    queryFn: () => landingService.getSiteConfig(),
+  });
+  const overrides = config?.doctorContentOverrides ?? {};
 
   const mutation = useMutation({
-    mutationFn: async (newOverrides: Record<string, unknown>) => {
-      await landingService.updateSiteConfig({
-        doctorContentOverrides: newOverrides,
-      } as any);
+    mutationFn: async (
+      newOverrides: Record<string, Record<string, unknown>>,
+    ) => {
+      await landingService.updateSiteConfig({ doctorContentOverrides: newOverrides });
     },
     onSuccess: () => {
-      // Refetch after successful update
-      async function refetch() {
-        try {
-          const config = await landingService.getSiteConfig();
-          const doctorOverrides = (config as any)?.doctorContentOverrides ?? {};
-          setOverrides(doctorOverrides ?? {});
-          setIsLoading(false);
-          queryClient.invalidateQueries({ queryKey: ["doctorContent"] });
-        } catch (error) {
-          console.error("Failed to refetch doctor content:", error);
-        }
-      }
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
     },
   });
 
@@ -84,15 +58,19 @@ export function useDoctorContent() {
 
   const updateField = useCallback(
     (doctorKey: string, path: string, value: unknown) => {
-      const updated = { ...overrides };
-      if (!updated[doctorKey]) updated[doctorKey] = {};
-      const parts = path.split(".");
-      let obj = updated[doctorKey] as Record<string, unknown>;
+      const parts = path.split(".").filter(Boolean);
+      if (parts.length === 0) return;
+      const doctorOverride = { ...(overrides[doctorKey] ?? {}) };
+      const updated = { ...overrides, [doctorKey]: doctorOverride };
+      let obj = doctorOverride;
       for (let i = 0; i < parts.length - 1; i++) {
-        if (!obj[parts[i]] || typeof obj[parts[i]] !== "object") {
-          obj[parts[i]] = {};
-        }
-        obj = obj[parts[i]] as Record<string, unknown>;
+        const existing = obj[parts[i]];
+        const child =
+          existing && typeof existing === "object" && !Array.isArray(existing)
+            ? { ...(existing as Record<string, unknown>) }
+            : {};
+        obj[parts[i]] = child;
+        obj = child;
       }
       obj[parts[parts.length - 1]] = value;
       mutation.mutate(updated);

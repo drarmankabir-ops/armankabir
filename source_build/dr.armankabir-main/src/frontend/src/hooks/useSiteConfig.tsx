@@ -8,8 +8,19 @@
 
 import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { landingService } from "../services/landing";
-import type { SiteConfig, HeroSection, AboutSection, FooterSection, EmergencyContact } from "../services/landing";
+import type {
+  AboutSection,
+  EmergencyContact,
+  FAQsSection,
+  FooterSection,
+  GallerySection,
+  HeroSection,
+  SiteConfig,
+  TestimonialsSection,
+} from "../services/landing";
+
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   heroSection: {
     taglineEn: "Dr. Arman Kabir's Care",
@@ -70,6 +81,44 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       prefilledMessage: "Hello Dr. Samia, I need an emergency consultation.",
     },
   ],
+  testimonialsSection: {
+    heading: "What Our Patients Say",
+    testimonials: [
+      {
+        id: "t1",
+        patientName: "Rahim Uddin",
+        quote:
+          "Dr. Arman Kabir's care is exceptional. He listened carefully and gave clear guidance. I feel much better now.",
+        rating: 5,
+        date: "2025-03-10",
+      },
+      {
+        id: "t2",
+        patientName: "Nasrin Begum",
+        quote:
+          "Dr. Samia is very kind and thorough. The clinic is clean and the staff is helpful. Highly recommend.",
+        rating: 5,
+        date: "2025-02-20",
+      },
+      {
+        id: "t3",
+        patientName: "Karim Hossain",
+        quote:
+          "Excellent service. The online booking is very easy and I got an appointment the same day.",
+        rating: 4,
+        date: "2025-01-15",
+      },
+    ],
+  },
+  gallerySection: {
+    heading: "Our Clinic Gallery",
+    photos: [],
+  },
+  faqsSection: {
+    heading: "Frequently Asked Questions",
+    faqs: [],
+  },
+  doctorContentOverrides: {},
 };
 
 function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
@@ -91,23 +140,44 @@ function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
     emergencyContacts: Array.isArray(config?.emergencyContacts)
       ? config.emergencyContacts
       : DEFAULT_SITE_CONFIG.emergencyContacts,
+    testimonialsSection: {
+      ...DEFAULT_SITE_CONFIG.testimonialsSection,
+      ...(config?.testimonialsSection ?? {}),
+      testimonials: Array.isArray(config?.testimonialsSection?.testimonials)
+        ? config.testimonialsSection.testimonials
+        : DEFAULT_SITE_CONFIG.testimonialsSection.testimonials,
+    },
+    gallerySection: {
+      ...DEFAULT_SITE_CONFIG.gallerySection,
+      ...(config?.gallerySection ?? {}),
+      photos: Array.isArray(config?.gallerySection?.photos)
+        ? config.gallerySection.photos
+        : DEFAULT_SITE_CONFIG.gallerySection.photos,
+    },
+    faqsSection: {
+      ...DEFAULT_SITE_CONFIG.faqsSection,
+      ...(config?.faqsSection ?? {}),
+      faqs: Array.isArray(config?.faqsSection?.faqs)
+        ? config.faqsSection.faqs
+        : DEFAULT_SITE_CONFIG.faqsSection.faqs,
+    },
+    doctorContentOverrides: config?.doctorContentOverrides ?? {},
   };
 }
 
 export function useSiteConfig() {
   const queryClient = useQueryClient();
 
-  const { data: config = DEFAULT_SITE_CONFIG, isLoading } = useQuery({
+  const {
+    data: loadedConfig,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["siteConfig"],
-    queryFn: async () => {
-      try {
-        const result = await landingService.getSiteConfig();
-        return withSiteConfigDefaults(result);
-      } catch {
-        return DEFAULT_SITE_CONFIG;
-      }
-    },
+    queryFn: () => landingService.getSiteConfig(),
   });
+  const config = withSiteConfigDefaults(loadedConfig ?? null);
 
   const mutation = useMutation({
     mutationFn: async (updated: Partial<SiteConfig>) => {
@@ -115,6 +185,9 @@ export function useSiteConfig() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
+    },
+    onError: (saveError: Error) => {
+      toast.error(`Could not save front-page content: ${saveError.message}`);
     },
   });
 
@@ -141,14 +214,38 @@ export function useSiteConfig() {
 
   const updateEmergencyContacts = useCallback(
     (contacts: EmergencyContact[]) => {
-      mutation.mutate({ emergencyContacts: contacts } as Partial<SiteConfig>);
+      mutation.mutate({ emergencyContacts: contacts });
     },
     [mutation],
   );
 
+  const updateTestimonials = useCallback(
+    (section: Partial<TestimonialsSection>) =>
+      mutation.mutateAsync({
+        testimonialsSection: { ...config.testimonialsSection, ...section },
+      }),
+    [mutation, config.testimonialsSection],
+  );
+
+  const updateGallery = useCallback(
+    (section: Partial<GallerySection>) =>
+      mutation.mutateAsync({
+        gallerySection: { ...config.gallerySection, ...section },
+      }),
+    [mutation, config.gallerySection],
+  );
+
+  const updateFAQs = useCallback(
+    (section: Partial<FAQsSection>) =>
+      mutation.mutateAsync({
+        faqsSection: { ...config.faqsSection, ...section },
+      }),
+    [mutation, config.faqsSection],
+  );
+
   const resetSection = useCallback(
     (section: keyof SiteConfig) => {
-      mutation.mutate({ [section]: DEFAULT_SITE_CONFIG[section] } as Partial<SiteConfig>);
+      mutation.mutate({ [section]: DEFAULT_SITE_CONFIG[section] });
     },
     [mutation],
   );
@@ -159,7 +256,13 @@ export function useSiteConfig() {
     updateAbout,
     updateFooter,
     updateEmergencyContacts,
+    updateTestimonials,
+    updateGallery,
+    updateFAQs,
     resetSection,
     isLoading,
+    isError,
+    error,
+    isSaving: mutation.isPending,
   };
 }

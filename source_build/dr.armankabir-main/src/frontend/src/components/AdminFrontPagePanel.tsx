@@ -13,6 +13,7 @@ import type {
   AboutSection,
   EmergencyContact,
   FooterSection,
+  FAQsSection,
   HeroSection,
   SiteConfig,
   SocialLink,
@@ -37,6 +38,7 @@ interface Props {
   updateAbout: (a: Partial<AboutSection>) => void;
   updateFooter: (f: Partial<FooterSection>) => void;
   updateEmergencyContacts: (c: EmergencyContact[]) => void;
+  updateFAQs: (section: Partial<FAQsSection>) => Promise<unknown>;
   resetSection: (s: keyof SiteConfig) => void;
 }
 
@@ -613,6 +615,179 @@ function FooterTab({
   );
 }
 
+function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
+  const [headingEditing, setHeadingEditing] = useState(false);
+  const [headingDraft, setHeadingDraft] = useState(config.faqsSection.heading);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [questionDraft, setQuestionDraft] = useState("");
+  const [answerDraft, setAnswerDraft] = useState("");
+  const [newQuestion, setNewQuestion] = useState("");
+  const [newAnswer, setNewAnswer] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const saveFAQs = async (faqs: FAQsSection["faqs"]) => {
+    setSaving(true);
+    try {
+      await updateFAQs({ faqs });
+      toast.success("FAQs saved.");
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save FAQs.");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveHeading = async () => {
+    setSaving(true);
+    try {
+      await updateFAQs({ heading: headingDraft.trim() || "Frequently Asked Questions" });
+      setHeadingEditing(false);
+      toast.success("FAQ heading saved.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save heading.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addFAQ = async () => {
+    if (!newQuestion.trim() || !newAnswer.trim()) return;
+    const saved = await saveFAQs([
+      ...config.faqsSection.faqs,
+      {
+        id: Date.now().toString(36),
+        question: newQuestion.trim(),
+        answer: newAnswer.trim(),
+      },
+    ]);
+    if (saved) {
+      setNewQuestion("");
+      setNewAnswer("");
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editingId || !questionDraft.trim() || !answerDraft.trim()) return;
+    const saved = await saveFAQs(
+      config.faqsSection.faqs.map((faq) =>
+        faq.id === editingId
+          ? { ...faq, question: questionDraft.trim(), answer: answerDraft.trim() }
+          : faq,
+      ),
+    );
+    if (saved) setEditingId(null);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        {headingEditing ? (
+          <Input
+            value={headingDraft}
+            onChange={(event) => setHeadingDraft(event.target.value)}
+            aria-label="FAQ section heading"
+          />
+        ) : (
+          <p className="text-sm font-medium">{config.faqsSection.heading}</p>
+        )}
+        {headingEditing ? (
+          <Button size="sm" onClick={saveHeading} disabled={saving}>
+            Save
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setHeadingDraft(config.faqsSection.heading);
+              setHeadingEditing(true);
+            }}
+          >
+            Edit heading
+          </Button>
+        )}
+      </div>
+
+      {config.faqsSection.faqs.map((faq) => (
+        <div key={faq.id} className="space-y-2 border-b pb-3">
+          {editingId === faq.id ? (
+            <>
+              <Input
+                value={questionDraft}
+                onChange={(event) => setQuestionDraft(event.target.value)}
+                aria-label="FAQ question"
+              />
+              <Textarea
+                value={answerDraft}
+                onChange={(event) => setAnswerDraft(event.target.value)}
+                aria-label="FAQ answer"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={saveEdit} disabled={saving}>
+                  Save
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-start gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{faq.question}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{faq.answer}</p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setEditingId(faq.id);
+                  setQuestionDraft(faq.question);
+                  setAnswerDraft(faq.answer);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label="Delete FAQ"
+                disabled={saving}
+                onClick={() => void saveFAQs(config.faqsSection.faqs.filter((item) => item.id !== faq.id))}
+              >
+                <X className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+
+      <div className="space-y-2 border-t pt-3">
+        <Label className="text-xs">Add a question</Label>
+        <Input
+          value={newQuestion}
+          onChange={(event) => setNewQuestion(event.target.value)}
+          placeholder="Question"
+        />
+        <Textarea
+          value={newAnswer}
+          onChange={(event) => setNewAnswer(event.target.value)}
+          placeholder="Answer"
+        />
+        <Button
+          size="sm"
+          onClick={addFAQ}
+          disabled={saving || !newQuestion.trim() || !newAnswer.trim()}
+        >
+          Add FAQ
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ──── Main Panel ──────────────────────────────────────────────────────────────
 export default function AdminFrontPagePanel(props: Props) {
   const [open, setOpen] = useState(false);
@@ -659,7 +834,7 @@ export default function AdminFrontPagePanel(props: Props) {
                 Emergency
               </TabsTrigger>
             </TabsList>
-            <TabsList className="grid grid-cols-2 w-full mt-1">
+            <TabsList className="grid grid-cols-4 w-full mt-1">
               <TabsTrigger value="footer" data-ocid="admin_panel.footer.tab">
                 Footer
               </TabsTrigger>
@@ -668,6 +843,12 @@ export default function AdminFrontPagePanel(props: Props) {
                 data-ocid="admin_panel.testimonials.tab"
               >
                 Testimonials
+              </TabsTrigger>
+              <TabsTrigger value="gallery" data-ocid="admin_panel.gallery.tab">
+                Gallery
+              </TabsTrigger>
+              <TabsTrigger value="faqs" data-ocid="admin_panel.faqs.tab">
+                FAQs
               </TabsTrigger>
             </TabsList>
 
@@ -723,22 +904,27 @@ export default function AdminFrontPagePanel(props: Props) {
                 >
                   Go to Testimonials Section
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full gap-2"
-                  onClick={() => {
-                    setOpen(false);
-                    setTimeout(() => {
-                      document
-                        .getElementById("gallery")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }, 300);
-                  }}
-                  data-ocid="admin_panel.gallery.goto_button"
-                >
-                  Go to Gallery Section
-                </Button>
               </div>
+            </TabsContent>
+            <TabsContent value="gallery">
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => {
+                  setOpen(false);
+                  setTimeout(() => {
+                    document
+                      .getElementById("gallery")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }, 300);
+                }}
+                data-ocid="admin_panel.gallery.goto_button"
+              >
+                Go to Gallery Section
+              </Button>
+            </TabsContent>
+            <TabsContent value="faqs">
+              <FAQsTab config={props.config} updateFAQs={props.updateFAQs} />
             </TabsContent>
           </Tabs>
         </SheetContent>

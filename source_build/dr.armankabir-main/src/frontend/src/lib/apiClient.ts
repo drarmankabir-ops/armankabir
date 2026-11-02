@@ -10,6 +10,7 @@
 const API_BASE = '/api';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 3;
+let csrfToken: string | null = null;
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -68,6 +69,14 @@ async function request<T = any>(
   const headers: Record<string, string> = {
     ...customHeaders,
   };
+
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
+    if (!csrfToken) {
+      const csrf = await request<{ token: string }>('GET', '/auth/csrf.php');
+      csrfToken = csrf.token;
+    }
+    headers['X-CSRF-Token'] = csrfToken;
+  }
 
   const options: RequestInit = {
     method,
@@ -169,4 +178,8 @@ export async function upload<T = any>(
   formData: FormData,
 ): Promise<T> {
   return request<T>('POST', path, formData, undefined, {});
+}
+
+export function clearCsrfToken(): void {
+  csrfToken = null;
 }

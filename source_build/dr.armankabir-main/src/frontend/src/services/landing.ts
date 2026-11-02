@@ -19,6 +19,41 @@ export interface EmergencyContact {
   prefilledMessage: string;
 }
 
+export interface Testimonial {
+  id: string;
+  patientName: string;
+  quote: string;
+  rating: number;
+  date?: string;
+}
+
+export interface TestimonialsSection {
+  heading: string;
+  testimonials: Testimonial[];
+}
+
+export interface GalleryPhoto {
+  id: string;
+  dataUrl: string;
+  caption: string;
+}
+
+export interface GallerySection {
+  heading: string;
+  photos: GalleryPhoto[];
+}
+
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface FAQsSection {
+  heading: string;
+  faqs: FAQItem[];
+}
+
 export interface HeroSection {
   taglineEn: string;
   taglineBn: string;
@@ -60,49 +95,54 @@ export interface SiteConfig {
   aboutSection: AboutSection;
   footerSection: FooterSection;
   emergencyContacts: EmergencyContact[];
+  testimonialsSection: TestimonialsSection;
+  gallerySection: GallerySection;
+  faqsSection: FAQsSection;
+  doctorContentOverrides: Record<string, Record<string, unknown>>;
+  [section: string]: unknown;
+}
+
+interface FrontPageResponse {
+  siteConfig?: Partial<SiteConfig>;
+  doctorContentOverrides?: Record<string, Record<string, unknown>>;
 }
 
 export const landingService = {
   /** Load front page content from server */
   async loadContent(): Promise<Record<string, unknown> | null> {
-    try {
-      return await get<Record<string, unknown>>('/frontpage/get.php');
-    } catch {
-      return null;
-    }
+    return get<Record<string, unknown>>('/frontpage/get.php');
   },
 
   /** Save front page content to server */
   async saveContent(data: Record<string, unknown>): Promise<boolean> {
-    try {
-      await post('/frontpage/save.php', data);
-      return true;
-    } catch {
-      return false;
-    }
+    await post('/frontpage/save.php', data);
+    return true;
+  },
+
+  /** Migrate legacy website preferences after an administrator signs in */
+  async migrateLegacyContent(): Promise<void> {
+    await post('/frontpage/migrate.php', {});
   },
 
   /** Get site configuration from frontpage content */
   async getSiteConfig(): Promise<SiteConfig | null> {
-    try {
-      const result = await get<{
-        siteConfig?: SiteConfig;
-        doctorContentOverrides?: Record<string, Record<string, unknown>>;
-      }>('/frontpage/get.php');
-      if (!result?.siteConfig && !result?.doctorContentOverrides) return null;
-      return {
-        ...(result.siteConfig ?? {}),
-        ...(result.doctorContentOverrides
-          ? { doctorContentOverrides: result.doctorContentOverrides }
-          : {}),
-      } as SiteConfig;
-    } catch {
-      return null;
-    }
+    const result = await get<FrontPageResponse>('/frontpage/get.php');
+    if (!result?.siteConfig && !result?.doctorContentOverrides) return null;
+    return {
+      ...(result.siteConfig ?? {}),
+      doctorContentOverrides:
+        result.doctorContentOverrides ??
+        result.siteConfig?.doctorContentOverrides ??
+        {},
+    } as SiteConfig;
   },
 
   /** Update site configuration via frontpage save */
   async updateSiteConfig(config: Partial<SiteConfig>): Promise<void> {
-    await post('/frontpage/save.php', { siteConfig: config });
+    const { doctorContentOverrides, ...siteConfig } = config;
+    await post('/frontpage/save.php', {
+      siteConfig,
+      ...(doctorContentOverrides !== undefined ? { doctorContentOverrides } : {}),
+    });
   },
 };

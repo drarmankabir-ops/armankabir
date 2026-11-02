@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../frontpage/save.php';
+
 /**
  * Home Content Save API
  * 
@@ -29,17 +31,9 @@ require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
 
-// Try to authenticate
-$user = getAuthUser();
-$userId = $user ? $user['id'] : null;
-
-// Check if user has admin role for content management
-if (!$user || !in_array($user['role'], ['admin', 'consultant_doctor', 'professor'])) {
-    errorResponse('Access denied. Insufficient permissions.', 403, [
-        'required_roles' => ['admin', 'consultant_doctor', 'professor'],
-        'your_role' => $user ? $user['role'] : 'not authenticated',
-    ]);
-}
+$user = requireRole(['admin', 'admin_content']);
+requireCsrfToken();
+$userId = ($user['session_type'] ?? 'user') === 'user' ? (int) $user['id'] : null;
 
 $input = getJsonInput();
 
@@ -138,5 +132,5 @@ try {
     
 } catch (\Exception $e) {
     error_log('Home save error: ' . $e->getMessage());
-    errorResponse('Failed to save home content. Server error: ' . $e->getMessage(), 500);
+    errorResponse('Failed to save home content.', 500);
 }

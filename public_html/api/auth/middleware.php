@@ -411,10 +411,23 @@ function cleanupExpiredSessions(): void {
  */
 function generateCsrfToken(): string {
     if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        startAuthSession();
     }
-    $token = bin2hex(random_bytes(32));
-    $_SESSION['csrf_token'] = $token;
+    if (session_status() !== PHP_SESSION_ACTIVE) return '';
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return (string) $_SESSION['csrf_token'];
+}
+
+/**
+ * Return the stable CSRF token bound to the current PHP session.
+ */
+function getCsrfToken(): string {
+    $token = generateCsrfToken();
+    if ($token === '') {
+        errorResponse('Unable to initialize a CSRF-protected session.', 500);
+    }
     return $token;
 }
 
@@ -423,7 +436,7 @@ function generateCsrfToken(): string {
  */
 function validateCsrfToken(string $token): bool {
     if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        startAuthSession();
     }
     $sessionToken = $_SESSION['csrf_token'] ?? '';
     return !empty($sessionToken) && hash_equals($sessionToken, $token);
@@ -457,11 +470,6 @@ function requireCsrfToken(): void {
         errorResponse('CSRF token validation failed. Please refresh and try again.', 403);
     }
     
-    // Invalidate token after use (one-time use)
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    unset($_SESSION['csrf_token']);
 }
 
 /**

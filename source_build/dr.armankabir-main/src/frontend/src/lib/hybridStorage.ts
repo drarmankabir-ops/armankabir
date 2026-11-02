@@ -71,13 +71,12 @@ export function getPendingChangesCount(): number { return 0; }
 export async function saveFrontPageContentWithSync(): Promise<void> {}
 
 export async function loadFrontPageContentFromServer(): Promise<Record<string, unknown> | null> {
-  try { return await get<Record<string, unknown>>('/frontpage/get.php'); }
-  catch { return null; }
+  return get<Record<string, unknown>>('/frontpage/get.php');
 }
 
 export async function saveFrontPageContentToServer(data: Record<string, unknown>): Promise<boolean> {
-  try { await post('/frontpage/save.php', data); return true; }
-  catch { return false; }
+  await post('/frontpage/save.php', data);
+  return true;
 }
 
 // These names remain only so legacy imports fail closed instead of creating a

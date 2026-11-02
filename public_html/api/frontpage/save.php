@@ -1,110 +1,112 @@
 <?php
 /**
- * Front Page Save API - MySQL Single Source of Truth
- * 
  * POST /api/frontpage/save.php
- * Saves front page content (siteConfig + doctorContentOverrides) to MySQL.
- * Returns the saved data with server-side timestamp on success.
- * 
- * Request body (JSON):
- *   { "siteConfig": { ... }, "doctorContentOverrides": { ... } }
- * 
- * Response (success):
- *   { "success": true, "data": { "siteConfig": {...}, "doctorContentOverrides": {...}, "updated_at": "..." }, "message": "..." }
- * 
- * Response (error):
- *   { "success": false, "message": "...", "errors": {...} }
+ *
+ * Admin-only, partial updates to public landing-page content. Unchanged
+ * sections and doctor overrides are preserved in site_settings.
  */
 
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/../auth/middleware.php';
+require_once __DIR__ . '/storage.php';
 
 handleCors();
 requireMethod('POST');
 
-// Only site administrators may change public-facing content.
 $user = requireRole(['admin', 'admin_content']);
-$userId = ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null;
+requireCsrfToken();
 
 $input = getJsonInput();
-
-// Extract content from input
-$allContent = [];
-if (isset($input['siteConfig']) || isset($input['doctorContentOverrides'])) {
-    $allContent = $input;
-} else {
-    $allContent = $input;
+if ($input === [] || frontPageIsList($input)) {
+    errorResponse('A JSON object with content to save is required.', 400);
 }
 
-// Validate that we have at least some content
-if (empty($allContent)) {
-    errorResponse('No content provided to save.', 400);
+foreach (['siteConfig', 'doctorContentOverrides'] as $field) {
+    if (array_key_exists($field, $input)
+        && (!is_array($input[$field])
+            || ($input[$field] !== [] && frontPageIsList($input[$field])))) {
+        errorResponse($field . ' must be a JSON object.', 422);
+    }
+    if (isset($input['siteConfig']['doctorContentOverrides'])
+        && (!is_array($input['siteConfig']['doctorContentOverrides'])
+            || ($input['siteConfig']['doctorContentOverrides'] !== []
+                && frontPageIsList($input['siteConfig']['doctorContentOverrides'])))) {
+        errorResponse('doctorContentOverrides must be a JSON object.', 422);
+    }
 }
 
 try {
     $db = Database::getInstance();
-    $now = date('Y-m-d H:i:s');
-    
-    // Save siteConfig if present
-    if (isset($allContent['siteConfig'])) {
-        $siteConfigJson = json_encode($allContent['siteConfig'], JSON_UNESCAPED_UNICODE);
-        $stmt = $db->prepare('
-            INSERT INTO site_settings (setting_key, setting_value, setting_group, description, updated_by, updated_at)
-            VALUES (:key, :value, :group, :desc, :user_id, :now)
-            ON DUPLICATE KEY UPDATE
-                setting_value = VALUES(setting_value),
-                setting_group = VALUES(setting_group),
-                updated_by = VALUES(updated_by),
-                updated_at = VALUES(updated_at)
-        ');
-        $stmt->execute([
-            ':key' => 'siteConfig',
-            ':value' => $siteConfigJson,
-            ':group' => 'frontpage',
-            ':desc' => 'Site configuration for landing page',
-            ':user_id' => $userId,
-            ':now' => $now,
-        ]);
+    $db->beginTransaction();
+
+    $content = loadFrontPageContent($db);
+    $siteConfig = $content['siteConfig'];
+    $doctorOverrides = $content['doctorContentOverrides'];
+    $hasSitePatch = array_key_exists('siteConfig', $input);
+    $hasDoctorPatch = array_key_exists('doctorContentOverrides', $input);
+
+    if ($hasSitePatch) {
+        $sitePatch = $input['siteConfig'];
+    } elseif (!$hasDoctorPatch) {
+        // Accept a direct section patch for compatibility with older clients.
+        $sitePatch = $input;
+        unset($sitePatch['updated_at']);
+    } else {
+        $sitePatch = [];
     }
-    
-    // Save doctorContentOverrides if present
-    if (isset($allContent['doctorContentOverrides'])) {
-        $overridesJson = json_encode($allContent['doctorContentOverrides'], JSON_UNESCAPED_UNICODE);
-        $stmt = $db->prepare('
-            INSERT INTO site_settings (setting_key, setting_value, setting_group, description, updated_by, updated_at)
-            VALUES (:key, :value, :group, :desc, :user_id, :now)
-            ON DUPLICATE KEY UPDATE
-                setting_value = VALUES(setting_value),
-                setting_group = VALUES(setting_group),
-                updated_by = VALUES(updated_by),
-                updated_at = VALUES(updated_at)
-        ');
-        $stmt->execute([
-            ':key' => 'doctorContentOverrides',
-            ':value' => $overridesJson,
-            ':group' => 'frontpage',
-            ':desc' => 'Doctor content overrides for landing page',
-            ':user_id' => $userId,
-            ':now' => $now,
-        ]);
+
+    if (array_key_exists('doctorContentOverrides', $sitePatch)) {
+        $nestedOverrides = $sitePatch['doctorContentOverrides'];
+        if (!is_array($nestedOverrides)) {
+            errorResponse('doctorContentOverrides must be a JSON object.', 422);
+        }
+        $doctorOverrides = mergeFrontPageContent($doctorOverrides, $nestedOverrides);
+        unset($sitePatch['doctorContentOverrides']);
+        $hasDoctorPatch = true;
     }
-    
-    // Log the update
-    if ($userId > 0) {
+
+    if ($hasSitePatch || (!$hasDoctorPatch && $sitePatch !== [])) {
+        $siteConfig = mergeFrontPageContent($siteConfig, $sitePatch);
+        if (!is_array($siteConfig)) {
+            errorResponse('siteConfig must be a JSON object.', 422);
+        }
+    }
+
+    if (array_key_exists('doctorContentOverrides', $input)) {
+        $doctorOverrides = mergeFrontPageContent(
+            $doctorOverrides,
+            $input['doctorContentOverrides']
+        );
+    }
+
+    $userId = ($user['session_type'] ?? 'user') === 'user'
+        ? (int) $user['id']
+        : null;
+    saveFrontPageSetting($db, 'siteConfig', $siteConfig, $userId);
+    if ($hasDoctorPatch) {
+        saveFrontPageSetting($db, 'doctorContentOverrides', $doctorOverrides, $userId);
+    }
+
+    if ($userId !== null) {
         logAudit($userId, null, 'update', 'frontpage', null, null, [
-            'keys_saved' => array_keys($allContent),
+            'keys_saved' => array_values(array_filter(
+                array_keys($input),
+                static fn (string $key): bool => $key !== 'updated_at'
+            )),
         ]);
     }
-    
-    // Return the saved data with server-side timestamp
+
+    $db->commit();
     successResponse([
-        'siteConfig' => $allContent['siteConfig'] ?? null,
-        'doctorContentOverrides' => $allContent['doctorContentOverrides'] ?? null,
-        'updated_at' => $now,
+        'siteConfig' => $siteConfig ?: new stdClass(),
+        'doctorContentOverrides' => $doctorOverrides ?: new stdClass(),
+        'updated_at' => date('Y-m-d H:i:s'),
     ], 'Front page content saved successfully');
-    
-} catch (\Exception $e) {
+} catch (Throwable $e) {
+    if (isset($db) && $db->inTransaction()) {
+        $db->rollBack();
+    }
     error_log('Front page save error: ' . $e->getMessage());
-    errorResponse('Failed to save front page content. Server error: ' . $e->getMessage(), 500);
+    errorResponse('Failed to save front page content.', 500);
 }

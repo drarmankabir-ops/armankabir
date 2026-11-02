@@ -14,7 +14,8 @@ require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
 
-$user = requireAuth();
+$user = requireRole(['admin', 'admin_content']);
+requireCsrfToken();
 
 $input = getJsonInput();
 if (!isset($input['settings']) || !is_array($input['settings']) || empty($input['settings'])) {
@@ -47,7 +48,7 @@ try {
             $stmt = $db->prepare('UPDATE site_settings SET setting_value = :value, updated_by = :updated_by, updated_at = NOW() WHERE setting_key = :key');
             $stmt->execute([
                 ':value' => $storedValue,
-                ':updated_by' => $user['id'],
+                ':updated_by' => ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null,
                 ':key' => $key,
             ]);
         } else {
@@ -56,7 +57,7 @@ try {
                 ':key' => $key,
                 ':value' => $storedValue,
                 ':sgroup' => 'general',
-                ':updated_by' => $user['id'],
+                ':updated_by' => ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null,
             ]);
         }
         

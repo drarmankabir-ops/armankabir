@@ -14,7 +14,8 @@ require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
 
-$user = requireAuth();
+$user = requireRole(['admin', 'admin_content']);
+requireCsrfToken();
 
 $input = getJsonInput();
 $missing = validateRequired($input, ['key']);
@@ -46,7 +47,7 @@ try {
         $stmt->execute([
             ':value' => $storedValue,
             ':sgroup' => $group,
-            ':updated_by' => $user['id'],
+            ':updated_by' => ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null,
             ':key' => $key,
         ]);
     } else {
@@ -55,7 +56,7 @@ try {
             ':key' => $key,
             ':value' => $storedValue,
             ':sgroup' => $group,
-            ':updated_by' => $user['id'],
+            ':updated_by' => ($user['session_type'] ?? 'user') === 'user' ? $user['id'] : null,
         ]);
     }
     

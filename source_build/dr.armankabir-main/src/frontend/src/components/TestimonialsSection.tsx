@@ -18,66 +18,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { storage } from "../lib/storageAdapter";
-
-export interface Testimonial {
-  id: string;
-  patientName: string;
-  quote: string;
-  rating: number;
-  date?: string;
-}
-
-const STORAGE_KEY = "testimonials";
-const HEADING_KEY = "testimonialsHeading";
-
-const DEFAULT_HEADING = "What Our Patients Say";
-
-const DEFAULT_TESTIMONIALS: Testimonial[] = [
-  {
-    id: "t1",
-    patientName: "Rahim Uddin",
-    quote:
-      "Dr. Arman Kabir's care is exceptional. He listened carefully and gave clear guidance. I feel much better now.",
-    rating: 5,
-    date: "2025-03-10",
-  },
-  {
-    id: "t2",
-    patientName: "Nasrin Begum",
-    quote:
-      "Dr. Samia is very kind and thorough. The clinic is clean and the staff is helpful. Highly recommend.",
-    rating: 5,
-    date: "2025-02-20",
-  },
-  {
-    id: "t3",
-    patientName: "Karim Hossain",
-    quote:
-      "Excellent service. The online booking is very easy and I got an appointment the same day.",
-    rating: 4,
-    date: "2025-01-15",
-  },
-];
-
-function loadTestimonials(): Testimonial[] {
-  try {
-    const raw = storage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Testimonial[]) : DEFAULT_TESTIMONIALS;
-  } catch {
-    return DEFAULT_TESTIMONIALS;
-  }
-}
-
-function saveTestimonials(list: Testimonial[]) {
-  storage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
-function loadHeading(): string {
-  return storage.getItem(HEADING_KEY) || DEFAULT_HEADING;
-}
+import { useSiteConfig } from "../hooks/useSiteConfig";
+import type { Testimonial } from "../services/landing";
 
 function StarRating({
   value,
@@ -118,9 +62,15 @@ export default function TestimonialsSection({
 }: {
   isAdmin: boolean;
 }) {
-  const [testimonials, setTestimonials] =
-    useState<Testimonial[]>(loadTestimonials);
-  const [heading, setHeading] = useState(loadHeading);
+  const {
+    config,
+    updateTestimonials,
+    isLoading,
+    isError,
+    error,
+    isSaving,
+  } = useSiteConfig();
+  const { testimonials, heading } = config.testimonialsSection;
   const [editHeading, setEditHeading] = useState(false);
   const [headingDraft, setHeadingDraft] = useState(heading);
 
@@ -128,10 +78,16 @@ export default function TestimonialsSection({
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
 
-  const save = useCallback((list: Testimonial[]) => {
-    saveTestimonials(list);
-    setTestimonials(list);
-  }, []);
+  useEffect(() => {
+    setHeadingDraft(heading);
+  }, [heading]);
+
+  const save = useCallback(
+    async (list: Testimonial[]) => {
+      await updateTestimonials({ testimonials: list });
+    },
+    [updateTestimonials],
+  );
 
   const openAdd = () => {
     setEditId(null);
@@ -150,7 +106,7 @@ export default function TestimonialsSection({
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.patientName.trim() || !form.quote.trim()) {
       toast.error("Name and quote are required.");
       return;
@@ -159,30 +115,63 @@ export default function TestimonialsSection({
       const updated = testimonials.map((t) =>
         t.id === editId ? { ...t, ...form } : t,
       );
-      save(updated);
-      toast.success("Testimonial updated.");
+      try {
+        await save(updated);
+        toast.success("Testimonial updated.");
+      } catch (saveError) {
+        toast.error(
+          saveError instanceof Error
+            ? `Could not update testimonial: ${saveError.message}`
+            : "Could not update testimonial.",
+        );
+        return;
+      }
     } else {
       const newT: Testimonial = {
         id: Date.now().toString(36),
         ...form,
       };
-      save([...testimonials, newT]);
-      toast.success("Testimonial added.");
+      try {
+        await save([...testimonials, newT]);
+        toast.success("Testimonial added.");
+      } catch (saveError) {
+        toast.error(
+          saveError instanceof Error
+            ? `Could not add testimonial: ${saveError.message}`
+            : "Could not add testimonial.",
+        );
+        return;
+      }
     }
     setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    save(testimonials.filter((t) => t.id !== id));
-    toast.success("Testimonial removed.");
+  const handleDelete = async (id: string) => {
+    try {
+      await save(testimonials.filter((t) => t.id !== id));
+      toast.success("Testimonial removed.");
+    } catch (saveError) {
+      toast.error(
+        saveError instanceof Error
+          ? `Could not remove testimonial: ${saveError.message}`
+          : "Could not remove testimonial.",
+      );
+    }
   };
 
-  const saveHeading = () => {
-    const h = headingDraft.trim() || DEFAULT_HEADING;
-    storage.setItem(HEADING_KEY, h);
-    setHeading(h);
-    setEditHeading(false);
-    toast.success("Heading updated.");
+  const saveHeading = async () => {
+    const h = headingDraft.trim() || "What Our Patients Say";
+    try {
+      await updateTestimonials({ heading: h });
+      setEditHeading(false);
+      toast.success("Heading updated.");
+    } catch (saveError) {
+      toast.error(
+        saveError instanceof Error
+          ? `Could not update heading: ${saveError.message}`
+          : "Could not update heading.",
+      );
+    }
   };
 
   return (
@@ -192,6 +181,18 @@ export default function TestimonialsSection({
       data-ocid="testimonials.section"
     >
       <div className="max-w-6xl mx-auto">
+        {isLoading && (
+          <p className="mb-4 text-sm text-muted-foreground" role="status">
+            Loading testimonials from the server…
+          </p>
+        )}
+        {isError && (
+          <p className="mb-4 text-sm text-destructive" role="alert">
+            Could not load saved testimonials
+            {error instanceof Error ? `: ${error.message}` : "."} Showing the
+            safe default content.
+          </p>
+        )}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,6 +218,7 @@ export default function TestimonialsSection({
                   <Button
                     size="sm"
                     onClick={saveHeading}
+                    disabled={isSaving}
                     data-ocid="testimonials.heading.save_button"
                   >
                     Save
@@ -412,6 +414,7 @@ export default function TestimonialsSection({
               <Button
                 className="flex-1"
                 onClick={handleSave}
+                disabled={isSaving}
                 data-ocid="testimonials.submit_button"
               >
                 {editId ? "Save Changes" : "Add Testimonial"}

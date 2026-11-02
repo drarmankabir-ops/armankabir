@@ -15,23 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DEFAULT_SITE_CONFIG } from "@/hooks/useSiteConfig";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { AlertTriangle, Phone, Search, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { storage } from "../lib/storageAdapter";
-
-// Load emergency contacts from siteConfig localStorage
-function loadEmergencyContacts() {
-  try {
-    const raw = storage.getItem("siteConfig");
-    if (!raw) return DEFAULT_SITE_CONFIG.emergencyContacts;
-    const cfg = JSON.parse(raw);
-    if (cfg?.emergencyContacts?.length) return cfg.emergencyContacts;
-    return DEFAULT_SITE_CONFIG.emergencyContacts;
-  } catch {
-    return DEFAULT_SITE_CONFIG.emergencyContacts;
-  }
-}
 
 // Normalize register number: "0001/26" and "1/26" treated as equal
 function normalizeRegNo(rn: string): string {
@@ -117,14 +104,8 @@ interface Props {
 }
 
 export default function EmergencyConsultationModal({ open, onClose }: Props) {
-  const [emergencyContacts, setEmergencyContacts] = useState(
-    loadEmergencyContacts,
-  );
-
-  // Reload contacts from storage whenever the modal opens
-  useEffect(() => {
-    if (open) setEmergencyContacts(loadEmergencyContacts());
-  }, [open]);
+  const { config, isLoading, isError } = useSiteConfig();
+  const emergencyContacts = config.emergencyContacts;
 
   const [registerNumber, setRegisterNumber] = useState("");
   const [name, setName] = useState("");
@@ -287,6 +268,16 @@ export default function EmergencyConsultationModal({ open, onClose }: Props) {
 
           <div className="space-y-1.5">
             <Label>Select Doctor *</Label>
+            {isLoading && (
+              <p className="text-xs text-muted-foreground" role="status">
+                Loading doctors…
+              </p>
+            )}
+            {isError && (
+              <p className="text-xs text-destructive" role="alert">
+                Could not load saved emergency contacts. Showing defaults.
+              </p>
+            )}
             <Select value={doctor} onValueChange={setDoctor}>
               <SelectTrigger data-ocid="emergency.select">
                 <SelectValue placeholder="Choose a doctor" />

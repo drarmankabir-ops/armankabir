@@ -180,14 +180,10 @@ function buildGCalUrl(
 function ClassroomContent({
   doctorKey,
   isAdmin,
-  isConsultantDoctor,
-  currentDoctorId,
   updateField,
 }: {
   doctorKey: DoctorKey;
   isAdmin: boolean;
-  isConsultantDoctor?: boolean;
-  currentDoctorId?: string;
   updateField: (key: DoctorKey, path: string, value: any) => void;
 }) {
   const { getContent } = useDoctorContent();
@@ -195,9 +191,7 @@ function ClassroomContent({
   const cls = doc.classroom;
   const galleryImages = Array.isArray(cls.gallery) ? cls.gallery : [];
 
-  // Permission: admin OR consultant editing their own classroom
-  const canEdit =
-    isAdmin || (isConsultantDoctor && currentDoctorId === doctorKey);
+  const canEdit = isAdmin;
 
   const color = doctorKey === "arman" ? "text-primary" : "text-rose-600";
   const bg = doctorKey === "arman" ? "bg-primary/10" : "bg-rose-100";
@@ -3078,7 +3072,11 @@ export default function LandingPage({
     updateAbout,
     updateFooter,
     updateEmergencyContacts,
+    updateFAQs,
     resetSection,
+    isLoading: isSiteConfigLoading,
+    isError: isSiteConfigError,
+    error: siteConfigError,
   } = useSiteConfig();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -3417,6 +3415,21 @@ export default function LandingPage({
 
   return (
     <div className="min-h-screen bg-background">
+      {isSiteConfigLoading && (
+        <p className="sr-only" role="status">
+          Loading website content from the server.
+        </p>
+      )}
+      {isSiteConfigError && (
+        <div className="bg-amber-50 px-4 py-2 text-center text-sm text-amber-900" role="alert">
+          Website content could not be loaded
+          {siteConfigError instanceof Error
+            ? `: ${siteConfigError.message}`
+            : "."}{" "}
+          Showing safe default content.
+        </div>
+      )}
+
       {/* Emergency Consultation Modal */}
       <EmergencyConsultationModal
         open={emergencyOpen}
@@ -4703,6 +4716,28 @@ export default function LandingPage({
       {/* ── Testimonials ──────────────────────────────────────── */}
       <TestimonialsSection isAdmin={isAdmin} />
 
+      {siteConfig.faqsSection.faqs.length > 0 && (
+        <section id="faqs" className="py-16 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="mb-6 font-display text-2xl font-bold text-foreground">
+              {siteConfig.faqsSection.heading}
+            </h2>
+            <div className="divide-y divide-border border-y border-border">
+              {siteConfig.faqsSection.faqs.map((faq) => (
+                <details key={faq.id} className="py-4">
+                  <summary className="cursor-pointer font-medium text-foreground">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Appointments ────────────────────────────────────────────── */}
       <section id="appointments" className="py-16 bg-muted/30 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto" id="booking-section">
@@ -5454,6 +5489,7 @@ export default function LandingPage({
           updateAbout={updateAbout}
           updateFooter={updateFooter}
           updateEmergencyContacts={updateEmergencyContacts}
+          updateFAQs={updateFAQs}
           resetSection={resetSection}
         />
       )}

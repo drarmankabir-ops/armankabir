@@ -42,7 +42,10 @@ function getJsonInput(): array {
     if (json_last_error() !== JSON_ERROR_NONE) {
         errorResponse('Invalid JSON input', 400);
     }
-    return $data ?? [];
+    if (!is_array($data)) {
+        errorResponse('A JSON object is required.', 400);
+    }
+    return $data;
 }
 
 function getParam(string $key, mixed $default = null): mixed {

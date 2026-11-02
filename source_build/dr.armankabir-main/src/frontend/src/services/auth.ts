@@ -6,7 +6,7 @@
  * PHP session cookies handle authentication.
  */
 
-import { get, post } from '../lib/apiClient';
+import { clearCsrfToken, get, post } from '../lib/apiClient';
 import type { StaffRole } from '../types';
 
 export interface DoctorAccount {
@@ -73,6 +73,8 @@ export const authService = {
       await post('/auth/logout.php');
     } catch {
       // Ignore logout errors
+    } finally {
+      clearCsrfToken();
     }
   },
 

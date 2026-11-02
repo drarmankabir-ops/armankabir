@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../frontpage/get.php';
+
 /**
  * Home Content Get API
  * 

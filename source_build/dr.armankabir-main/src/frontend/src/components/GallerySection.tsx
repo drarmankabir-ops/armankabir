@@ -4,38 +4,12 @@ import { ImageIcon, Pencil, Trash2, Upload, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { storage } from "../lib/storageAdapter";
-
-export interface GalleryPhoto {
-  id: string;
-  dataUrl: string;
-  caption: string;
-}
-
-const STORAGE_KEY = "galleryPhotos";
-const HEADING_KEY = "galleryHeading";
-const DEFAULT_HEADING = "Our Clinic Gallery";
-
-function loadPhotos(): GalleryPhoto[] {
-  try {
-    const raw = storage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as GalleryPhoto[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function savePhotos(photos: GalleryPhoto[]) {
-  storage.setItem(STORAGE_KEY, JSON.stringify(photos));
-}
-
-function loadHeading(): string {
-  return storage.getItem(HEADING_KEY) || DEFAULT_HEADING;
-}
+import { useSiteConfig } from "../hooks/useSiteConfig";
+import type { GalleryPhoto } from "../services/landing";
 
 export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
-  const [photos, setPhotos] = useState<GalleryPhoto[]>(loadPhotos);
-  const [heading, setHeading] = useState(loadHeading);
+  const { config, updateGallery, isLoading, isError, isSaving } = useSiteConfig();
+  const { photos, heading } = config.gallerySection;
   const [editHeading, setEditHeading] = useState(false);
   const [headingDraft, setHeadingDraft] = useState(heading);
   const [editCaptionId, setEditCaptionId] = useState<string | null>(null);
@@ -43,10 +17,10 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const save = useCallback((list: GalleryPhoto[]) => {
-    savePhotos(list);
-    setPhotos(list);
-  }, []);
+  const save = useCallback(
+    (list: GalleryPhoto[]) => updateGallery({ photos: list }),
+    [updateGallery],
+  );
 
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -70,9 +44,12 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
     }
     Promise.all(readers).then((newPhotos) => {
       const updated = [...photos, ...newPhotos];
-      save(updated);
-      setUploading(false);
-      toast.success(`${newPhotos.length} photo(s) uploaded.`);
+      save(updated)
+        .then(() => toast.success(`${newPhotos.length} photo(s) uploaded.`))
+        .catch((error: unknown) => {
+          toast.error(error instanceof Error ? error.message : "Could not save gallery photos.");
+        })
+        .finally(() => setUploading(false));
     });
   };
 
@@ -82,9 +59,13 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
     handleFiles(e.dataTransfer.files);
   };
 
-  const handleDelete = (id: string) => {
-    save(photos.filter((p) => p.id !== id));
-    toast.success("Photo removed.");
+  const handleDelete = async (id: string) => {
+    try {
+      await save(photos.filter((p) => p.id !== id));
+      toast.success("Photo removed.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not remove photo.");
+    }
   };
 
   const startEditCaption = (p: GalleryPhoto) => {
@@ -92,20 +73,27 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
     setCaptionDraft(p.caption);
   };
 
-  const saveCaption = (id: string) => {
-    save(
-      photos.map((p) => (p.id === id ? { ...p, caption: captionDraft } : p)),
-    );
-    setEditCaptionId(null);
-    toast.success("Caption updated.");
+  const saveCaption = async (id: string) => {
+    try {
+      await save(
+        photos.map((p) => (p.id === id ? { ...p, caption: captionDraft } : p)),
+      );
+      setEditCaptionId(null);
+      toast.success("Caption updated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save caption.");
+    }
   };
 
-  const saveHeading = () => {
-    const h = headingDraft.trim() || DEFAULT_HEADING;
-    storage.setItem(HEADING_KEY, h);
-    setHeading(h);
-    setEditHeading(false);
-    toast.success("Gallery heading updated.");
+  const saveHeading = async () => {
+    const h = headingDraft.trim() || "Our Clinic Gallery";
+    try {
+      await updateGallery({ heading: h });
+      setEditHeading(false);
+      toast.success("Gallery heading updated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save gallery heading.");
+    }
   };
 
   return (
@@ -115,6 +103,16 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
       data-ocid="gallery.section"
     >
       <div className="max-w-6xl mx-auto">
+        {isLoading && (
+          <p className="mb-4 text-sm text-muted-foreground" role="status">
+            Loading gallery from the server…
+          </p>
+        )}
+        {isError && (
+          <p className="mb-4 text-sm text-destructive" role="alert">
+            Could not load the saved gallery. Showing safe defaults.
+          </p>
+        )}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -140,6 +138,7 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
                   <Button
                     size="sm"
                     onClick={saveHeading}
+                    disabled={isSaving}
                     data-ocid="gallery.heading.save_button"
                   >
                     Save

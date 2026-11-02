@@ -19,9 +19,9 @@ require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
 
-// Try to authenticate, but allow save even without auth for admin content operations
-$user = getAuthUser();
-$userId = $user ? $user['id'] : null;
+$user = requireRole(['admin', 'admin_content']);
+requireCsrfToken();
+$userId = ($user['session_type'] ?? 'user') === 'user' ? (int) $user['id'] : null;
 
 $input = getJsonInput();
 

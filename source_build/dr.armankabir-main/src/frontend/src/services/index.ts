@@ -31,7 +31,19 @@ export { clinicalNotesService } from './clinicalNotes';
 export { userService } from './users';
 
 export { landingService } from './landing';
-export type { SiteConfig, HeroSection, AboutSection, FooterSection, EmergencyContact, SocialLink } from './landing';
+export type {
+	SiteConfig,
+	HeroSection,
+	AboutSection,
+	FooterSection,
+	EmergencyContact,
+	TestimonialsSection,
+	GallerySection,
+	GalleryPhoto,
+	FAQsSection,
+	FAQItem,
+	SocialLink,
+} from './landing';
 
 export { settingsService } from './settings';
 export type { SiteSetting } from './settings';
