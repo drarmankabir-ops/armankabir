@@ -17,6 +17,9 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
+if (($user['session_type'] ?? 'user') !== 'user') {
+    errorResponse('Staff session required.', 403);
+}
 
 // Remove sensitive data
 unset($user['password_hash']);

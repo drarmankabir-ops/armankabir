@@ -62,6 +62,15 @@ try {
     
     // Create server-side session (stored in admin_sessions for verification)
     $token = createAdminSession($admin['id']);
+
+    setcookie('session_token', $token, [
+        'expires' => time() + SESSION_LIFETIME,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isSecureCookieRequest(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     
     // Log audit
     logAudit(null, null, 'admin_login', 'admin', $admin['id']);

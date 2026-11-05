@@ -1199,7 +1199,7 @@ function AppRoot() {
     : currentPatient
       ? `patient:${currentPatient.patient_id}`
       : adminId
-        ? `user:${adminId}`
+        ? `admin:${adminId}`
         : null;
 
   useEffect(() => {
@@ -1585,8 +1585,12 @@ function AppRoot() {
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminError("");
-    const ok = await adminLogin(adminUser, adminPass);
-    if (ok) {
+    try {
+      const ok = await adminLogin(adminUser, adminPass);
+      if (!ok) {
+        setAdminError("This account cannot manage portal content.");
+        return;
+      }
       setShowAdminModal(false);
       setAdminUser("");
       setAdminPass("");
@@ -1598,8 +1602,8 @@ function AppRoot() {
         target: "System",
       });
       import("sonner").then(({ toast }) => toast.success("Logged in as admin"));
-    } else {
-      setAdminError("Invalid admin credentials");
+    } catch (error) {
+      setAdminError(error instanceof Error ? error.message : "Admin sign-in failed.");
     }
   };
 

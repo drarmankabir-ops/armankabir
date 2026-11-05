@@ -21,7 +21,11 @@ try {
     $token = getBearerToken();
     destroySession($token);
     
-    logAudit($user['id'], null, 'logout', 'user', $user['id']);
+    if (($user['session_type'] ?? 'user') === 'admin_content') {
+        logAudit(null, null, 'logout', 'admin', $user['id']);
+    } else {
+        logAudit($user['id'], null, 'logout', 'user', $user['id']);
+    }
     
     successResponse(null, 'Logged out successfully');
 } catch (\Exception $e) {

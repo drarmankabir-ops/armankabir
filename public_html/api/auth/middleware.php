@@ -373,7 +373,7 @@ function destroySession(string $token): void {
             'expires' => 1,
             'path' => '/',
             'domain' => '',
-            'secure' => true,
+            'secure' => isSecureCookieRequest(),
             'httponly' => true,
             'samesite' => 'Lax',
         ]);

@@ -36,6 +36,12 @@ export interface PatientAccount {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+export interface AdminAccount {
+  id: number;
+  username: string;
+  display_name: string;
+}
+
 export const authService = {
   /** Verify current PHP session and return doctor account */
   async verifySession(): Promise<DoctorAccount | null> {
@@ -50,6 +56,21 @@ export const authService = {
   /** Sign in with email and password */
   async signIn(email: string, password: string): Promise<{ token?: string; user: DoctorAccount }> {
     return post<{ token: string; user: DoctorAccount }>('/auth/login.php', { email, password });
+  },
+
+  /** Sign in to the public portal content manager */
+  async adminSignIn(username: string, password: string): Promise<{ token: string; admin: AdminAccount; is_admin: boolean }> {
+    return post<{ token: string; admin: AdminAccount; is_admin: boolean }>('/auth/admin_login.php', { username, password });
+  },
+
+  /** Restore a valid public portal admin session */
+  async verifyAdminSession(): Promise<AdminAccount | null> {
+    try {
+      const result = await get<{ admin: AdminAccount }>('/auth/admin_verify.php');
+      return result?.admin ?? null;
+    } catch {
+      return null;
+    }
   },
 
   /** Sign up a new staff account */

@@ -5,7 +5,7 @@
  * Session state is kept in memory only — no localStorage.
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { initializeServerStorage } from "../lib/storageAdapter";
 import { authService } from "../services/auth";
@@ -17,40 +17,47 @@ export function useAdminAuth() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [adminId, setAdminId] = useState<number | null>(null);
 
+  useEffect(() => {
+    let active = true;
+    void authService.verifyAdminSession().then((admin) => {
+      if (!active || !admin) return;
+      setIsAdmin(true);
+      setAdminId(admin.id);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const adminLogin = useCallback(
     async (username: string, password: string): Promise<boolean> => {
+      const result = await authService.adminSignIn(username, password);
+      if (!result.is_admin) return false;
       try {
-        const result = await authService.signIn(username, password);
-        if (result.user?.role === "admin") {
-          try {
-            await initializeServerStorage(`user:${result.user.id}`);
-            await landingService.migrateLegacyContent();
-          } catch (migrationError) {
-            toast.error(
-              migrationError instanceof Error
-                ? `Legacy website content migration failed: ${migrationError.message}`
-                : "Legacy website content migration failed.",
-            );
-          }
-          setIsAdmin(true);
-          setAdminId(result.user.id);
-          await queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
-          return true;
-        }
-        await authService.signOut();
-      } catch {
-        setIsAdmin(false);
-        setAdminId(null);
+        await initializeServerStorage(`admin:${result.admin.id}`);
+        await landingService.migrateLegacyContent();
+      } catch (migrationError) {
+        toast.error(
+          migrationError instanceof Error
+            ? `Legacy website content migration failed: ${migrationError.message}`
+            : "Legacy website content migration failed.",
+        );
       }
-      return false;
+      setIsAdmin(true);
+      setAdminId(result.admin.id);
+      await queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
+      return true;
     },
     [queryClient],
   );
 
   const adminLogout = useCallback(async () => {
-    await authService.signOut();
-    setIsAdmin(false);
-    setAdminId(null);
+    try {
+      await authService.signOut();
+    } finally {
+      setIsAdmin(false);
+      setAdminId(null);
+    }
   }, []);
 
   return { isAdmin, adminId, adminLogin, adminLogout };

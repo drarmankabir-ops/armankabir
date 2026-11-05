@@ -8,10 +8,10 @@
 -- Hash generated with PHP: password_hash('admin123', PASSWORD_BCRYPT)
 
 INSERT INTO users (email, password_hash, full_name, name_bn, role, phone, is_active, email_verified_at) VALUES
-('admin@drarmankabir.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'এডমিন', 'admin', '+8801700000000', 1, NOW()),
-('dr.arman@drarmankabir.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dr. Arman Kabir', 'ডা. আরমান কবির', 'consultant_doctor', '+8801711111111', 1, NOW()),
-('nurse@drarmankabir.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Staff Nurse', 'স্টাফ নার্স', 'nurse', '+8801722222222', 1, NOW()),
-('reception@drarmankabir.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Receptionist', 'রিসেপশনিস্ট', 'reception', '+8801733333333', 1, NOW());
+('admin@drarmankabir.com', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Admin User', 'এডমিন', 'admin', '+8801700000000', 1, NOW()),
+('dr.arman@drarmankabir.com', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Dr. Arman Kabir', 'ডা. আরমান কবির', 'consultant_doctor', '+8801711111111', 1, NOW()),
+('nurse@drarmankabir.com', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Staff Nurse', 'স্টাফ নার্স', 'nurse', '+8801722222222', 1, NOW()),
+('reception@drarmankabir.com', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Receptionist', 'রিসেপশনিস্ট', 'reception', '+8801733333333', 1, NOW());
 
 -- ─── Site Settings ─────────────────────────────────────────────────────────
 INSERT INTO site_settings (setting_key, setting_value, setting_group, description) VALUES

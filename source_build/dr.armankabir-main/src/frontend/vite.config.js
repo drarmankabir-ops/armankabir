@@ -5,7 +5,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   logLevel: "error",
   build: {
-    emptyOutDir: true,
+    outDir: fileURLToPath(new URL("../../../../public_html", import.meta.url)),
+    emptyOutDir: false,
     sourcemap: false,
     minify: false,
   },
