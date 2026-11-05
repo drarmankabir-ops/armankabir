@@ -93,7 +93,7 @@ interface LandingPageProps {
   onLoginClick: () => void;
   onAdminLoginClick: () => void;
   isAdmin: boolean;
-  adminLogout: () => void;
+  adminLogout: () => Promise<void>;
 }
 
 interface PublicBooking {
@@ -3502,8 +3502,15 @@ export default function LandingPage({
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    adminLogout();
-                    toast.success("Admin logged out");
+                    void adminLogout()
+                      .then(() => toast.success("Admin logged out"))
+                      .catch((error: unknown) =>
+                        toast.error(
+                          error instanceof Error
+                            ? error.message
+                            : "Could not log out admin.",
+                        ),
+                      );
                   }}
                   className="text-xs"
                   data-ocid="landing.admin_logout.button"
@@ -3531,7 +3538,7 @@ export default function LandingPage({
               data-ocid="landing.staff_login.button"
             >
               <Stethoscope className="w-4 h-4" />
-              Staff Login
+              Staff Login / Sign Up
             </Button>
             <button
               type="button"
@@ -3586,9 +3593,16 @@ export default function LandingPage({
                   size="sm"
                   className="w-full mt-2 gap-2 border-amber-300 text-amber-700"
                   onClick={() => {
-                    adminLogout();
+                    void adminLogout()
+                      .then(() => toast.success("Admin logged out"))
+                      .catch((error: unknown) =>
+                        toast.error(
+                          error instanceof Error
+                            ? error.message
+                            : "Could not log out admin.",
+                        ),
+                      );
                     setMobileMenuOpen(false);
-                    toast.success("Admin logged out");
                   }}
                   data-ocid="landing.admin_logout_mobile.button"
                 >
@@ -3616,7 +3630,7 @@ export default function LandingPage({
                 className="w-full mt-2 gap-2"
               >
                 <Stethoscope className="w-4 h-4" />
-                Staff Login
+                Staff Login / Sign Up
               </Button>
             </motion.div>
           )}
@@ -5638,7 +5652,7 @@ export default function LandingPage({
                   data-ocid="footer.staff_login.button"
                 >
                   <Stethoscope className="w-3.5 h-3.5 text-blue-400" />
-                  Staff Login
+                  Staff Login / Sign Up
                 </button>
                 <button
                   type="button"

@@ -21,6 +21,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { post } from "@/lib/apiClient";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
@@ -30,11 +31,12 @@ import {
   createRouter,
   useRouterState,
 } from "@tanstack/react-router";
-import { Bell, CheckCircle2, Loader2, ShieldCheck, Stethoscope, User, UserCheck, X, XCircle } from "lucide-react";
+import { Bell, BookOpen, CheckCircle2, Loader2, ShieldCheck, Stethoscope, User, UserCheck, X, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Layout from "./Layout";
 import { useAdminAuth } from "./hooks/useAdminAuth";
+import { authService } from "./services/auth";
 import {
   initializeServerStorage,
   resetServerStorage,
@@ -244,7 +246,279 @@ function PatientProfileWrapper() {
 
 const DESIGNATIONS = ["Dr.", "Prof.", "Assoc. Prof.", "Mr.", "Ms.", "Mrs."];
 
-function StaffAuthContent() {
+interface ClassroomStudentSession {
+  user: {
+    id: number;
+    email: string;
+    full_name: string;
+    student_id: string;
+  };
+  dashboard: {
+    enrolled_courses: Array<{
+      course_id: number;
+      course_title: string;
+      category?: string;
+      thumbnail_url?: string;
+    }>;
+  };
+}
+
+function StudentAuthContent({
+  onLogin,
+  onBeforeSignIn,
+}: {
+  onLogin: (session: ClassroomStudentSession) => void;
+  onBeforeSignIn?: () => Promise<void>;
+}) {
+  const [tab, setTab] = useState("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignIn = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setIsSubmitting(true);
+    try {
+      await onBeforeSignIn?.();
+      const session = await post<ClassroomStudentSession>(
+        "/classroom/auth/login.php",
+        { email: email.trim(), password },
+      );
+      onLogin(session);
+    } catch (loginError) {
+      setError(
+        loginError instanceof Error ? loginError.message : "Student login failed.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSignUp = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await post<{ message?: string }>(
+        "/classroom/auth/signup.php",
+        {
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          student_id: studentId.trim(),
+        },
+      );
+      setMessage(
+        result.message ??
+          "Your account was created and is waiting for admin approval.",
+      );
+      setPassword("");
+      setConfirmPassword("");
+    } catch (signupError) {
+      setError(
+        signupError instanceof Error
+          ? signupError.message
+          : "Student sign up failed.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabsList className="w-full mb-5">
+        <TabsTrigger value="signin" className="flex-1">
+          Student Login
+        </TabsTrigger>
+        <TabsTrigger value="signup" className="flex-1">
+          Student Sign Up
+        </TabsTrigger>
+      </TabsList>
+      {(error || message) && (
+        <p
+          className={`mb-4 rounded-lg border px-3 py-2 text-sm ${
+            error
+              ? "border-destructive/30 bg-destructive/5 text-destructive"
+              : "border-emerald-200 bg-emerald-50 text-emerald-800"
+          }`}
+          role={error ? "alert" : "status"}
+        >
+          {error || message}
+        </p>
+      )}
+      <TabsContent value="signin">
+        <form onSubmit={handleSignIn} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="student-email">Email</Label>
+            <Input
+              id="student-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="student-password">Password</Label>
+            <Input
+              id="student-password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Signing in..." : "Sign In to Classroom"}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Student accounts require admin approval before login.
+          </p>
+        </form>
+      </TabsContent>
+      <TabsContent value="signup">
+        <form onSubmit={handleSignUp} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="student-name">Full Name</Label>
+            <Input
+              id="student-name"
+              required
+              autoComplete="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="student-signup-email">Email</Label>
+            <Input
+              id="student-signup-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="student-id">Student ID</Label>
+            <Input
+              id="student-id"
+              required
+              value={studentId}
+              onChange={(event) => setStudentId(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="student-signup-password">Password</Label>
+            <Input
+              id="student-signup-password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="student-confirm-password">Confirm Password</Label>
+            <Input
+              id="student-confirm-password"
+              type="password"
+              required
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating account..." : "Create Student Account"}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            New accounts require admin approval before accessing classroom courses.
+          </p>
+        </form>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function StudentPortal({
+  session,
+  onSignOut,
+}: {
+  session: ClassroomStudentSession;
+  onSignOut: () => void;
+}) {
+  return (
+    <main className="min-h-screen bg-background px-4 py-10">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-primary">Student Classroom</p>
+            <h1 className="text-2xl font-bold">
+              Welcome, {session.user.full_name}
+            </h1>
+          </div>
+          <Button variant="outline" onClick={onSignOut}>
+            Sign Out
+          </Button>
+        </header>
+        <section className="rounded-xl border bg-card p-5">
+          <h2 className="mb-4 flex items-center gap-2 font-semibold">
+            <BookOpen className="h-5 w-5 text-primary" />
+            My Courses
+          </h2>
+          {session.dashboard.enrolled_courses.length > 0 ? (
+            <ul className="divide-y">
+              {session.dashboard.enrolled_courses.map((course) => (
+                <li key={course.course_id} className="py-3">
+                  <p className="font-medium">{course.course_title}</p>
+                  {course.category && (
+                    <p className="text-sm text-muted-foreground">
+                      {course.category}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You are signed in, but no courses are enrolled yet. Contact the
+              classroom administrator for course access.
+            </p>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function StaffAuthContent({
+  onBeforeSignIn,
+}: {
+  onBeforeSignIn?: () => Promise<void>;
+}) {
   const { signIn, signUp, isLoggingIn, authError } = useEmailAuth();
 
   const [siEmail, setSiEmail] = useState("");
@@ -272,6 +546,7 @@ function StaffAuthContent() {
       return;
     }
     try {
+      await onBeforeSignIn?.();
       await signIn(siEmail, siPassword);
     } catch (err: unknown) {
       setSiError(err instanceof Error ? err.message : "Sign in failed.");
@@ -556,7 +831,11 @@ function StaffAuthContent() {
 
 // ── Patient Auth Content ──────────────────────────────────────────────────────
 
-function PatientAuthContent() {
+function PatientAuthContent({
+  onBeforeSignIn,
+}: {
+  onBeforeSignIn?: () => Promise<void>;
+}) {
   const { patientSignIn, patientSignUp, isLoggingIn, authError } =
     useEmailAuth();
 
@@ -580,6 +859,7 @@ function PatientAuthContent() {
       return;
     }
     try {
+      await onBeforeSignIn?.();
       await patientSignIn(phone, password);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign in failed.");
@@ -1190,7 +1470,10 @@ function AppRoot() {
     adminLogin,
     isAdmin: isAdminState,
     adminLogout: adminLogoutFn,
+    isInitializing: isAdminInitializing,
   } = useAdminAuth();
+  const [studentSession, setStudentSession] =
+    useState<ClassroomStudentSession | null>(null);
 
   const [storageReady, setStorageReady] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -1235,40 +1518,104 @@ function AppRoot() {
       cancelled = true;
     };
   }, [storageOwner]);
-  // Auto-logout on inactivity — active only when someone is logged in
-  const isLoggedIn = !!(currentDoctor || currentPatient);
-  const handleInactivityLogout = useCallback(() => {
-    if (currentDoctor) {
-      appendAuditLog({
-        timestamp: new Date().toISOString(),
-        userRole: currentDoctor.role,
-        userName: currentDoctor.name,
-        action: "Auto-logged out due to inactivity",
-        target: "System",
-      });
-      signOut();
-    } else if (currentPatient) {
-      appendAuditLog({
-        timestamp: new Date().toISOString(),
-        userRole: "patient",
-        userName: currentPatient.name,
-        action: "Auto-logged out due to inactivity",
-        target: "Patient Portal",
-      });
-      patientSignOut();
+  const handleStudentSignOut = useCallback(async () => {
+    await authService.signOut();
+    setStudentSession(null);
+  }, []);
+
+  const handlePatientSignOut = useCallback(async () => {
+    try {
+      await patientSignOut();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not sign out.");
     }
-    import("sonner").then(({ toast }) =>
-      toast.warning("You have been logged out due to inactivity."),
-    );
-  }, [currentDoctor, currentPatient, signOut, patientSignOut]);
+  }, [patientSignOut]);
+
+  // Restore classroom sessions after staff, patient, and admin checks complete.
+  useEffect(() => {
+    if (
+      isInitializing ||
+      isAdminInitializing ||
+      currentDoctor ||
+      currentPatient ||
+      isAdminState
+    ) {
+      return;
+    }
+    let active = true;
+    void authService.verifyStudentSession().then((session) => {
+      if (active && session) setStudentSession(session);
+    });
+    return () => {
+      active = false;
+    };
+  }, [
+    currentDoctor,
+    currentPatient,
+    isAdminInitializing,
+    isAdminState,
+    isInitializing,
+  ]);
+
+  // Auto-logout on inactivity for every authenticated portal.
+  const isLoggedIn = !!(
+    currentDoctor ||
+    currentPatient ||
+    isAdminState ||
+    studentSession
+  );
+  const handleInactivityLogout = useCallback(async () => {
+    try {
+      if (currentDoctor) {
+        appendAuditLog({
+          timestamp: new Date().toISOString(),
+          userRole: currentDoctor.role,
+          userName: currentDoctor.full_name,
+          action: "Auto-logged out due to inactivity",
+          target: "System",
+        });
+        await signOut();
+      } else if (currentPatient) {
+        appendAuditLog({
+          timestamp: new Date().toISOString(),
+          userRole: "patient",
+          userName: currentPatient.full_name,
+          action: "Auto-logged out due to inactivity",
+          target: "Patient Portal",
+        });
+        await patientSignOut();
+      } else if (isAdminState) {
+        await adminLogoutFn();
+      } else if (studentSession) {
+        await handleStudentSignOut();
+      } else {
+        return;
+      }
+      toast.warning("You have been logged out due to inactivity.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Automatic sign out failed.",
+      );
+    }
+  }, [
+    adminLogoutFn,
+    currentDoctor,
+    currentPatient,
+    handleStudentSignOut,
+    isAdminState,
+    patientSignOut,
+    signOut,
+    studentSession,
+  ]);
 
   const { showWarning, secondsRemaining, resetTimer } = useInactivityTimer(
-    isLoggedIn ? handleInactivityLogout : () => {},
+    handleInactivityLogout,
+    isLoggedIn,
   );
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showPendingPanel, setShowPendingPanel] = useState(false);
-  const [adminUser, setAdminUser] = useState("");
+  const [adminUser, setAdminUser] = useState("drarmankabir.com");
   const [adminPass, setAdminPass] = useState("");
   const [adminError, setAdminError] = useState("");
   const [pendingCount, setPendingCount] = useState(0);
@@ -1582,6 +1929,24 @@ function AppRoot() {
     window.location.pathname === "/serial-display";
   if (isSerialDisplay) return <SerialDisplay />;
 
+  if (studentSession) {
+    return (
+      <>
+        <StudentPortal
+          session={studentSession}
+          onSignOut={() =>
+            void handleStudentSignOut().catch((error: unknown) =>
+              toast.error(
+                error instanceof Error ? error.message : "Could not sign out.",
+              ),
+            )
+          }
+        />
+        <Toaster position="top-right" richColors />
+      </>
+    );
+  }
+
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminError("");
@@ -1592,7 +1957,7 @@ function AppRoot() {
         return;
       }
       setShowAdminModal(false);
-      setAdminUser("");
+      setAdminUser("drarmankabir.com");
       setAdminPass("");
       appendAuditLog({
         timestamp: new Date().toISOString(),
@@ -1607,7 +1972,7 @@ function AppRoot() {
     }
   };
 
-  if (isInitializing) {
+  if (isInitializing || isAdminInitializing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -1700,7 +2065,7 @@ function AppRoot() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={patientSignOut}
+                onClick={() => void handlePatientSignOut()}
                 className="gap-2 text-xs"
                 data-ocid="patient.logout.button"
               >
@@ -1911,7 +2276,7 @@ function AppRoot() {
         <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader className="sr-only">
-              <DialogTitle>Login</DialogTitle>
+              <DialogTitle>Staff, Patient, and Student Portals</DialogTitle>
             </DialogHeader>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -1926,31 +2291,57 @@ function AppRoot() {
                   Dr. Arman Kabir&apos;s Care
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  Patient Management System
+                  Patient Management and Classroom Portal
                 </p>
               </div>
               <Tabs value={authTab} onValueChange={setAuthTab}>
                 <TabsList className="w-full mb-5">
                   <TabsTrigger
                     value="staff"
-                    className="flex-1"
+                    className="flex-1 text-xs sm:text-sm"
                     data-ocid="login.staff.tab"
                   >
-                    Staff / Doctor
+                    Staff Login / Sign Up
                   </TabsTrigger>
                   <TabsTrigger
                     value="patient"
-                    className="flex-1"
+                    className="flex-1 text-xs sm:text-sm"
                     data-ocid="login.patient.tab"
                   >
                     Patient
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="student"
+                    className="flex-1 text-xs sm:text-sm"
+                    data-ocid="login.student.tab"
+                  >
+                    Student
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="staff">
-                  <StaffAuthContent />
+                  <StaffAuthContent
+                    onBeforeSignIn={
+                      isAdminState ? adminLogoutFn : undefined
+                    }
+                  />
                 </TabsContent>
                 <TabsContent value="patient">
-                  <PatientAuthContent />
+                  <PatientAuthContent
+                    onBeforeSignIn={
+                      isAdminState ? adminLogoutFn : undefined
+                    }
+                  />
+                </TabsContent>
+                <TabsContent value="student">
+                  <StudentAuthContent
+                    onBeforeSignIn={
+                      isAdminState ? adminLogoutFn : undefined
+                    }
+                    onLogin={(session) => {
+                      setStudentSession(session);
+                      setShowAuthModal(false);
+                    }}
+                  />
                 </TabsContent>
               </Tabs>
             </motion.div>

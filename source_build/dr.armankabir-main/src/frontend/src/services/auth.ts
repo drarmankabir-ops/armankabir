@@ -13,6 +13,7 @@ export interface DoctorAccount {
   id: number;
   email: string;
   full_name: string;
+  name: string;
   name_bn: string;
   role: StaffRole;
   specialization: string;
@@ -21,6 +22,7 @@ export interface DoctorAccount {
   signature_url?: string;
   bmdc_registration?: string;
   created_at?: string;
+  createdAt?: string;
 }
 
 export interface PatientAccount {
@@ -28,10 +30,12 @@ export interface PatientAccount {
   patient_id: number;
   phone: string;
   full_name: string;
+  name: string;
   name_bn: string;
   gender?: string;
   date_of_birth?: string;
   register_number?: string;
+  registerNumber?: string;
   photo_url?: string;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -42,12 +46,28 @@ export interface AdminAccount {
   display_name: string;
 }
 
+function normalizeDoctor(user: DoctorAccount): DoctorAccount {
+  return {
+    ...user,
+    name: user.full_name,
+    createdAt: user.created_at,
+  };
+}
+
+function normalizePatient(patient: PatientAccount): PatientAccount {
+  return {
+    ...patient,
+    name: patient.full_name,
+    registerNumber: patient.register_number,
+  };
+}
+
 export const authService = {
   /** Verify current PHP session and return doctor account */
   async verifySession(): Promise<DoctorAccount | null> {
     try {
       const result = await get<{ user: DoctorAccount }>('/auth/verify.php');
-      return result?.user ?? null;
+      return result?.user ? normalizeDoctor(result.user) : null;
     } catch {
       return null;
     }
@@ -55,7 +75,8 @@ export const authService = {
 
   /** Sign in with email and password */
   async signIn(email: string, password: string): Promise<{ token?: string; user: DoctorAccount }> {
-    return post<{ token: string; user: DoctorAccount }>('/auth/login.php', { email, password });
+    const result = await post<{ token: string; user: DoctorAccount }>('/auth/login.php', { email, password });
+    return { ...result, user: normalizeDoctor(result.user) };
   },
 
   /** Sign in to the public portal content manager */
@@ -68,6 +89,40 @@ export const authService = {
     try {
       const result = await get<{ admin: AdminAccount }>('/auth/admin_verify.php');
       return result?.admin ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Restore an approved patient session */
+  async verifyPatientSession(): Promise<PatientAccount | null> {
+    try {
+      const result = await get<{ patient: PatientAccount }>('/auth/patients/verify.php');
+      return result?.patient ? normalizePatient(result.patient) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Restore an approved classroom student session */
+  async verifyStudentSession(): Promise<{
+    user: {
+      id: number;
+      email: string;
+      full_name: string;
+      student_id: string;
+    };
+    dashboard: {
+      enrolled_courses: Array<{
+        course_id: number;
+        course_title: string;
+        category?: string;
+        thumbnail_url?: string;
+      }>;
+    };
+  } | null> {
+    try {
+      return await get('/classroom/auth/verify.php');
     } catch {
       return null;
     }
@@ -92,8 +147,6 @@ export const authService = {
   async signOut(): Promise<void> {
     try {
       await post('/auth/logout.php');
-    } catch {
-      // Ignore logout errors
     } finally {
       clearCsrfToken();
     }
@@ -103,7 +156,7 @@ export const authService = {
   async getPendingAccounts(): Promise<DoctorAccount[]> {
     try {
       const result = await get<{ users: DoctorAccount[] }>('/auth/pending.php');
-      return result.users ?? [];
+      return (result.users ?? []).map(normalizeDoctor);
     } catch {
       return [];
     }
@@ -135,14 +188,15 @@ export const authService = {
 
   /** Patient sign in */
   async patientSignIn(phone: string, password: string): Promise<{ token?: string; patient: PatientAccount }> {
-    return post<{ token: string; patient: PatientAccount }>('/auth/patients/login.php', { phone, password });
+    const result = await post<{ token: string; patient: PatientAccount }>('/auth/patients/login.php', { phone, password });
+    return { ...result, patient: normalizePatient(result.patient) };
   },
 
   /** Get pending patient accounts */
   async getPendingPatients(): Promise<PatientAccount[]> {
     try {
       const result = await get<{ patients: PatientAccount[] }>('/auth/patients/pending.php');
-      return result.patients ?? [];
+      return (result.patients ?? []).map(normalizePatient);
     } catch {
       return [];
     }

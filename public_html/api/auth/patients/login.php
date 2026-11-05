@@ -30,7 +30,7 @@ try {
     ]);
     setcookie('session_token', $token, [
         'expires' => time() + SESSION_LIFETIME, 'path' => '/',
-        'secure' => !empty($_SERVER['HTTPS']), 'httponly' => true, 'samesite' => 'Lax',
+        'secure' => isSecureCookieRequest(), 'httponly' => true, 'samesite' => 'Lax',
     ]);
     $db->prepare('UPDATE patient_login SET last_login_at = NOW() WHERE id = :id')->execute([':id' => $patient['id']]);
     unset($patient['password_hash']);

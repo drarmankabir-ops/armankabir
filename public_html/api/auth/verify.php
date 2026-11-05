@@ -17,7 +17,7 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
-if (($user['session_type'] ?? 'user') !== 'user') {
+if (($user['session_type'] ?? 'user') !== 'user' || $user['role'] === 'student') {
     errorResponse('Staff session required.', 403);
 }
 

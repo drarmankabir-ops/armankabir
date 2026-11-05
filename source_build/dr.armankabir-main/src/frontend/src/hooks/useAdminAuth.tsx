@@ -16,13 +16,16 @@ export function useAdminAuth() {
   const queryClient = useQueryClient();
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [adminId, setAdminId] = useState<number | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     let active = true;
     void authService.verifyAdminSession().then((admin) => {
-      if (!active || !admin) return;
-      setIsAdmin(true);
-      setAdminId(admin.id);
+      if (active && admin) {
+        setIsAdmin(true);
+        setAdminId(admin.id);
+      }
+      if (active) setIsInitializing(false);
     });
     return () => {
       active = false;
@@ -52,13 +55,10 @@ export function useAdminAuth() {
   );
 
   const adminLogout = useCallback(async () => {
-    try {
-      await authService.signOut();
-    } finally {
-      setIsAdmin(false);
-      setAdminId(null);
-    }
+    await authService.signOut();
+    setIsAdmin(false);
+    setAdminId(null);
   }, []);
 
-  return { isAdmin, adminId, adminLogin, adminLogout };
+  return { isAdmin, adminId, adminLogin, adminLogout, isInitializing };
 }

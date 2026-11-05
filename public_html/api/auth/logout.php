@@ -13,17 +13,30 @@ require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/middleware.php';
 
 handleCors();
-requireMethod('POST', 'GET');
+requireMethod('POST');
+requireCsrfToken();
 
-$user = requireAuth();
+$user = getAuthUser();
 
 try {
     $token = getBearerToken();
-    destroySession($token);
+    if ($token !== null) {
+        destroySession($token);
+    } elseif (isset($_COOKIE['session_token'])) {
+        setcookie('session_token', '', [
+            'expires' => 1,
+            'path' => '/',
+            'domain' => '',
+            'secure' => isSecureCookieRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        unset($_COOKIE['session_token']);
+    }
     
-    if (($user['session_type'] ?? 'user') === 'admin_content') {
+    if ($user && ($user['session_type'] ?? 'user') === 'admin_content') {
         logAudit(null, null, 'logout', 'admin', $user['id']);
-    } else {
+    } elseif ($user) {
         logAudit($user['id'], null, 'logout', 'user', $user['id']);
     }
     

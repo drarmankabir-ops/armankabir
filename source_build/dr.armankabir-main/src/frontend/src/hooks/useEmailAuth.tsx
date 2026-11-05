@@ -115,7 +115,7 @@ interface EmailAuthContextValue {
     password: string;
   }) => Promise<void>;
   patientSignIn: (phone: string, password: string) => Promise<void>;
-  patientSignOut: () => void;
+  patientSignOut: () => Promise<void>;
   getPendingPatients: () => Promise<PatientAccount[]>;
   approvePatient: (id: number) => Promise<void>;
   rejectPatient: (id: number) => Promise<void>;
@@ -142,6 +142,9 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
         const user = await authService.verifySession();
         if (user) {
           setCurrentDoctor(user);
+        } else {
+          const patient = await authService.verifyPatientSession();
+          if (patient) setCurrentPatient(patient);
         }
       } catch {
         // Session invalid — not authenticated
@@ -303,7 +306,8 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const patientSignOut = useCallback(() => {
+  const patientSignOut = useCallback(async () => {
+    await authService.signOut();
     clearPatientToken();
     setCurrentPatient(null);
     setAuthError(null);
@@ -388,7 +392,10 @@ export interface InactivityTimerState {
   resetTimer: () => void;
 }
 
-export function useInactivityTimer(onLogout: () => void): InactivityTimerState {
+export function useInactivityTimer(
+  onLogout: () => void,
+  enabled = true,
+): InactivityTimerState {
   const [showWarning, setShowWarning] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(120);
 
@@ -410,19 +417,20 @@ export function useInactivityTimer(onLogout: () => void): InactivityTimerState {
     clearAllTimers();
     setShowWarning(false);
     setSecondsRemaining(120);
+    if (!enabled) return;
 
     warningTimerRef.current = setTimeout(() => {
       setShowWarning(true);
       setSecondsRemaining(120);
       countdownRef.current = setInterval(() => {
         setSecondsRemaining((s) => {
-            if (s <= 1) {
-              if (countdownRef.current) clearInterval(countdownRef.current);
-              return 0;
-            }
+          if (s <= 1) {
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            return 0;
+          }
           return s - 1;
         });
-      }, 100);
+      }, 1000);
     }, INACTIVITY_WARNING_MS);
 
     logoutTimerRef.current = setTimeout(() => {
@@ -430,7 +438,7 @@ export function useInactivityTimer(onLogout: () => void): InactivityTimerState {
       setShowWarning(false);
       onLogout();
     }, INACTIVITY_TIMEOUT_MS);
-  }, [clearAllTimers, onLogout]);
+  }, [clearAllTimers, enabled, onLogout]);
 
   const resetTimer = useCallback(() => {
     lastActivityRef.current = Date.now();
@@ -438,9 +446,13 @@ export function useInactivityTimer(onLogout: () => void): InactivityTimerState {
   }, [startTimers]);
 
   useEffect(() => {
-    startTimers();
+    if (enabled) startTimers();
+    else {
+      clearAllTimers();
+      setShowWarning(false);
+    }
     return clearAllTimers;
-  }, [startTimers, clearAllTimers]);
+  }, [startTimers, clearAllTimers, enabled]);
 
   useEffect(() => {
     const handler = () => resetTimer();

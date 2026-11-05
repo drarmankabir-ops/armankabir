@@ -69,6 +69,10 @@ try {
         errorResponse('Invalid email or password', 401);
     }
 
+    if ($user['role'] === 'student') {
+        errorResponse('Student accounts must sign in through the classroom portal.', 403);
+    }
+
     // Regenerate PHP session ID to prevent session fixation
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_regenerate_id(true);
