@@ -8,8 +8,11 @@
  */
 
 import AdminFrontPagePanel from "@/components/AdminFrontPagePanel";
+import AdminVideoLibrary from "@/components/AdminVideoLibrary";
 import EmergencyConsultationModal from "@/components/EmergencyConsultationModal";
 import GallerySection from "@/components/GallerySection";
+import MedicalCalculators from "@/components/MedicalCalculators";
+import MedicalVideoLibrary from "@/components/MedicalVideoLibrary";
 import PrescriptionPDFManager from "@/components/PrescriptionPDFManager";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import { Badge } from "@/components/ui/badge";
@@ -3809,6 +3812,9 @@ export default function LandingPage({
         </section>
       )}
 
+      <MedicalVideoLibrary onLoginClick={onLoginClick} />
+      <MedicalCalculators />
+
       {/* ── Classroom ──────────────────────────────────────────────── */}
       <section
         id="classroom"
@@ -5087,6 +5093,7 @@ export default function LandingPage({
             <TreatmentReferencePDFAdmin />
             <DifferentialDiagnosisPDFAdmin />
             <InterpretationRefPDFAdmin />
+            <AdminVideoLibrary />
           </div>
         </section>
       )}
@@ -5321,4 +5328,3 @@ export default function LandingPage({
     </div>
   );
 }
-
