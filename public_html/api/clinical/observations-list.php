@@ -14,8 +14,15 @@ try {
     $db = Database::getInstance();
     $where = ['1=1'];
     $params = [];
-    $patientId = getParam('patientId', '');
-    if ($patientId) { $where[] = 'patient_id = :patient_id'; $params[':patient_id'] = (int)$patientId; }
+    $patientId = (int) getParam('patientId', 0);
+    if ($patientId > 0) {
+        requirePatientScope($user, $patientId);
+        $where[] = 'patient_id = :patient_id';
+        $params[':patient_id'] = $patientId;
+    } else {
+        $scope = patientScopeFilter($user, $params, 'patient_id');
+        if ($scope !== null) $where[] = $scope;
+    }
     $whereClause = 'WHERE ' . implode(' AND ', $where);
     $countStmt = $db->prepare("SELECT COUNT(*) as total FROM vital_signs $whereClause");
     $countStmt->execute($params);

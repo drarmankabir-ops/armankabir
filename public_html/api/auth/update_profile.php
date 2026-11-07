@@ -11,6 +11,7 @@ require_once __DIR__ . '/../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 
 $user = requireAuth();
 $input = getJsonInput();

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('patient_login_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 5, 900);
 $input = getJsonInput();
 $missing = validateRequired($input, ['phone', 'password']);
@@ -21,6 +22,10 @@ try {
     if (!$patient || !password_verify($input['password'], $patient['password_hash'])) errorResponse('Invalid phone number or password.', 401);
     if ($patient['status'] === 'pending') errorResponse('Your account is pending doctor approval. Please wait.', 403);
     if ($patient['status'] === 'rejected') errorResponse('Your account has been rejected.', 403);
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
 
     $token = bin2hex(random_bytes(64));
     $expires = date('Y-m-d H:i:s', time() + SESSION_LIFETIME);

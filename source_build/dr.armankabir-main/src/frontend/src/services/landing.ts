@@ -118,9 +118,29 @@ export interface SiteConfig {
   [section: string]: unknown;
 }
 
+export interface SiteConfigPatch {
+  heroSection?: Partial<HeroSection>;
+  aboutSection?: Partial<AboutSection>;
+  footerSection?: Partial<FooterSection>;
+  emergencyContacts?: EmergencyContact[];
+  testimonialsSection?: Partial<TestimonialsSection>;
+  gallerySection?: Partial<GallerySection>;
+  faqsSection?: Partial<FAQsSection>;
+  doctorContentOverrides?: Record<string, Record<string, unknown>>;
+  [section: string]: unknown;
+}
+
 interface FrontPageResponse {
   siteConfig?: Partial<SiteConfig>;
   doctorContentOverrides?: Record<string, Record<string, unknown>>;
+}
+
+let frontPageWriteQueue: Promise<void> = Promise.resolve();
+
+function enqueueFrontPageWrite<T>(write: () => Promise<T>): Promise<T> {
+  const queuedWrite = frontPageWriteQueue.then(write, write);
+  frontPageWriteQueue = queuedWrite.then(() => undefined, () => undefined);
+  return queuedWrite;
 }
 
 export const landingService = {
@@ -131,13 +151,13 @@ export const landingService = {
 
   /** Save front page content to server */
   async saveContent(data: Record<string, unknown>): Promise<boolean> {
-    await post('/frontpage/save.php', data);
+    await enqueueFrontPageWrite(() => post('/frontpage/save.php', data));
     return true;
   },
 
   /** Migrate legacy website preferences after an administrator signs in */
   async migrateLegacyContent(): Promise<void> {
-    await post('/frontpage/migrate.php', {});
+    await enqueueFrontPageWrite(() => post('/frontpage/migrate.php', {}));
   },
 
   /** Get site configuration from frontpage content */
@@ -159,11 +179,13 @@ export const landingService = {
   },
 
   /** Update site configuration via frontpage save */
-  async updateSiteConfig(config: Partial<SiteConfig>): Promise<void> {
+  async updateSiteConfig(config: SiteConfigPatch): Promise<void> {
     const { doctorContentOverrides, ...siteConfig } = config;
-    await post('/frontpage/save.php', {
-      siteConfig,
-      ...(doctorContentOverrides !== undefined ? { doctorContentOverrides } : {}),
-    });
+    await enqueueFrontPageWrite(() =>
+      post('/frontpage/save.php', {
+        siteConfig,
+        ...(doctorContentOverrides !== undefined ? { doctorContentOverrides } : {}),
+      }),
+    );
   },
 };

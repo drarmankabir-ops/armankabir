@@ -151,10 +151,17 @@ function hasPermission(array $user, string $permission): bool {
         'admin' => [
             'manage_users', 'manage_settings', 'view_all_patients',
             'view_all_finances', 'manage_beds', 'view_audit_logs',
-            'export_data', 'delete_data',
+            'export_data', 'delete_data', 'manage_patient_accounts',
+            'manage_patient_records', 'manage_homepage_content',
+            'create_visit', 'edit_visit', 'record_vitals',
+            'order_investigations', 'view_results',
+        ],
+        'admin_content' => [
+            'manage_homepage_content',
         ],
         'consultant_doctor' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -163,6 +170,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'medical_officer' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments',
             'create_visit', 'edit_visit',
@@ -171,6 +179,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'assistant_registrar' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments',
             'create_visit',
@@ -179,6 +188,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'registrar' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -187,6 +197,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'assistant_professor' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -195,6 +206,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'associate_professor' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -203,6 +215,7 @@ function hasPermission(array $user, string $permission): bool {
         ],
         'professor' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -229,6 +242,7 @@ function hasPermission(array $user, string $permission): bool {
         'staff' => [
             'view_patients',
             'register_patient',
+            'manage_patient_accounts',
             'view_appointments',
             'manage_appointments',
             'process_payments',
@@ -237,12 +251,14 @@ function hasPermission(array $user, string $permission): bool {
         'reception' => [
             'view_patients',
             'register_patient',
+            'manage_patient_accounts',
             'view_appointments',
             'manage_appointments',
             'process_payments',
         ],
         'doctor' => [
             'view_assigned_patients', 'view_all_patients',
+            'manage_patient_records',
             'create_prescription', 'edit_prescription',
             'view_appointments', 'manage_appointments',
             'create_visit', 'edit_visit',
@@ -252,6 +268,66 @@ function hasPermission(array $user, string $permission): bool {
     ];
     
     return in_array($permission, $permissions[$user['role']] ?? []);
+}
+
+/** Enforce patient ownership or clinician assignment before accessing a record. */
+function requirePatientScope(array $user, int $patientId, ?string $permission = null): void {
+    if ($patientId < 1) {
+        errorResponse('Patient ID is required.', 400);
+    }
+
+    if (($user['session_type'] ?? '') === 'patient') {
+        if ($permission !== null || (int) ($user['patient_id'] ?? 0) !== $patientId) {
+            errorResponse('Access denied. You cannot access this patient record.', 403);
+        }
+        return;
+    }
+
+    if ($permission !== null && !hasPermission($user, $permission)) {
+        errorResponse('Access denied. You do not have permission for this patient operation.', 403);
+    }
+
+    if (hasPermission($user, 'view_all_patients') || hasPermission($user, 'view_patients')) {
+        return;
+    }
+
+    if (!hasPermission($user, 'view_assigned_patients')) {
+        errorResponse('Access denied. You cannot access patient records.', 403);
+    }
+
+    $db = Database::getInstance();
+    $assignment = $db->prepare(
+        'SELECT 1 FROM patient_consultants
+         WHERE patient_id = :patient_id AND consultant_id = :user_id AND is_active = 1 LIMIT 1'
+    );
+    $assignment->execute([':patient_id' => $patientId, ':user_id' => (int) $user['id']]);
+    if (!$assignment->fetchColumn()) {
+        errorResponse('Access denied. This patient is not assigned to you.', 403);
+    }
+}
+
+/** Build a patient filter for list endpoints that support all-record views. */
+function patientScopeFilter(array $user, array &$params, string $patientColumn): ?string {
+    if (($user['session_type'] ?? '') === 'patient') {
+        $patientId = (int) ($user['patient_id'] ?? 0);
+        if ($patientId < 1) {
+            errorResponse('Patient account is not available for this session.', 403);
+        }
+        $params[':session_patient_id'] = $patientId;
+        return $patientColumn . ' = :session_patient_id';
+    }
+
+    if (hasPermission($user, 'view_all_patients') || hasPermission($user, 'view_patients')) {
+        return null;
+    }
+    if (!hasPermission($user, 'view_assigned_patients')) {
+        errorResponse('Access denied. You cannot view patient records.', 403);
+    }
+
+    $params[':session_user_id'] = (int) $user['id'];
+    return 'EXISTS (SELECT 1 FROM patient_consultants pc_scope
+        WHERE pc_scope.patient_id = ' . $patientColumn . '
+          AND pc_scope.consultant_id = :session_user_id AND pc_scope.is_active = 1)';
 }
 
 /**

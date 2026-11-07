@@ -4,7 +4,7 @@
  * POST /api/classroom/auth/login
  * 
  * Validates credentials and creates a classroom session.
- * Sets secure HttpOnly cookie and returns session token.
+ * Sets a secure HttpOnly cookie for the classroom session.
  * 
  * After login, student status is checked:
  * - pending: cannot access classroom content
@@ -14,9 +14,11 @@
 
 require_once __DIR__ . '/../../config_loader.php';
 require_once __DIR__ . '/../../helpers.php';
+require_once __DIR__ . '/../../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('classroom_login_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 5, 900);
 
 $input = getJsonInput();
@@ -41,10 +43,10 @@ try {
     
     // First, find the classroom student record to check status
     $stmtStudent = $db->prepare(''
-        . 'SELECT cs.*, u.*, u.password_hash, u.full_name, u.name_bn, u.role, u.is_active, u.registration_status '
+        . 'SELECT cs.*, cs.status AS student_status, u.*, u.password_hash, u.full_name, u.name_bn, u.role, u.is_active, u.registration_status '
         . 'FROM classroom_students cs '
         . 'JOIN users u ON cs.user_id = u.id '
-        . 'WHERE u.email = :email '
+        . 'WHERE u.email = :email AND u.role = "student" '
         . 'LIMIT 1'
     );
     $stmtStudent->execute([':email' => $email]);
@@ -68,34 +70,29 @@ try {
         errorResponse('Invalid email or password', 401);
     }
     
-    // Check if user is active
-    if (!$student['is_active']) {
-        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_deactivated']);
-        errorResponse('Account is deactivated. Contact administrator.', 403);
-    }
-    
-    // Check classroom student status
-    $studentStatus = $student['student_status'] ?? 'pending';
-    
-    if ($studentStatus === 'pending') {
-        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'pending_approval']);
-        errorResponse('Your account is pending admin approval. Please wait.', 403);
-    }
-    
-    if ($studentStatus === 'rejected') {
-        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_rejected']);
-        errorResponse('Your account has been rejected. Please contact the admin or re-register.', 403);
-    }
-    
-    if ($studentStatus === 'suspended') {
-        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_suspended']);
-        errorResponse('Your account has been suspended. Please contact the administrator.', 403);
-    }
-    
     // Verify password
     if (!password_verify($password, $student['password_hash'])) {
         logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'invalid_password']);
         errorResponse('Invalid email or password', 401);
+    }
+
+    if (!$student['is_active']) {
+        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_deactivated']);
+        errorResponse('Account is deactivated. Contact administrator.', 403);
+    }
+
+    $studentStatus = $student['student_status'] ?? 'pending';
+    if ($studentStatus === 'pending') {
+        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'pending_approval']);
+        errorResponse('Your account is pending admin approval. Please wait.', 403);
+    }
+    if ($studentStatus === 'rejected') {
+        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_rejected']);
+        errorResponse('Your account has been rejected. Please contact the admin or re-register.', 403);
+    }
+    if ($studentStatus === 'suspended') {
+        logAudit($student['id'], null, 'failed_login', 'user', $student['id'], null, ['reason' => 'account_suspended']);
+        errorResponse('Your account has been suspended. Please contact the administrator.', 403);
     }
     
     // Regenerate PHP session ID to prevent session fixation
@@ -107,12 +104,11 @@ try {
     $token = createSession($student['id']);
     
     // Set secure HttpOnly cookie
-    $cookieParams = session_get_cookie_params();
     setcookie('session_token', $token, [
         'expires' => time() + SESSION_LIFETIME,
         'path' => '/',
         'domain' => '',
-        'secure' => true,
+        'secure' => isSecureCookieRequest(),
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
@@ -139,7 +135,7 @@ try {
     
     // Get enrolled courses
     $enrollmentsStmt = $db->prepare(''
-        . ' ce.*, c.title as course_title, c.category, c.thumbnail_url '
+        . 'SELECT ce.*, c.title as course_title, c.category, c.thumbnail_url '
         . 'FROM classroom_enrollments ce '
         . 'JOIN classroom_courses c ON ce.course_id = c.id '
         . 'WHERE ce.student_id = :student_id AND ce.status = "enrolled" '
@@ -149,7 +145,6 @@ try {
     $enrolledCourses = $enrollmentsStmt->fetchAll(PDO::FETCH_ASSOC);
     
     successResponse([
-        'token' => $token,
         'user' => [
             'id' => (int)$student['id'],
             'email' => $student['email'],
@@ -166,7 +161,7 @@ try {
         ],
     ], 'Login successful');
     
-} catch (\Exception $e) {
+} catch (Throwable $e) {
     error_log('Login error: ' . $e->getMessage());
     errorResponse('Login failed. Please try again.', 500);
 }

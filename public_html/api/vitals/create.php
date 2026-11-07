@@ -11,6 +11,7 @@ require_once __DIR__ . '/../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 
 $user = requireAuth();
 $input = getJsonInput();
@@ -19,6 +20,11 @@ $missing = validateRequired($input, ['patient_id']);
 if ($missing) {
     errorResponse('Missing required fields', 400, ['missing_fields' => $missing]);
 }
+$patientId = (int) $input['patient_id'];
+if (!hasPermission($user, 'record_vitals') && !hasPermission($user, 'verify_vitals')) {
+    errorResponse('Access denied. You cannot record patient vitals.', 403);
+}
+requirePatientScope($user, $patientId);
 
 try {
     $db = Database::getInstance();
@@ -29,7 +35,7 @@ try {
     ');
     
     $stmt->execute([
-        ':patient_id' => (int)$input['patient_id'],
+        ':patient_id' => $patientId,
         ':visit_id' => isset($input['visit_id']) ? (int)$input['visit_id'] : null,
         ':bp_sys' => $input['blood_pressure_systolic'] ?? null,
         ':bp_dia' => $input['blood_pressure_diastolic'] ?? null,

@@ -12,9 +12,11 @@
 
 require_once __DIR__ . '/../../config_loader.php';
 require_once __DIR__ . '/../../helpers.php';
+require_once __DIR__ . '/../../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('classroom_signup_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 10, 60);
 
 $input = getJsonInput();
@@ -37,9 +39,10 @@ if (empty($email)) {
     errorResponse('Invalid email address', 400);
 }
 
-// Validate password strength (minimum 8 characters for classroom)
-if (strlen($password) < 8) {
-    errorResponse('Password must be at least 8 characters', 400);
+// Validate password strength
+$passwordError = validatePasswordStrength($password);
+if ($passwordError) {
+    errorResponse($passwordError, 400);
 }
 
 // Check if email already exists in users table

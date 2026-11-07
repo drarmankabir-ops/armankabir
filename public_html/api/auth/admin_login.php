@@ -6,8 +6,8 @@
  * Body: { "username": "...", "password": "..." }
  * 
  * Replaces the hardcoded ADMIN_ACCOUNTS in the frontend JS.
- * Returns a session token stored in localStorage for admin content management.
- * Token is now stored server-side in admin_sessions for verification and revocation.
+ * Returns account details only. Authentication uses a server-side session and
+ * an HttpOnly cookie; session tokens are never exposed to frontend JavaScript.
  */
 
 require_once __DIR__ . '/../database.php';
@@ -16,6 +16,7 @@ require_once __DIR__ . '/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('admin_login_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 10, 900); // 10 attempts per 15 min
 
 $input = getJsonInput();
@@ -48,6 +49,10 @@ try {
         logAudit(null, null, 'failed_admin_login', 'admin', $admin['id'], null, ['reason' => 'invalid_password']);
         errorResponse('Invalid username or password', 401);
     }
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
     
     // Check if password needs rehash (if algorithm/cost changed)
     if (password_needs_rehash($admin['password_hash'], PASSWORD_BCRYPT)) {
@@ -76,7 +81,6 @@ try {
     logAudit(null, null, 'admin_login', 'admin', $admin['id']);
     
     successResponse([
-        'token' => $token,
         'admin' => [
             'id' => (int)$admin['id'],
             'username' => $admin['username'],

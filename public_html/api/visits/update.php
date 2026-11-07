@@ -12,6 +12,7 @@ require_once __DIR__ . '/../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 
 $user = requireAuth();
 $input = getJsonInput();
@@ -27,6 +28,7 @@ try {
     $existing = $stmt->fetch();
     
     if (!$existing) errorResponse('Visit not found', 404);
+    requirePatientScope($user, (int) $existing['patient_id'], 'edit_visit');
     
     $stmt = $db->prepare('
         UPDATE visits SET 

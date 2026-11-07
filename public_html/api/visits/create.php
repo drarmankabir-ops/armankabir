@@ -12,6 +12,7 @@ require_once __DIR__ . '/../auth/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 
 $user = requireAuth();
 $input = getJsonInput();
@@ -20,6 +21,8 @@ $missing = validateRequired($input, ['patientId', 'visitType']);
 if ($missing) {
     errorResponse('Missing required fields', 400, ['missing_fields' => $missing]);
 }
+$patientId = (int) $input['patientId'];
+requirePatientScope($user, $patientId, 'create_visit');
 
 // Validate visit type
 $allowedVisitTypes = ['outpatient', 'inpatient', 'emergency', 'follow-up', 'admitted'];
@@ -39,7 +42,7 @@ try {
     $vitalSigns = isset($input['vitalSigns']) ? json_encode($input['vitalSigns']) : null;
     
     $stmt->execute([
-        ':patient_id' => (int)$input['patientId'],
+        ':patient_id' => $patientId,
         ':visit_type' => $visitType,
         ':visit_date' => $input['visitDate'] ?? date('Y-m-d'),
         ':chief_complaint' => $input['chiefComplaint'] ?? null,

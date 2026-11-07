@@ -204,8 +204,8 @@ class MigrationRunner {
             // Run migration handler
             $result = $this->{$handler}();
             
-            // Commit transaction
-            if (!$this->dry_run && $result['count'] > 0) {
+            // Commit every successful step, including steps that make no changes.
+            if (!$this->dry_run && $this->pdo->inTransaction()) {
                 $this->pdo->commit();
             }
             
@@ -251,28 +251,12 @@ class MigrationRunner {
                 return ['count' => 0, 'skipped' => true, 'reason' => 'Already migrated'];
             }
             
-            // If importing from legacy localStorage/JSON, insert seed data
-            $sql = "INSERT IGNORE INTO staff (email, password_hash, full_name, role, created_at) 
-                    VALUES 
-                    ('admin@drarmankabir.com', ?, 'Administrator', 'admin', NOW()),
-                    ('dr.arman@drarmankabir.com', ?, 'Dr. Arman', 'consultant_doctor', NOW()),
-                    ('nurse1@drarmankabir.com', ?, 'Nurse', 'nurse', NOW()),
-                    ('reception@drarmankabir.com', ?, 'Reception', 'reception', NOW())";
-            
-            $default_password_hash = password_hash('admin123', PASSWORD_BCRYPT);
-            
-            if (!$this->dry_run) {
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([
-                    $default_password_hash,
-                    $default_password_hash,
-                    $default_password_hash,
-                    $default_password_hash,
-                ]);
-                $count = $stmt->rowCount();
-            } else {
-                $count = 4; // Dry run: assume 4 records
-            }
+            // Accounts must be provisioned by the CLI-only secure bootstrap.
+            return [
+                'count' => 0,
+                'skipped' => true,
+                'reason' => 'No default accounts are created by migrations.',
+            ];
             
         } catch (Exception $e) {
             log_message('ERROR', 'Auth roles migration error: ' . $e->getMessage());

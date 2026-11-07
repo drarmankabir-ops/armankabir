@@ -18,6 +18,7 @@ $patientId = (int)getParam('patient_id', 0);
 if (!$patientId) {
     errorResponse('Patient ID is required', 400);
 }
+requirePatientScope($user, $patientId);
 
 $pagination = getPaginationParams();
 

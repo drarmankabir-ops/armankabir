@@ -14,7 +14,7 @@ require_once __DIR__ . '/storage.php';
 handleCors();
 requireMethod('POST');
 
-$user = requireRole(['admin', 'admin_content']);
+$user = requirePermission('manage_homepage_content');
 requireCsrfToken();
 
 $input = getJsonInput();
@@ -38,6 +38,10 @@ foreach (['siteConfig', 'doctorContentOverrides'] as $field) {
 
 try {
     $db = Database::getInstance();
+    $lockAcquired = (int) $db->query("SELECT GET_LOCK('arman_frontpage_write', 10)")->fetchColumn();
+    if ($lockAcquired !== 1) {
+        errorResponse('Front-page content is busy. Please retry the save.', 503);
+    }
     $db->beginTransaction();
 
     $content = loadFrontPageContent($db);
@@ -98,6 +102,7 @@ try {
     }
 
     $db->commit();
+    $db->query("SELECT RELEASE_LOCK('arman_frontpage_write')");
     successResponse([
         'siteConfig' => $siteConfig ?: new stdClass(),
         'doctorContentOverrides' => $doctorOverrides ?: new stdClass(),
@@ -106,6 +111,13 @@ try {
 } catch (Throwable $e) {
     if (isset($db) && $db->inTransaction()) {
         $db->rollBack();
+    }
+    if (isset($db) && ($lockAcquired ?? 0) === 1) {
+        try {
+            $db->query("SELECT RELEASE_LOCK('arman_frontpage_write')");
+        } catch (Throwable $releaseError) {
+            error_log('Front page save lock release error: ' . $releaseError->getMessage());
+        }
     }
     error_log('Front page save error: ' . $e->getMessage());
     errorResponse('Failed to save front page content.', 500);

@@ -7,8 +7,6 @@
  * Backend: PHP/MySQL via cPanel
  */
 
-import { useState } from "react";
-import { Heart } from "lucide-react";
 import AdminFrontPagePanel from "@/components/AdminFrontPagePanel";
 import EmergencyConsultationModal from "@/components/EmergencyConsultationModal";
 import GallerySection from "@/components/GallerySection";
@@ -2613,7 +2611,7 @@ function StaffApprovalsAdmin() {
   const refresh = useCallback(() => {
     try {
       const registry = JSON.parse(
-        storageAdapter.getItem("medicare_doctors_registry") || "[]",
+        storage.getItem("medicare_doctors_registry") || "[]",
       );
       setAccounts(registry.filter((d: any) => d.status === "pending"));
     } catch {}
@@ -2626,7 +2624,7 @@ function StaffApprovalsAdmin() {
   const approve = (id: string) => {
     try {
       const registry = JSON.parse(
-        storageAdapter.getItem("medicare_doctors_registry") || "[]",
+        storage.getItem("medicare_doctors_registry") || "[]",
       );
       const idx = registry.findIndex((d: any) => d.id === id);
       if (idx >= 0) {
@@ -2644,7 +2642,7 @@ function StaffApprovalsAdmin() {
   const reject = (id: string) => {
     try {
       const registry = JSON.parse(
-        storageAdapter.getItem("medicare_doctors_registry") || "[]",
+        storage.getItem("medicare_doctors_registry") || "[]",
       );
       const idx = registry.findIndex((d: any) => d.id === id);
       if (idx >= 0) {
@@ -3032,6 +3030,7 @@ export default function LandingPage({
     updateEmergencyContacts,
     updateFAQs,
     resetSection,
+    saveStatus,
     isLoading: isSiteConfigLoading,
     isError: isSiteConfigError,
     error: siteConfigError,
@@ -5100,6 +5099,7 @@ export default function LandingPage({
           updateEmergencyContacts={updateEmergencyContacts}
           updateFAQs={updateFAQs}
           resetSection={resetSection}
+          saveStatus={saveStatus}
         />
       )}
       {/* ── Footer ──────────────────────────────────────────────────── */}

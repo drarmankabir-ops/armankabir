@@ -14,6 +14,14 @@ handleCors();
 requireMethod('GET');
 
 $user = requireAuth();
+$isPatient = ($user['session_type'] ?? '') === 'patient';
+$canViewAllPatients = hasPermission($user, 'view_all_patients')
+    || hasPermission($user, 'view_patients');
+$canViewAssignedPatients = hasPermission($user, 'view_assigned_patients');
+if (!$isPatient && !$canViewAllPatients && !$canViewAssignedPatients) {
+    errorResponse('Access denied. You cannot view patient records.', 403);
+}
+
 $pagination = getPaginationParams();
 
 try {
@@ -21,6 +29,18 @@ try {
     
     $where = [];
     $params = [];
+
+    if ($isPatient) {
+        $patientId = (int) ($user['patient_id'] ?? 0);
+        if ($patientId < 1) {
+            errorResponse('Patient account is not available for this session.', 403);
+        }
+        $where[] = 'p.id = :session_patient_id';
+        $params[':session_patient_id'] = $patientId;
+    } elseif (!$canViewAllPatients) {
+        $where[] = 'EXISTS (SELECT 1 FROM patient_consultants pc_scope WHERE pc_scope.patient_id = p.id AND pc_scope.consultant_id = :session_user_id AND pc_scope.is_active = 1)';
+        $params[':session_user_id'] = (int) $user['id'];
+    }
     
     // Search filter
     $search = trim(getParam('search', ''));

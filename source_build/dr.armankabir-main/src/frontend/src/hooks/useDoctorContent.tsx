@@ -12,6 +12,18 @@ import { doctors } from "../data/doctorsData";
 import type { DoctorKey } from "../data/doctorsData";
 import { landingService } from "../services/landing";
 
+type BaseDoctorContent = (typeof doctors)[DoctorKey];
+type DoctorContent = BaseDoctorContent & {
+  classroom: BaseDoctorContent["classroom"] & {
+    gallery?: Array<{
+      id: string;
+      dataUrl: string;
+      caption: string;
+      category?: string;
+    }>;
+  };
+};
+
 /**
  * Hook to manage doctor content overrides.
  * Fetches content from server-side PHP API on mount.
@@ -36,7 +48,7 @@ export function useDoctorContent() {
   });
 
   const getContent = useCallback(
-    (doctorKey: string): Record<string, unknown> => {
+    (doctorKey: string): DoctorContent => {
       const doctorOverrides = overrides[doctorKey] || {};
       const doctorDefaults = doctors[doctorKey as DoctorKey] || {};
       const phone = doctorOverrides?.phone ?? '';
@@ -51,7 +63,7 @@ export function useDoctorContent() {
             : doctorDefaults.name,
         phone: phone !== '' ? phone : doctorDefaults.phone,
         phone2: phone2 !== '' ? phone2 : doctorDefaults.phone2,
-      };
+      } as DoctorContent;
     },
     [overrides],
   );

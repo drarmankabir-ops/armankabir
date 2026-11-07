@@ -4,6 +4,7 @@ require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/../auth/middleware.php';
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 $user = requireAuth();
 $input = getJsonInput();
 $id = (int)($input['id'] ?? null);
@@ -14,6 +15,7 @@ try {
     $stmt->execute([':id' => $id]);
     $existing = $stmt->fetch();
     if (!$existing) errorResponse('Visit not found', 404);
+    requirePatientScope($user, (int) $existing['patient_id'], 'edit_visit');
     $stmt = $db->prepare('DELETE FROM visits WHERE id = :id');
     $stmt->execute([':id' => $id]);
     logAudit($user['id'], $existing['patient_id'], 'delete', 'visit', $id, $existing, null);

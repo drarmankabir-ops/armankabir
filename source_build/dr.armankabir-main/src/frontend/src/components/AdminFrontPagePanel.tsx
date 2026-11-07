@@ -17,7 +17,9 @@ import type {
   HeroSection,
   SiteConfig,
   SocialLink,
-} from "@/hooks/useSiteConfig";
+} from "@/services/landing";
+import type { SiteConfigSaveStatus } from "@/hooks/useSiteConfig";
+import { authService } from "@/services/auth";
 import {
   Megaphone,
   MinusCircle,
@@ -29,6 +31,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { toast } from "sonner";
 
 interface Props {
@@ -38,7 +41,8 @@ interface Props {
   updateFooter: (f: Partial<FooterSection>) => void;
   updateEmergencyContacts: (c: EmergencyContact[]) => void;
   updateFAQs: (section: Partial<FAQsSection>) => Promise<unknown>;
-  resetSection: (s: keyof SiteConfig) => void;
+  resetSection: (s: keyof SiteConfig) => Promise<void>;
+  saveStatus: SiteConfigSaveStatus;
 }
 
 // ──── Hero Tab ────────────────────────────────────────────────────────────────
@@ -957,6 +961,78 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
   );
 }
 
+function AdminPasswordTab() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const changePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error("The new passwords do not match.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await authService.changeAdminPassword(currentPassword, newPassword);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Administrator password changed.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not change password.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form className="space-y-4" onSubmit={changePassword}>
+      <div className="space-y-1.5">
+        <Label htmlFor="admin-current-password">Current password</Label>
+        <Input
+          id="admin-current-password"
+          type="password"
+          autoComplete="current-password"
+          value={currentPassword}
+          onChange={(event) => setCurrentPassword(event.target.value)}
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="admin-new-password">New password</Label>
+        <Input
+          id="admin-new-password"
+          type="password"
+          autoComplete="new-password"
+          minLength={12}
+          maxLength={128}
+          value={newPassword}
+          onChange={(event) => setNewPassword(event.target.value)}
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="admin-confirm-password">Confirm new password</Label>
+        <Input
+          id="admin-confirm-password"
+          type="password"
+          autoComplete="new-password"
+          minLength={12}
+          maxLength={128}
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          required
+        />
+      </div>
+      <Button type="submit" disabled={saving || !currentPassword || !newPassword || !confirmPassword}>
+        {saving ? "Changing password..." : "Change password"}
+      </Button>
+    </form>
+  );
+}
+
 // ──── Main Panel ──────────────────────────────────────────────────────────────
 export default function AdminFrontPagePanel(props: Props) {
   const [open, setOpen] = useState(false);
@@ -987,6 +1063,15 @@ export default function AdminFrontPagePanel(props: Props) {
               Edit Front Page
             </SheetTitle>
           </SheetHeader>
+          <p className="mb-3 min-h-5 text-xs text-muted-foreground" role="status" aria-live="polite">
+            {props.saveStatus === "pending" || props.saveStatus === "saving"
+              ? "Saving changes..."
+              : props.saveStatus === "saved"
+                ? "All changes saved"
+                : props.saveStatus === "error"
+                  ? "Changes were not saved. Edit again to retry."
+                  : ""}
+          </p>
 
           <Tabs defaultValue="hero" className="space-y-4">
             <TabsList className="grid grid-cols-3 w-full">
@@ -1018,6 +1103,9 @@ export default function AdminFrontPagePanel(props: Props) {
               </TabsTrigger>
               <TabsTrigger value="faqs" data-ocid="admin_panel.faqs.tab">
                 FAQs
+              </TabsTrigger>
+              <TabsTrigger value="security" data-ocid="admin_panel.security.tab">
+                Security
               </TabsTrigger>
             </TabsList>
 
@@ -1094,6 +1182,9 @@ export default function AdminFrontPagePanel(props: Props) {
             </TabsContent>
             <TabsContent value="faqs">
               <FAQsTab config={props.config} updateFAQs={props.updateFAQs} />
+            </TabsContent>
+            <TabsContent value="security">
+              <AdminPasswordTab />
             </TabsContent>
           </Tabs>
         </SheetContent>

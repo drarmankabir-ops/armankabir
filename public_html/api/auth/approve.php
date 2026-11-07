@@ -30,6 +30,7 @@ require_once __DIR__ . '/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 
 $user = requireAdmin();
 

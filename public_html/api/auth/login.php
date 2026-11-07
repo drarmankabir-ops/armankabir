@@ -15,6 +15,7 @@ require_once __DIR__ . '/middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('login_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 5, 900); // 5 attempts per 15 minutes
 
 $input = getJsonInput();
@@ -47,7 +48,12 @@ try {
         errorResponse('Invalid email or password', 401);
     }
 
-    // Linear validation pipeline
+    // Verify password
+    if (!password_verify($password, $user['password_hash'])) {
+        logAudit($user['id'], null, 'failed_login', 'user', $user['id'], null, ['reason' => 'invalid_password']);
+        errorResponse('Invalid email or password', 401);
+    }
+
     if (!$user['is_active']) {
         logAudit($user['id'], null, 'failed_login', 'user', $user['id'], null, ['reason' => 'account_deactivated']);
         errorResponse('Account is deactivated. Contact administrator.', 403);
@@ -61,12 +67,6 @@ try {
     if ($user['registration_status'] === 'rejected') {
         logAudit($user['id'], null, 'failed_login', 'user', $user['id'], null, ['reason' => 'account_rejected']);
         errorResponse('Your account has been rejected. Please contact the admin or re-register.', 403);
-    }
-
-    // Verify password
-    if (!password_verify($password, $user['password_hash'])) {
-        logAudit($user['id'], null, 'failed_login', 'user', $user['id'], null, ['reason' => 'invalid_password']);
-        errorResponse('Invalid email or password', 401);
     }
 
     if ($user['role'] === 'student') {
@@ -104,7 +104,6 @@ try {
     unset($user['password_hash']);
 
     successResponse([
-        'token' => $token,
         'user' => [
             'id' => (int)$user['id'],
             'email' => $user['email'],

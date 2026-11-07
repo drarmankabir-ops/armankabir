@@ -74,14 +74,22 @@ export const authService = {
   },
 
   /** Sign in with email and password */
-  async signIn(email: string, password: string): Promise<{ token?: string; user: DoctorAccount }> {
-    const result = await post<{ token: string; user: DoctorAccount }>('/auth/login.php', { email, password });
-    return { ...result, user: normalizeDoctor(result.user) };
+  async signIn(email: string, password: string): Promise<{ user: DoctorAccount }> {
+    const result = await post<{ user: DoctorAccount }>('/auth/login.php', { email, password });
+    return { user: normalizeDoctor(result.user) };
   },
 
   /** Sign in to the public portal content manager */
-  async adminSignIn(username: string, password: string): Promise<{ token: string; admin: AdminAccount; is_admin: boolean }> {
-    return post<{ token: string; admin: AdminAccount; is_admin: boolean }>('/auth/admin_login.php', { username, password });
+  async adminSignIn(username: string, password: string): Promise<{ admin: AdminAccount; is_admin: boolean }> {
+    return post<{ admin: AdminAccount; is_admin: boolean }>('/auth/admin_login.php', { username, password });
+  },
+
+  /** Change the authenticated administrator password and rotate its session. */
+  async changeAdminPassword(currentPassword: string, newPassword: string): Promise<void> {
+    await post('/auth/admin_password.php', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
   },
 
   /** Restore a valid public portal admin session */
@@ -187,9 +195,9 @@ export const authService = {
   },
 
   /** Patient sign in */
-  async patientSignIn(phone: string, password: string): Promise<{ token?: string; patient: PatientAccount }> {
-    const result = await post<{ token: string; patient: PatientAccount }>('/auth/patients/login.php', { phone, password });
-    return { ...result, patient: normalizePatient(result.patient) };
+  async patientSignIn(phone: string, password: string): Promise<{ patient: PatientAccount }> {
+    const result = await post<{ patient: PatientAccount }>('/auth/patients/login.php', { phone, password });
+    return { patient: normalizePatient(result.patient) };
   },
 
   /** Get pending patient accounts */

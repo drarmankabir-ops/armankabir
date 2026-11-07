@@ -12,9 +12,11 @@
 
 require_once __DIR__ . '/../../database.php';
 require_once __DIR__ . '/../../helpers.php';
+require_once __DIR__ . '/../middleware.php';
 
 handleCors();
 requireMethod('POST');
+requireCsrfToken();
 checkRateLimit('patient_register_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
 
 $input = getJsonInput();
@@ -34,8 +36,9 @@ if (empty($phone)) {
 }
 
 // Validate password
-if (strlen($password) < 6) {
-    errorResponse('Password must be at least 6 characters', 400);
+$passwordError = validatePasswordStrength($password);
+if ($passwordError) {
+    errorResponse($passwordError, 400);
 }
 
 try {

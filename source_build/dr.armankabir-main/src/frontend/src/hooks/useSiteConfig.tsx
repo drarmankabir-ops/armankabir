@@ -6,8 +6,8 @@
  * Managed via landingService on the server.
  */
 
-import { useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { landingService } from "../services/landing";
 import type {
@@ -18,6 +18,7 @@ import type {
   GallerySection,
   HeroSection,
   SiteConfig,
+  SiteConfigPatch,
   TestimonialsSection,
 } from "../services/landing";
 
@@ -77,6 +78,27 @@ export const EMPTY_SITE_CONFIG: SiteConfig = {
   doctorContentOverrides: {},
 };
 
+export type SiteConfigSaveStatus = "idle" | "pending" | "saving" | "saved" | "error";
+
+function mergeConfigPatch(
+  base: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged = { ...base };
+  for (const [key, value] of Object.entries(patch)) {
+    const current = merged[key];
+    if (
+      value && typeof value === "object" && !Array.isArray(value) &&
+      current && typeof current === "object" && !Array.isArray(current)
+    ) {
+      merged[key] = { ...current, ...value };
+    } else {
+      merged[key] = value;
+    }
+  }
+  return merged;
+}
+
 function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
   return {
     ...EMPTY_SITE_CONFIG,
@@ -127,6 +149,12 @@ function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
 
 export function useSiteConfig() {
   const queryClient = useQueryClient();
+  const [saveStatus, setSaveStatus] = useState<SiteConfigSaveStatus>("idle");
+  const pendingPatch = useRef<SiteConfigPatch>({});
+  const saveWaiters = useRef<Array<{ resolve: () => void; reject: (error: unknown) => void }>>([]);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const mounted = useRef(true);
 
   const {
     data: loadedConfig,
@@ -138,81 +166,123 @@ export function useSiteConfig() {
     queryFn: () => landingService.getSiteConfig(),
   });
   const config = withSiteConfigDefaults(loadedConfig ?? null);
+  const configRef = useRef(config);
+  configRef.current = config;
 
-  const mutation = useMutation({
-    mutationFn: async (updated: Partial<SiteConfig>) => {
-      await landingService.updateSiteConfig(updated);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
-    },
-    onError: (saveError: Error) => {
-      toast.error(`Could not save front-page content: ${saveError.message}`);
-    },
-  });
+  const flushSaves = useCallback(() => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    const patch = pendingPatch.current;
+    if (Object.keys(patch).length === 0) return;
+    pendingPatch.current = {};
+    const waiters = saveWaiters.current.splice(0);
+    if (mounted.current) setSaveStatus("saving");
+
+    saveQueue.current = saveQueue.current.then(async () => {
+      try {
+        await landingService.updateSiteConfig(patch);
+        waiters.forEach(({ resolve }) => resolve());
+        if (Object.keys(pendingPatch.current).length === 0) {
+          await queryClient.invalidateQueries({ queryKey: ["siteConfig"] });
+          if (mounted.current) setSaveStatus("saved");
+        }
+      } catch (saveError) {
+        pendingPatch.current = mergeConfigPatch(patch, pendingPatch.current) as SiteConfigPatch;
+        waiters.forEach(({ reject }) => reject(saveError));
+        if (mounted.current) {
+          setSaveStatus("error");
+          toast.error(
+            `Could not save front-page content: ${saveError instanceof Error ? saveError.message : "Please try again."}`,
+          );
+        }
+      }
+    });
+  }, [queryClient]);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      flushSaves();
+    };
+  }, [flushSaves]);
+
+  const scheduleSave = useCallback((patch: SiteConfigPatch): Promise<void> => {
+    pendingPatch.current = mergeConfigPatch(pendingPatch.current, patch) as SiteConfigPatch;
+    const cached = queryClient.getQueryData<SiteConfig | null>(["siteConfig"]);
+    queryClient.setQueryData(
+      ["siteConfig"],
+      mergeConfigPatch(cached ?? configRef.current, patch) as SiteConfig,
+    );
+    if (mounted.current) setSaveStatus("pending");
+
+    const promise = new Promise<void>((resolve, reject) => {
+      saveWaiters.current.push({ resolve, reject });
+    });
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(flushSaves, 500);
+    return promise;
+  }, [flushSaves, queryClient]);
 
   const updateHero = useCallback(
     (hero: Partial<HeroSection>) => {
-      mutation.mutate({ heroSection: { ...config.heroSection, ...hero } });
+      void scheduleSave({ heroSection: hero }).catch(() => undefined);
     },
-    [mutation, config.heroSection],
+    [scheduleSave],
   );
 
   const updateAbout = useCallback(
     (about: Partial<AboutSection>) => {
-      mutation.mutate({ aboutSection: { ...config.aboutSection, ...about } });
+      void scheduleSave({ aboutSection: about }).catch(() => undefined);
     },
-    [mutation, config.aboutSection],
+    [scheduleSave],
   );
 
   const updateFooter = useCallback(
     (footer: Partial<FooterSection>) => {
-      mutation.mutate({ footerSection: { ...config.footerSection, ...footer } });
+      void scheduleSave({ footerSection: footer }).catch(() => undefined);
     },
-    [mutation, config.footerSection],
+    [scheduleSave],
   );
 
   const updateEmergencyContacts = useCallback(
     (contacts: EmergencyContact[]) => {
-      mutation.mutate({ emergencyContacts: contacts });
+      void scheduleSave({ emergencyContacts: contacts }).catch(() => undefined);
     },
-    [mutation],
+    [scheduleSave],
   );
 
   const updateTestimonials = useCallback(
     (section: Partial<TestimonialsSection>) =>
-      mutation.mutateAsync({
-        testimonialsSection: { ...config.testimonialsSection, ...section },
-      }),
-    [mutation, config.testimonialsSection],
+      scheduleSave({ testimonialsSection: section }),
+    [scheduleSave],
   );
 
   const updateGallery = useCallback(
     (section: Partial<GallerySection>) =>
-      mutation.mutateAsync({
-        gallerySection: { ...config.gallerySection, ...section },
-      }),
-    [mutation, config.gallerySection],
+      scheduleSave({ gallerySection: section }),
+    [scheduleSave],
   );
 
   const updateFAQs = useCallback(
     (section: Partial<FAQsSection>) =>
-      mutation.mutateAsync({
-        faqsSection: { ...config.faqsSection, ...section },
-      }),
-    [mutation, config.faqsSection],
+      scheduleSave({ faqsSection: section }),
+    [scheduleSave],
   );
 
   const resetSection = useCallback(
     async (section: keyof SiteConfig) => {
       try {
         const defaults = await landingService.getDefaultSiteConfig();
-        mutation.mutate({ [section]: defaults[section] });
+        await scheduleSave({ [section]: defaults[section] });
       } catch (resetError) {
         toast.error(resetError instanceof Error ? resetError.message : "Could not load default content.");
       }
     },
-    [mutation],
+    [scheduleSave],
   );
 
   return {
@@ -228,6 +298,7 @@ export function useSiteConfig() {
     isLoading,
     isError,
     error,
-    isSaving: mutation.isPending,
+    saveStatus,
+    isSaving: saveStatus === "pending" || saveStatus === "saving",
   };
 }

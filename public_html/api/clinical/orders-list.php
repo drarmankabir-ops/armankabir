@@ -13,10 +13,17 @@ try {
     $db = Database::getInstance();
     $where = ['1=1'];
     $params = [];
-    $patientId = getParam('patientId', '');
-    if ($patientId) { $where[] = 'patient_id = :patient_id'; $params[':patient_id'] = (int)$patientId; }
+    $patientId = (int) getParam('patientId', 0);
+    if ($patientId > 0) {
+        requirePatientScope($user, $patientId);
+        $where[] = 'i.patient_id = :patient_id';
+        $params[':patient_id'] = $patientId;
+    } else {
+        $scope = patientScopeFilter($user, $params, 'i.patient_id');
+        if ($scope !== null) $where[] = $scope;
+    }
     $whereClause = 'WHERE ' . implode(' AND ', $where);
-    $countStmt = $db->prepare("SELECT COUNT(*) as total FROM investigations $whereClause");
+    $countStmt = $db->prepare("SELECT COUNT(*) as total FROM investigations i $whereClause");
     $countStmt->execute($params);
     $total = (int)$countStmt->fetch()['total'];
     $stmt = $db->prepare("SELECT i.*, u.full_name as ordered_by_name FROM investigations i LEFT JOIN users u ON i.ordered_by = u.id $whereClause ORDER BY i.created_at DESC LIMIT :limit OFFSET :offset");

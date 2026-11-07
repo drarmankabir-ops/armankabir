@@ -319,7 +319,7 @@ function ensureUsersSchema(PDO $db): array
  */
 function staffRoles(): array {
     return [
-        'admin', 'consultant_doctor', 'medical_officer', 'intern_doctor',
+        'consultant_doctor', 'medical_officer', 'intern_doctor',
         'nurse', 'staff', 'reception', 'doctor',
         'assistant_registrar', 'registrar',
         'assistant_professor', 'associate_professor', 'professor',

@@ -4,9 +4,9 @@ This document provides instructions for deploying the Dr. Arman Kabir's Care app
 
 ## Prerequisites
 
-- cPanel hosting account with Node.js support (v20.x or higher)
+- cPanel hosting with PHP 8+ and MySQL/MariaDB
 - SSH access to your cPanel account
-- pnpm package manager
+- Node.js 20+ and npm for building the React frontend only
 
 ## Deployment Steps
 
@@ -30,11 +30,7 @@ cd drarmankabir0
 bash deploy.sh
 ```
 
-The script will:
-- Check Node.js and pnpm versions
-- Install dependencies
-- Build the frontend
-- Deploy files to public_html
+The script installs frontend dependencies, builds the React application, and deploys static files. PHP APIs and MySQL remain the only application backend and primary storage.
 
 ### 4. Manual Steps in cPanel
 
@@ -44,24 +40,27 @@ The script will:
 4. Verify that your built files are present
 5. Go to **SSL/TLS Status** and install an SSL certificate (recommended)
 
-### 5. Configure Node.js Application (if using Node.js backend)
+### 5. Verify PHP and MySQL Configuration
 
-1. In cPanel, go to **Setup Node.js App**
-2. Create a new application:
-   - **App name**: drarmankabir-care
-   - **Node.js version**: 20.x
-   - **App JS file**: (leave empty for frontend-only)
-   - **Public URL**: your domain
-   - **App directory**: /home/user/drarmankabir0
+Confirm the cPanel PHP version is 8 or newer and that the existing `public_html/config.php` points to the intended MySQL database. Do not configure a Node.js server for API handling.
 
-### 6. Environment Configuration
+## Secure Admin Setup
 
-Create or update `.env` file in your application directory:
+For a fresh database, apply the schema migrations first, then provision the first admin from SSH. The CLI script requires an email-style username, creates the system and content-admin records together, and generates a one-time password when `ADMIN_PASSWORD` is not supplied:
 
-```env
-NODE_ENV=production
-VITE_API_BASE_URL=https://yourdomain.com/api
+```bash
+ADMIN_USERNAME='admin@example.com' ADMIN_DISPLAY_NAME='Administrator' php scripts/provision_admin.php
 ```
+
+Store the generated password in an approved password manager. It is printed only once; there is no default username or password.
+
+For an existing database, take a full MySQL backup using cPanel/phpMyAdmin **Export** before applying any migration. Then apply `server-data/migrations/011_disable_unchanged_seed_accounts.sql`; it deactivates only legacy seed accounts whose password hash is still unchanged and keeps their rows. Reset the chosen admin from SSH to generate a new password and revoke old sessions:
+
+```bash
+ADMIN_USERNAME='admin@example.com' php scripts/reset_admin_password.php
+```
+
+Do not run schema/account migrations against production without a verified backup. Admin password changes are also available while signed in through the content editor's Security tab.
 
 ## File Structure After Deployment
 
@@ -69,8 +68,6 @@ VITE_API_BASE_URL=https://yourdomain.com/api
 ~/public_html/
 ├── index.html
 ├── .htaccess          # SPA routing and security headers
-├── css/               # Compiled CSS files
-├── js/                # Compiled JavaScript files
 ├── assets/            # Images and other assets
 └── env.json           # Environment configuration
 ```
@@ -136,6 +133,8 @@ For issues or questions:
 - [ ] SSL/TLS certificate installed and active
 - [ ] .htaccess security headers in place
 - [ ] Node modules not exposed in public_html
+- [ ] MySQL backup verified before running migrations
+- [ ] First admin provisioned through the CLI-only script
 - [ ] Sensitive environment variables in .env (not in git)
 - [ ] Regular backups enabled
 - [ ] File permissions properly set (644 for files, 755 for directories)

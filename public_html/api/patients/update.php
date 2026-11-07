@@ -14,6 +14,10 @@ handleCors();
 requireMethod('POST');
 
 $user = requireAuth();
+requireCsrfToken();
+if (!hasPermission($user, 'manage_patient_records')) {
+    errorResponse('Access denied. You cannot edit patient records.', 403);
+}
 $input = getJsonInput();
 
 $id = (int)($input['id'] ?? 0);

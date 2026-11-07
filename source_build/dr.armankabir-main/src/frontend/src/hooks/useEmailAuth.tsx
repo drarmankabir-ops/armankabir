@@ -55,34 +55,6 @@ export function isConsultantLevel(role: StaffRole): boolean {
   ].includes(role);
 }
 
-// In-memory auth token (not persisted to localStorage)
-let _authToken: string | null = null;
-let _patientToken: string | null = null;
-
-export function getAuthToken(): string | null {
-  return _authToken;
-}
-
-function setAuthToken(token: string): void {
-  _authToken = token;
-}
-
-function clearAuthToken(): void {
-  _authToken = null;
-}
-
-export function getPatientToken(): string | null {
-  return _patientToken;
-}
-
-export function setPatientToken(token: string): void {
-  _patientToken = token;
-}
-
-export function clearPatientToken(): void {
-  _patientToken = null;
-}
-
 interface EmailAuthContextValue {
   currentDoctor: DoctorAccount | null;
   currentPatient: PatientAccount | null;
@@ -201,9 +173,6 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null);
     try {
       const result = await authService.signIn(email, password);
-      if (result.token) {
-        setAuthToken(result.token);
-      }
       setCurrentDoctor(result.user);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Sign in failed.";
@@ -216,7 +185,6 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     await authService.signOut();
-    clearAuthToken();
     setCurrentDoctor(null);
     setAuthError(null);
   }, []);
@@ -293,9 +261,6 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null);
     try {
       const result = await authService.patientSignIn(phone, password);
-      if (result.token) {
-        setPatientToken(result.token);
-      }
       setCurrentPatient(result.patient);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Sign in failed.";
@@ -308,7 +273,6 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
 
   const patientSignOut = useCallback(async () => {
     await authService.signOut();
-    clearPatientToken();
     setCurrentPatient(null);
     setAuthError(null);
   }, []);

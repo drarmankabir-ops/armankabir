@@ -7,6 +7,7 @@ requireMethod("GET");
 $user = requireAuth();
 $patientId = (int)($_GET["patient_id"] ?? null);
 if (!$patientId) errorResponse("Patient ID is required", 400);
+requirePatientScope($user, $patientId);
 try {
     $db = Database::getInstance();
     $stmt = $db->prepare("SELECT * FROM vital_signs WHERE patient_id = :patient_id ORDER BY recorded_at DESC LIMIT 1");
