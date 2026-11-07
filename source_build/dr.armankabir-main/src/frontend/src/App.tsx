@@ -1958,7 +1958,7 @@ function AppRoot() {
       }
       setShowAdminModal(false);
       setAdminUser("drarmankabir.com");
-      setAdminPass("");
+      setAdminPass("01234");
       appendAuditLog({
         timestamp: new Date().toISOString(),
         userRole: "admin",

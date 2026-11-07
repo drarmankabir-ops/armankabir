@@ -3,6 +3,68 @@
  * Shared persistence helpers for front-page content.
  */
 
+function defaultFrontPageConfig(): array
+{
+    return [
+        'heroSection' => [
+            'taglineEn' => 'Dr. Arman Kabir Care',
+            'taglineBn' => 'ডা. আরমান কবির কেয়ার',
+            'subheadingEn' => 'Consultation and patient care',
+            'subheadingBn' => 'চিকিৎসা পরামর্শ ও রোগীসেবা',
+            'heroTaglineEn' => '',
+            'heroTaglineBn' => '',
+            'heroDescriptionEn' => '',
+            'heroDescriptionBn' => '',
+            'cta1Label' => 'Book Appointment',
+            'cta1LabelBn' => 'অ্যাপয়েন্টমেন্ট নিন',
+            'cta2Label' => 'Emergency',
+            'cta2LabelBn' => 'জরুরি যোগাযোগ',
+        ],
+        'aboutSection' => [
+            'visible' => false,
+            'clinicNameEn' => 'Dr. Arman Kabir Care',
+            'clinicNameBn' => 'ডা. আরমান কবির কেয়ার',
+            'descriptionEn' => '',
+            'descriptionBn' => '',
+            'yearsExperience' => 0,
+            'patientCount' => '',
+            'doctorCount' => 0,
+            'specialties' => [],
+            'specialtiesBn' => [],
+            'affiliations' => [],
+            'affiliationsBn' => [],
+        ],
+        'footerSection' => [
+            'addressEn' => '',
+            'addressBn' => '',
+            'phone' => '',
+            'email' => '',
+            'openingHours' => '',
+            'openingHoursBn' => '',
+            'copyrightText' => 'Dr. Arman Kabir Care',
+            'copyrightTextBn' => 'ডা. আরমান কবির কেয়ার',
+            'socialLinks' => [],
+        ],
+        'emergencyContacts' => [],
+        'testimonialsSection' => [
+            'heading' => 'Patient Feedback',
+            'headingBn' => 'রোগীদের মতামত',
+            'testimonials' => [],
+        ],
+        'gallerySection' => [
+            'heading' => 'Clinic Gallery',
+            'headingBn' => 'ক্লিনিক গ্যালারি',
+            'photos' => [],
+        ],
+        'faqsSection' => [
+            'heading' => 'Frequently Asked Questions',
+            'headingBn' => 'সাধারণ জিজ্ঞাসা',
+            'faqs' => [],
+        ],
+        'doctorContentOverrides' => [],
+    ];
+}
+
 function decodeFrontPageSetting(?string $value, string $key): array
 {
     if ($value === null || $value === '') {
@@ -124,7 +186,10 @@ function loadFrontPageContent(PDO $db): array
     );
 
     $legacyConfig = mergeFrontPageContent($legacyHomeContent, $legacyConfig);
-    $siteConfig = mergeFrontPageContent($legacyConfig, $settings['siteConfig'] ?? []);
+    $siteConfig = mergeFrontPageContent(
+        defaultFrontPageConfig(),
+        mergeFrontPageContent($legacyConfig, $settings['siteConfig'] ?? [])
+    );
     $doctorOverrides = mergeFrontPageContent(
         $combined['doctorContentOverrides'] ?? ($siteConfig['doctorContentOverrides'] ?? []),
         $settings['doctorContentOverrides'] ?? []

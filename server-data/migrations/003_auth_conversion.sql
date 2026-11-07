@@ -78,14 +78,6 @@ CREATE TABLE IF NOT EXISTS admin_accounts (
     INDEX idx_admin_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Seed default admin content accounts (matching the current hardcoded accounts)
--- Username: dr.armankabir011@gmail.com / Password: admin123
--- Username: admin2 / Password: admin123
-INSERT IGNORE INTO admin_accounts (username, password_hash, display_name) VALUES
-('dr.armankabir011@gmail.com', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Dr. Arman Kabir'),
-('admin2', '$2y$10$l.L4.aV8L1Q0UT9M64QWyeaT512U/jGPnh7yeHse5NF9PgY0dYBIO', 'Admin 2');
--- Change these default credentials immediately after provisioning.
-
 -- ─── 5. Doctor registry storage ────────────────────────────────────────────
 -- The site_settings table is already used via /api/data/save.php to sync the
 -- medicare_doctors_registry and medicare_patients_auth_registry.

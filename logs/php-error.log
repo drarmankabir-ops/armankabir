@@ -184,3 +184,5 @@ Stack trace:
 [05-Oct-2026 19:28:30 Asia/Dhaka] PHP Parse error:  syntax error, unexpected token "catch", expecting end of file in /home/drarmank/public_html/api/helpers.php on line 191
 [05-Oct-2026 19:28:43 Asia/Dhaka] PHP Parse error:  syntax error, unexpected token "catch", expecting end of file in /home/drarmank/public_html/api/helpers.php on line 191
 [05-Oct-2026 19:28:57 Asia/Dhaka] PHP Parse error:  syntax error, unexpected token "catch", expecting end of file in /home/drarmank/public_html/api/helpers.php on line 191
+[06-Nov-2026 20:48:50 UTC] Missing database configuration. Set DB_HOST/DB_NAME/DB_USER/DB_PASS via cPanel environment or an external .env file.
+[06-Nov-2026 21:19:50 UTC] Missing database configuration. Set DB_HOST/DB_NAME/DB_USER/DB_PASS via cPanel environment or an external .env file.

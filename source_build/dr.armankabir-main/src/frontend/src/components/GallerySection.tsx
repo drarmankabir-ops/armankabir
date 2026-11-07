@@ -12,8 +12,10 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
   const { photos, heading } = config.gallerySection;
   const [editHeading, setEditHeading] = useState(false);
   const [headingDraft, setHeadingDraft] = useState(heading);
+  const [headingDraftBn, setHeadingDraftBn] = useState(config.gallerySection.headingBn ?? "");
   const [editCaptionId, setEditCaptionId] = useState<string | null>(null);
   const [captionDraft, setCaptionDraft] = useState("");
+  const [captionDraftBn, setCaptionDraftBn] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,12 +73,13 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
   const startEditCaption = (p: GalleryPhoto) => {
     setEditCaptionId(p.id);
     setCaptionDraft(p.caption);
+    setCaptionDraftBn(p.captionBn ?? "");
   };
 
   const saveCaption = async (id: string) => {
     try {
       await save(
-        photos.map((p) => (p.id === id ? { ...p, caption: captionDraft } : p)),
+        photos.map((p) => (p.id === id ? { ...p, caption: captionDraft, captionBn: captionDraftBn } : p)),
       );
       setEditCaptionId(null);
       toast.success("Caption updated.");
@@ -86,9 +89,8 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
   };
 
   const saveHeading = async () => {
-    const h = headingDraft.trim() || "Our Clinic Gallery";
     try {
-      await updateGallery({ heading: h });
+      await updateGallery({ heading: headingDraft.trim(), headingBn: headingDraftBn.trim() });
       setEditHeading(false);
       toast.success("Gallery heading updated.");
     } catch (error) {
@@ -110,7 +112,7 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
         )}
         {isError && (
           <p className="mb-4 text-sm text-destructive" role="alert">
-            Could not load the saved gallery. Showing safe defaults.
+            Could not load the saved gallery.
           </p>
         )}
         {/* Header */}
@@ -134,6 +136,14 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
                     className="text-lg font-bold h-9 w-64"
                     data-ocid="gallery.heading.input"
                     autoFocus
+                  />
+                  <Input
+                    value={headingDraftBn}
+                    onChange={(e) => setHeadingDraftBn(e.target.value)}
+                    className="text-lg font-bold h-9 w-64"
+                    lang="bn"
+                    style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+                    aria-label="Bangla gallery heading"
                   />
                   <Button
                     size="sm"
@@ -161,6 +171,7 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
                       type="button"
                       onClick={() => {
                         setHeadingDraft(heading);
+                        setHeadingDraftBn(config.gallerySection.headingBn ?? "");
                         setEditHeading(true);
                       }}
                       className="p-1 rounded hover:bg-muted transition-colors"
@@ -187,6 +198,11 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
               </Button>
             )}
           </div>
+          {config.gallerySection.headingBn && !editHeading && (
+            <p className="mt-1 text-lg text-foreground" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>
+              {config.gallerySection.headingBn}
+            </p>
+          )}
           <p className="text-muted-foreground text-sm">
             A glimpse of our clinic and facilities.
           </p>
@@ -259,11 +275,11 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
                   {/* Caption */}
                   <div className="bg-background/90 px-3 py-2">
                     {isAdmin && editCaptionId === photo.id ? (
-                      <div className="flex items-center gap-1">
+                      <div className="space-y-1">
                         <Input
                           value={captionDraft}
                           onChange={(e) => setCaptionDraft(e.target.value)}
-                          className="h-7 text-xs flex-1"
+                          className="h-7 text-xs"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === "Enter") saveCaption(photo.id);
@@ -271,28 +287,25 @@ export default function GallerySection({ isAdmin }: { isAdmin: boolean }) {
                           }}
                           data-ocid={`gallery.caption.input.${idx + 1}`}
                         />
-                        <button
-                          type="button"
-                          onClick={() => saveCaption(photo.id)}
-                          className="p-1 rounded hover:bg-muted"
-                          aria-label="Save caption"
-                        >
-                          ✓
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditCaptionId(null)}
-                          className="p-1 rounded hover:bg-muted"
-                          aria-label="Cancel"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
+                        <Input
+                          value={captionDraftBn}
+                          onChange={(e) => setCaptionDraftBn(e.target.value)}
+                          className="h-7 text-xs"
+                          lang="bn"
+                          style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+                          aria-label="Bangla image caption"
+                        />
+                        <div className="flex gap-2">
+                          <Button type="button" size="sm" onClick={() => saveCaption(photo.id)}>Save</Button>
+                          <Button type="button" size="sm" variant="ghost" onClick={() => setEditCaptionId(null)}>Cancel</Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between gap-1">
-                        <p className="text-xs text-muted-foreground truncate">
-                          {photo.caption || ""}
-                        </p>
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{photo.caption || ""}</p>
+                          {photo.captionBn && <p className="text-xs text-muted-foreground truncate" lang="bn">{photo.captionBn}</p>}
+                        </div>
                         {isAdmin && (
                           <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button

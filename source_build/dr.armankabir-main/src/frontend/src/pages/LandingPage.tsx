@@ -47,6 +47,7 @@ import type { DoctorKey } from "@/data/doctorsData";
 import { useDoctorContent } from "@/hooks/useDoctorContent";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { storage } from "@/lib/storageAdapter";
+import { appointmentService } from "@/services/appointments";
 import {
   AlertTriangle,
   Award,
@@ -94,49 +95,6 @@ interface LandingPageProps {
   onAdminLoginClick: () => void;
   isAdmin: boolean;
   adminLogout: () => Promise<void>;
-}
-
-interface PublicBooking {
-  id: string;
-  patientName: string;
-  phone: string;
-  doctor: string;
-  date?: string;
-  preferredDate?: string;
-  time?: string;
-  preferredTime?: string;
-  reason?: string;
-  chamber?: string;
-  preferredChamber?: string;
-  submittedAt: string;
-  status: "pending" | "confirmed" | "cancelled";
-  registerNumber?: string;
-  appointmentType?: string;
-  hospitalName?: string;
-  bedWardNumber?: string;
-  admissionReason?: string;
-  referringDoctor?: string;
-  serialNumber?: number;
-  serialDate?: string;
-}
-
-function loadPublicBookings(): PublicBooking[] {
-  // Fetch from server-side API instead of localStorage
-  // Using the existing appointment API pattern
-  try {
-    // In production, this would be an API call to /api/appointments/public
-    // For now, return empty and let the API handle it
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function savePublicBookings(data: PublicBooking[]) {
-  // Save to server-side API instead of localStorage
-  // Using the existing appointment API pattern
-  // In production: post('/api/appointments/save', data)
-  // For now, the API handles persistence server-side
 }
 
 // ─── Classroom helpers ────────────────────────────────────────────────────────
@@ -3117,14 +3075,6 @@ export default function LandingPage({
   const [activeBookingTab, setActiveBookingTab] =
     useState<BookingType>("chamber");
 
-  interface FoundPatientInfo {
-    patientName: string;
-    phone: string;
-    age?: string;
-    gender?: string;
-    registerNumber?: string;
-  }
-
   // Chamber booking form
   const emptyChamberForm = {
     patientName: "",
@@ -3134,14 +3084,10 @@ export default function LandingPage({
     time: "",
     reason: "",
     chamber: "",
-    registerNumber: "",
   };
   const [chamberForm, setChamberForm] = useState(emptyChamberForm);
-  const [chamberLookup, setChamberLookup] = useState("");
-  const [chamberFoundPatient, setChamberFoundPatient] =
-    useState<FoundPatientInfo | null>(null);
-  const [chamberLookupMsg, setChamberLookupMsg] = useState("");
   const [chamberSubmitted, setChamberSubmitted] = useState(false);
+  const [chamberSubmitting, setChamberSubmitting] = useState(false);
 
   // Admitted booking form
   const emptyAdmitForm = {
@@ -3153,232 +3099,74 @@ export default function LandingPage({
     bedWardNumber: "",
     admissionReason: "",
     referringDoctor: "",
-    registerNumber: "",
   };
   const [admitForm, setAdmitForm] = useState(emptyAdmitForm);
-  const [admitLookup, setAdmitLookup] = useState("");
-  const [admitFoundPatient, setAdmitFoundPatient] =
-    useState<FoundPatientInfo | null>(null);
-  const [admitLookupMsg, setAdmitLookupMsg] = useState("");
   const [admitSubmitted, setAdmitSubmitted] = useState(false);
+  const [admitSubmitting, setAdmitSubmitting] = useState(false);
 
-  const [bookingCount, setBookingCount] = useState(0);
-
-  // Generic patient lookup from localStorage
-  function lookupPatientRecord(query: string): FoundPatientInfo | null {
-    if (!query.trim()) return null;
-    const norm = (rn: string) => {
-      const parts = rn.trim().split("/");
-      if (parts.length === 2) {
-        const n = Number.parseInt(parts[0].trim(), 10);
-        return `${Number.isNaN(n) ? parts[0].trim() : n}/${parts[1].trim()}`;
-      }
-      return rn.trim().toLowerCase();
-    };
-    const isPhone =
-      /^[0-9+\-() ]{7,}$/.test(query.trim()) && !query.includes("/");
-    for (let i = 0; i < storage.length; i++) {
-      const key = storage.key(i);
-      if (!key?.startsWith("patients_")) continue;
-      try {
-        const arr = JSON.parse(storage.getItem(key) || "[]") as any[];
-        let found: any;
-        if (isPhone) {
-          found = arr.find((p) =>
-            p.phone?.replace(/\D/g, "").includes(query.replace(/\D/g, "")),
-          );
-        } else {
-          found = arr.find(
-            (p) =>
-              p.registerNumber &&
-              norm(String(p.registerNumber)) === norm(query),
-          );
-        }
-        if (found) {
-          const dob = found.dateOfBirth;
-          let ageStr = "";
-          if (dob) {
-            try {
-              const birthYear = new Date(
-                Number(dob) > 1e12 ? Number(dob) / 1e6 : Number(dob),
-              ).getFullYear();
-              ageStr = `${new Date().getFullYear() - birthYear} yrs`;
-            } catch {}
-          }
-          return {
-            patientName: found.fullName || "",
-            phone: found.phone || "",
-            age: found.age ? String(found.age) : ageStr,
-            gender: found.gender || "",
-            registerNumber: found.registerNumber || "",
-          };
-        }
-      } catch {}
-    }
-    return null;
-  }
-
-  const handleChamberLookup = (query: string) => {
-    setChamberLookup(query);
-    setChamberForm((f) => ({ ...f, registerNumber: query }));
-    if (!query.trim()) {
-      setChamberFoundPatient(null);
-      setChamberLookupMsg("");
-      return;
-    }
-    const found = lookupPatientRecord(query);
-    if (found) {
-      setChamberFoundPatient(found);
-      setChamberForm((f) => ({
-        ...f,
-        patientName: found.patientName,
-        phone: found.phone,
-        registerNumber: query,
-      }));
-      setChamberLookupMsg(`✓ Found: ${found.patientName}`);
-    } else {
-      setChamberFoundPatient(null);
-      setChamberLookupMsg(
-        "Patient not found. Please contact the clinic to get registered first.",
-      );
-    }
-  };
-
-  const handleAdmitLookup = (query: string) => {
-    setAdmitLookup(query);
-    setAdmitForm((f) => ({ ...f, registerNumber: query }));
-    if (!query.trim()) {
-      setAdmitFoundPatient(null);
-      setAdmitLookupMsg("");
-      return;
-    }
-    const found = lookupPatientRecord(query);
-    if (found) {
-      setAdmitFoundPatient(found);
-      setAdmitForm((f) => ({
-        ...f,
-        patientName: found.patientName,
-        phone: found.phone,
-        registerNumber: query,
-      }));
-      setAdmitLookupMsg(`✓ Found: ${found.patientName}`);
-    } else {
-      setAdmitFoundPatient(null);
-      setAdmitLookupMsg(
-        "Patient not found. Please contact the clinic to get registered first.",
-      );
-    }
-  };
-
-  function getOrAssignSerial(name: string, date: string): number {
-    try {
-      const existing = JSON.parse(
-        storage.getItem("clinic_appointments") || "[]",
-      ) as any[];
-      const match = existing.find(
-        (a: any) =>
-          a.serialDate === date &&
-          a.patientName?.trim().toLowerCase() === name.trim().toLowerCase() &&
-          a.serialNumber,
-      );
-      if (match) return match.serialNumber;
-      const daySerials = existing
-        .filter((a: any) => a.serialDate === date && a.serialNumber)
-        .map((a: any) => a.serialNumber as number);
-      // Also check public bookings
-      const pub = JSON.parse(
-        storage.getItem("public_appointment_requests") || "[]",
-      ) as any[];
-      const pubDay = pub
-        .filter(
-          (a: any) => (a.preferredDate || a.date) === date && a.serialNumber,
-        )
-        .map((a: any) => a.serialNumber as number);
-      const allSerials = [...daySerials, ...pubDay];
-      return allSerials.length > 0 ? Math.max(...allSerials) + 1 : 1;
-    } catch {
-      return 1;
-    }
-  }
-
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const bookingDate = chamberForm.date;
-    const serial = chamberFoundPatient
-      ? getOrAssignSerial(chamberForm.patientName, bookingDate)
-      : undefined;
     if (
-      !chamberForm.patientName ||
-      !chamberForm.phone ||
+      !chamberForm.patientName.trim() ||
+      !chamberForm.phone.trim() ||
       !chamberForm.doctor ||
       !chamberForm.date
     ) {
       toast.error("Please fill in all required fields.");
       return;
     }
-    const newBooking = {
-      id: Math.random().toString(36).slice(2, 10),
-      patientName: chamberForm.patientName,
-      phone: chamberForm.phone,
-      doctor: chamberForm.doctor,
-      preferredDate: chamberForm.date,
-      preferredTime: chamberForm.time,
-      reason: chamberForm.reason,
-      preferredChamber: chamberForm.chamber,
-      registerNumber: chamberForm.registerNumber,
-      submittedAt: new Date().toISOString(),
-      status: "pending" as const,
-      appointmentType: "chamber",
-      serialNumber: serial,
-      serialDate: bookingDate,
-    };
-    const existing = loadPublicBookings();
-    savePublicBookings([...existing, newBooking]);
-    setBookingCount(existing.length + 1);
-    setChamberSubmitted(true);
-    toast.success("Chamber appointment request submitted!");
+    setChamberSubmitting(true);
+    try {
+      await appointmentService.submitPublicRequest({
+        bookingType: "chamber",
+        patientName: chamberForm.patientName.trim(),
+        patientPhone: chamberForm.phone.trim(),
+        doctor: chamberForm.doctor,
+        appointmentDate: chamberForm.date,
+        appointmentTime: chamberForm.time,
+        reason: chamberForm.reason.trim(),
+        chamber: chamberForm.chamber,
+      });
+      setChamberSubmitted(true);
+      toast.success("Chamber appointment request submitted!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not submit your request.");
+    } finally {
+      setChamberSubmitting(false);
+    }
   };
 
-  const handleAdmitSubmit = (e: React.FormEvent) => {
+  const handleAdmitSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      !admitForm.patientName ||
-      !admitForm.phone ||
+      !admitForm.patientName.trim() ||
+      !admitForm.phone.trim() ||
       !admitForm.admissionDate
     ) {
       toast.error("Please fill in all required fields.");
       return;
     }
-    const serial = admitFoundPatient
-      ? getOrAssignSerial(admitForm.patientName, admitForm.admissionDate)
-      : undefined;
-    const newBooking = {
-      id: Math.random().toString(36).slice(2, 10),
-      patientName: admitForm.patientName,
-      phone: admitForm.phone,
-      doctor: admitForm.doctor,
-      preferredDate: admitForm.admissionDate,
-      hospitalName: admitForm.hospitalName,
-      bedWardNumber: admitForm.bedWardNumber,
-      admissionReason: admitForm.admissionReason,
-      referringDoctor: admitForm.referringDoctor,
-      registerNumber: admitForm.registerNumber,
-      submittedAt: new Date().toISOString(),
-      status: "pending" as const,
-      appointmentType: "admitted",
-      serialNumber: serial,
-      serialDate: admitForm.admissionDate,
-    };
-    const existing = loadPublicBookings();
-    savePublicBookings([...existing, newBooking]);
-    setBookingCount(existing.length + 1);
-    setAdmitSubmitted(true);
-    toast.success("Hospital admission request submitted!");
+    setAdmitSubmitting(true);
+    try {
+      await appointmentService.submitPublicRequest({
+        bookingType: "admitted",
+        patientName: admitForm.patientName.trim(),
+        patientPhone: admitForm.phone.trim(),
+        doctor: admitForm.doctor,
+        appointmentDate: admitForm.admissionDate,
+        hospitalName: admitForm.hospitalName.trim(),
+        bedWardNumber: admitForm.bedWardNumber.trim(),
+        admissionReason: admitForm.admissionReason.trim(),
+        referringDoctor: admitForm.referringDoctor.trim(),
+      });
+      setAdmitSubmitted(true);
+      toast.success("Hospital admission request submitted!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not submit your request.");
+    } finally {
+      setAdmitSubmitting(false);
+    }
   };
-
-  useEffect(() => {
-    setBookingCount(loadPublicBookings().length);
-  }, []);
 
   const navLinks = [
     { label: "Home", id: "home" },
@@ -3413,6 +3201,31 @@ export default function LandingPage({
   };
   const allDocs = { arman: armanDoc, samia: samiaDoc };
 
+  const heroTrustBadges = [
+    ...(siteConfig.aboutSection.doctorCount > 0
+      ? [{ icon: "🏥", label: `${siteConfig.aboutSection.doctorCount} Expert Doctors`, labelBn: `${siteConfig.aboutSection.doctorCount} জন বিশেষজ্ঞ চিকিৎসক` }]
+      : []),
+    ...(siteConfig.aboutSection.patientCount.trim()
+      ? [{ icon: "👥", label: `${siteConfig.aboutSection.patientCount} Patients Treated`, labelBn: `${siteConfig.aboutSection.patientCount} জন রোগীকে সেবা` }]
+      : []),
+    ...(siteConfig.aboutSection.yearsExperience > 0
+      ? [{ icon: "⭐", label: `${siteConfig.aboutSection.yearsExperience}+ Years Experience`, labelBn: `${siteConfig.aboutSection.yearsExperience}+ বছরের অভিজ্ঞতা` }]
+      : []),
+    { icon: "📱", label: "English & Bangla", labelBn: "ইংরেজি ও বাংলা" },
+  ];
+  const aboutStats = [
+    ...(siteConfig.aboutSection.patientCount.trim()
+      ? [{ value: siteConfig.aboutSection.patientCount, label: "Patients Treated", labelBn: "রোগীকে সেবা", icon: "👥" }]
+      : []),
+    ...(siteConfig.aboutSection.yearsExperience > 0
+      ? [{ value: `${siteConfig.aboutSection.yearsExperience}+`, label: "Years Experience", labelBn: "বছরের অভিজ্ঞতা", icon: "⭐" }]
+      : []),
+    ...(siteConfig.aboutSection.doctorCount > 0
+      ? [{ value: `${siteConfig.aboutSection.doctorCount}`, label: "Expert Consultants", labelBn: "বিশেষজ্ঞ চিকিৎসক", icon: "🩺" }]
+      : []),
+    { value: "English & Bangla", label: "Languages", labelBn: "ভাষা", icon: "🌐" },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {isSiteConfigLoading && (
@@ -3425,8 +3238,7 @@ export default function LandingPage({
           Website content could not be loaded
           {siteConfigError instanceof Error
             ? `: ${siteConfigError.message}`
-            : "."}{" "}
-          Showing safe default content.
+            : "."}
         </div>
       )}
 
@@ -3678,14 +3490,17 @@ export default function LandingPage({
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3 leading-tight drop-shadow-lg">
               {siteConfig.heroSection.taglineEn}
             </h1>
+            {siteConfig.heroSection.taglineBn && <p className="text-white text-2xl sm:text-3xl mb-3" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.heroSection.taglineBn}</p>}
             <p className="text-blue-100 text-xl sm:text-2xl font-semibold mb-2">
               {siteConfig.heroSection.subheadingEn}
             </p>
+            {siteConfig.heroSection.subheadingBn && <p className="text-blue-100 text-lg sm:text-xl mb-2" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.heroSection.subheadingBn}</p>}
             {siteConfig.heroSection.heroTaglineEn && (
               <p className="text-blue-200 text-base sm:text-lg italic font-medium mb-3">
                 {siteConfig.heroSection.heroTaglineEn}
               </p>
             )}
+            {siteConfig.heroSection.heroTaglineBn && <p className="text-blue-200 text-base sm:text-lg mb-3" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.heroSection.heroTaglineBn}</p>}
             {siteConfig.heroSection.heroDescriptionEn ? (
               <p className="text-blue-100/90 text-sm sm:text-base max-w-2xl mx-auto mb-8">
                 {siteConfig.heroSection.heroDescriptionEn}
@@ -3693,6 +3508,7 @@ export default function LandingPage({
             ) : (
               <div className="mb-8" />
             )}
+            {siteConfig.heroSection.heroDescriptionBn && <p className="text-blue-100/90 text-sm sm:text-base max-w-2xl mx-auto mb-8" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.heroSection.heroDescriptionBn}</p>}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 type="button"
@@ -3705,7 +3521,7 @@ export default function LandingPage({
                 data-ocid="hero.book_appointment.primary_button"
               >
                 <CalendarDays className="w-5 h-5" />
-                {siteConfig.heroSection.cta1Label}
+                <span>{siteConfig.heroSection.cta1Label}<span className="block text-sm font-medium" lang="bn">{siteConfig.heroSection.cta1LabelBn}</span></span>
               </button>
               <button
                 type="button"
@@ -3714,34 +3530,19 @@ export default function LandingPage({
                 data-ocid="hero.emergency.button"
               >
                 <AlertTriangle className="w-5 h-5" />
-                {siteConfig.heroSection.cta2Label}
+                <span>{siteConfig.heroSection.cta2Label}<span className="block text-sm font-medium" lang="bn">{siteConfig.heroSection.cta2LabelBn}</span></span>
               </button>
             </div>
           </motion.div>
 
-          {/* Trust badges */}
-          <motion.div
+          {heroTrustBadges.length > 0 && <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.25 }}
             className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto"
             data-ocid="hero.trust_badges.section"
           >
-            {[
-              {
-                icon: "🏥",
-                label: `${siteConfig.aboutSection.doctorCount} Expert Doctors`,
-              },
-              {
-                icon: "👥",
-                label: `${siteConfig.aboutSection.patientCount} Patients Treated`,
-              },
-              {
-                icon: "⭐",
-                label: `${siteConfig.aboutSection.yearsExperience}+ Years Experience`,
-              },
-              { icon: "📱", label: "English & Bangla" },
-            ].map((badge) => (
+            {heroTrustBadges.map((badge) => (
               <div
                 key={badge.label}
                 className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-3 text-white text-center"
@@ -3750,9 +3551,10 @@ export default function LandingPage({
                 <div className="text-xs font-semibold leading-tight">
                   {badge.label}
                 </div>
+                <div className="text-xs leading-tight" lang="bn">{badge.labelBn}</div>
               </div>
             ))}
-          </motion.div>
+          </motion.div>}
         </div>
       </section>
 
@@ -3957,25 +3759,8 @@ export default function LandingPage({
             </button>
           )}
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              {[
-                {
-                  value: siteConfig.aboutSection.patientCount,
-                  label: "Patients Treated",
-                  icon: "👥",
-                },
-                {
-                  value: `${siteConfig.aboutSection.yearsExperience}+`,
-                  label: "Years Experience",
-                  icon: "⭐",
-                },
-                {
-                  value: `${siteConfig.aboutSection.doctorCount}`,
-                  label: "Expert Consultants",
-                  icon: "🩺",
-                },
-                { value: "Bilingual", label: "English & Bangla", icon: "🌐" },
-              ].map((stat) => (
+            {aboutStats.length > 0 && <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              {aboutStats.map((stat) => (
                 <div
                   key={stat.label}
                   className="bg-white rounded-2xl p-5 text-center shadow-sm border border-blue-100"
@@ -3987,12 +3772,12 @@ export default function LandingPage({
                   <div className="text-sm text-muted-foreground mt-0.5">
                     {stat.label}
                   </div>
+                  <div className="text-sm text-muted-foreground" lang="bn">{stat.labelBn}</div>
                 </div>
               ))}
-            </div>
-            <p className="text-center text-sm text-muted-foreground mb-4 max-w-2xl mx-auto">
-              {siteConfig.aboutSection.descriptionEn}
-            </p>
+            </div>}
+            {siteConfig.aboutSection.descriptionEn && <p className="text-center text-sm text-muted-foreground mb-1 max-w-2xl mx-auto">{siteConfig.aboutSection.descriptionEn}</p>}
+            {siteConfig.aboutSection.descriptionBn && <p className="text-center text-sm text-muted-foreground mb-4 max-w-2xl mx-auto" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.aboutSection.descriptionBn}</p>}
             <div className="flex flex-wrap gap-2 justify-center mb-4">
               {siteConfig.aboutSection.affiliations.map((affil) => (
                 <span
@@ -4001,6 +3786,9 @@ export default function LandingPage({
                 >
                   🏥 {affil}
                 </span>
+              ))}
+              {(siteConfig.aboutSection.affiliationsBn ?? []).map((affil) => (
+                <span key={affil} className="px-3 py-1.5 bg-white border border-blue-200 rounded-full text-xs font-medium text-blue-700 shadow-sm" lang="bn">🏥 {affil}</span>
               ))}
             </div>
             {siteConfig.aboutSection.specialties.length > 0 && (
@@ -4012,6 +3800,9 @@ export default function LandingPage({
                   >
                     {spec}
                   </span>
+                ))}
+                {(siteConfig.aboutSection.specialtiesBn ?? []).map((specialty) => (
+                  <span key={specialty} className="px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-xs font-medium text-primary" lang="bn">{specialty}</span>
                 ))}
               </div>
             )}
@@ -4736,15 +4527,18 @@ export default function LandingPage({
             <h2 className="mb-6 font-display text-2xl font-bold text-foreground">
               {siteConfig.faqsSection.heading}
             </h2>
+            {siteConfig.faqsSection.headingBn && <p className="mb-6 text-xl" lang="bn">{siteConfig.faqsSection.headingBn}</p>}
             <div className="divide-y divide-border border-y border-border">
               {siteConfig.faqsSection.faqs.map((faq) => (
                 <details key={faq.id} className="py-4">
                   <summary className="cursor-pointer font-medium text-foreground">
                     {faq.question}
+                    {faq.questionBn && <span className="block mt-1" lang="bn">{faq.questionBn}</span>}
                   </summary>
                   <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
                     {faq.answer}
                   </p>
+                  {faq.answerBn && <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground" lang="bn">{faq.answerBn}</p>}
                 </details>
               ))}
             </div>
@@ -4768,16 +4562,11 @@ export default function LandingPage({
               </div>
               <h2 className="font-display text-2xl font-bold text-foreground mb-2">
                 Book an Appointment
+                <span className="block text-base font-medium" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>অ্যাপয়েন্টমেন্ট বুক করুন</span>
               </h2>
             </div>
             <p className="text-muted-foreground text-sm">
               Fill in your details and we will confirm your appointment.
-              {bookingCount > 0 && (
-                <span className="ml-1 text-primary font-medium">
-                  {bookingCount} appointment{bookingCount !== 1 ? "s" : ""}{" "}
-                  booked so far.
-                </span>
-              )}
             </p>
           </motion.div>
 
@@ -4799,7 +4588,7 @@ export default function LandingPage({
                   data-ocid="appointments.booking.chamber_tab"
                 >
                   <Stethoscope className="w-4 h-4" />
-                  Chamber (Outpatient)
+                  <span>Chamber (Outpatient)<span className="block text-xs" lang="bn">চেম্বার (বহির্বিভাগ)</span></span>
                 </button>
                 <button
                   type="button"
@@ -4808,7 +4597,7 @@ export default function LandingPage({
                   data-ocid="appointments.booking.admitted_tab"
                 >
                   <Building2 className="w-4 h-4" />
-                  Hospital (Admitted)
+                  <span>Hospital (Admitted)<span className="block text-xs" lang="bn">হাসপাতালে ভর্তি</span></span>
                 </button>
               </div>
 
@@ -4824,6 +4613,7 @@ export default function LandingPage({
                     </div>
                     <h3 className="text-lg font-bold text-foreground mb-1">
                       Chamber Appointment Submitted!
+                      <span className="block text-base" lang="bn">চেম্বার অ্যাপয়েন্টমেন্টের অনুরোধ পাঠানো হয়েছে</span>
                     </h3>
                     <p className="text-muted-foreground text-sm mb-4">
                       Our staff will confirm your appointment shortly.
@@ -4834,9 +4624,6 @@ export default function LandingPage({
                       onClick={() => {
                         setChamberSubmitted(false);
                         setChamberForm(emptyChamberForm);
-                        setChamberLookup("");
-                        setChamberFoundPatient(null);
-                        setChamberLookupMsg("");
                       }}
                       data-ocid="appointments.chamber.new_button"
                     >
@@ -4847,72 +4634,12 @@ export default function LandingPage({
                   <form onSubmit={handleBookingSubmit} className="space-y-4">
                     <Card className="border-2 border-primary/20">
                       <CardContent className="p-5 space-y-4">
-                        {/* Patient search */}
-                        <div className="space-y-1.5">
-                          <Label>
-                            Search Patient{" "}
-                            <span className="text-xs text-muted-foreground font-normal">
-                              (Register No. or Mobile)
-                            </span>
-                          </Label>
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              className="pl-9"
-                              placeholder="0001/26 or 01XXXXXXXXX — auto-fills details"
-                              value={chamberLookup}
-                              onChange={(e) =>
-                                handleChamberLookup(e.target.value)
-                              }
-                              data-ocid="appointments.chamber.lookup_input"
-                            />
-                          </div>
-                          {chamberLookupMsg && (
-                            <p
-                              className={`text-xs font-medium ${chamberLookupMsg.startsWith("✓") ? "text-emerald-600" : "text-amber-600"}`}
-                            >
-                              {chamberLookupMsg}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Found patient card */}
-                        {chamberFoundPatient && (
-                          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-emerald-900 text-sm">
-                                {chamberFoundPatient.patientName}
-                              </p>
-                              <div className="flex gap-3 text-xs text-emerald-700 mt-0.5 flex-wrap">
-                                {chamberFoundPatient.age && (
-                                  <span>Age: {chamberFoundPatient.age}</span>
-                                )}
-                                {chamberFoundPatient.gender && (
-                                  <span>{chamberFoundPatient.gender}</span>
-                                )}
-                                {chamberFoundPatient.phone && (
-                                  <span>{chamberFoundPatient.phone}</span>
-                                )}
-                                {chamberFoundPatient.registerNumber && (
-                                  <span className="font-mono">
-                                    Reg: {chamberFoundPatient.registerNumber}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Fallback name/phone if not found via lookup */}
-                        {!chamberFoundPatient && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                               <Label>
                                 Patient Name{" "}
                                 <span className="text-destructive">*</span>
+                                <span className="block text-xs font-normal" lang="bn">রোগীর নাম</span>
                               </Label>
                               <Input
                                 placeholder="Full name"
@@ -4930,6 +4657,7 @@ export default function LandingPage({
                               <Label>
                                 Phone{" "}
                                 <span className="text-destructive">*</span>
+                                <span className="block text-xs font-normal" lang="bn">ফোন নম্বর</span>
                               </Label>
                               <Input
                                 type="tel"
@@ -4944,13 +4672,13 @@ export default function LandingPage({
                                 data-ocid="appointments.chamber.phone_input"
                               />
                             </div>
-                          </div>
-                        )}
+                        </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label>
                               Doctor <span className="text-destructive">*</span>
+                              <span className="block text-xs font-normal" lang="bn">চিকিৎসক</span>
                             </Label>
                             <Select
                               value={chamberForm.doctor}
@@ -4990,6 +4718,7 @@ export default function LandingPage({
                             return (
                               <div className="space-y-1.5">
                                 <Label>Chamber</Label>
+                                <span className="block text-xs text-muted-foreground" lang="bn">চেম্বার</span>
                                 <Select
                                   value={chamberForm.chamber}
                                   onValueChange={(v) =>
@@ -5029,6 +4758,7 @@ export default function LandingPage({
                             <Label>
                               Preferred Date{" "}
                               <span className="text-destructive">*</span>
+                              <span className="block text-xs font-normal" lang="bn">পছন্দের তারিখ</span>
                             </Label>
                             <Input
                               type="date"
@@ -5045,84 +4775,8 @@ export default function LandingPage({
                           </div>
                         </div>
 
-                        {/* Time Slot Chips */}
-                        {chamberForm.date && (
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
-                              Today&apos;s Available Times
-                            </Label>
-                            <div className="flex flex-wrap gap-2">
-                              {(() => {
-                                const slots: string[] = [];
-                                for (let h = 9; h < 17; h++) {
-                                  for (const m of [0, 30]) {
-                                    const hh = String(h).padStart(2, "0");
-                                    const mm = String(m).padStart(2, "0");
-                                    slots.push(`${hh}:${mm}`);
-                                  }
-                                }
-                                const existingBookings: PublicBooking[] =
-                                  (() => {
-                                    try {
-                                      return JSON.parse(
-                                        storage.getItem(
-                                          "public_appointment_requests",
-                                        ) || "[]",
-                                      );
-                                    } catch {
-                                      return [];
-                                    }
-                                  })();
-                                const bookedTimes = new Set(
-                                  existingBookings
-                                    .filter(
-                                      (b) =>
-                                        (b.preferredDate || b.date) ===
-                                        chamberForm.date,
-                                    )
-                                    .map((b) => b.preferredTime || b.time)
-                                    .filter(Boolean),
-                                );
-                                return slots.map((slot) => {
-                                  const isBooked = bookedTimes.has(slot);
-                                  const [hh, mm] = slot.split(":");
-                                  const h = Number.parseInt(hh, 10);
-                                  const ampm = h >= 12 ? "PM" : "AM";
-                                  const h12 =
-                                    h > 12 ? h - 12 : h === 0 ? 12 : h;
-                                  const label = `${h12}:${mm} ${ampm}`;
-                                  return (
-                                    <button
-                                      key={slot}
-                                      type="button"
-                                      disabled={isBooked}
-                                      onClick={() =>
-                                        !isBooked &&
-                                        setChamberForm((f) => ({
-                                          ...f,
-                                          time: slot,
-                                        }))
-                                      }
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors border ${
-                                        chamberForm.time === slot
-                                          ? "bg-primary text-primary-foreground border-primary"
-                                          : isBooked
-                                            ? "bg-muted text-muted-foreground border-border cursor-not-allowed line-through"
-                                            : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 cursor-pointer"
-                                      }`}
-                                      data-ocid={`appointments.chamber.slot.${slot.replace(":", "")}`}
-                                    >
-                                      {label}
-                                    </button>
-                                  );
-                                });
-                              })()}
-                            </div>
-                          </div>
-                        )}
-
                         <div className="space-y-1.5">
-                          <Label>Preferred Time</Label>
+                          <Label>Preferred Time<span className="block text-xs font-normal" lang="bn">পছন্দের সময়</span></Label>
                           <Input
                             type="time"
                             value={chamberForm.time}
@@ -5137,7 +4791,7 @@ export default function LandingPage({
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label>Reason for Visit</Label>
+                          <Label>Reason for Visit<span className="block text-xs font-normal" lang="bn">সাক্ষাতের কারণ</span></Label>
                           <Textarea
                             placeholder="Briefly describe your symptoms..."
                             rows={2}
@@ -5156,10 +4810,11 @@ export default function LandingPage({
                         <Button
                           type="submit"
                           className="w-full h-11 font-semibold"
+                          disabled={chamberSubmitting}
                           data-ocid="appointments.chamber.submit_button"
                         >
                           <CalendarDays className="w-4 h-4 mr-2" />
-                          Submit Chamber Appointment
+                          {chamberSubmitting ? "Submitting…" : <span>Submit Chamber Appointment<span className="block text-xs" lang="bn">চেম্বার অ্যাপয়েন্টমেন্ট পাঠান</span></span>}
                         </Button>
                       </CardContent>
                     </Card>
@@ -5178,6 +4833,7 @@ export default function LandingPage({
                     </div>
                     <h3 className="text-lg font-bold text-foreground mb-1">
                       Admission Request Submitted!
+                      <span className="block text-base" lang="bn">ভর্তির অনুরোধ পাঠানো হয়েছে</span>
                     </h3>
                     <p className="text-muted-foreground text-sm mb-4">
                       Our staff will confirm your hospital admission shortly.
@@ -5188,9 +4844,6 @@ export default function LandingPage({
                       onClick={() => {
                         setAdmitSubmitted(false);
                         setAdmitForm(emptyAdmitForm);
-                        setAdmitLookup("");
-                        setAdmitFoundPatient(null);
-                        setAdmitLookupMsg("");
                       }}
                       data-ocid="appointments.admitted.new_button"
                     >
@@ -5201,72 +4854,12 @@ export default function LandingPage({
                   <form onSubmit={handleAdmitSubmit} className="space-y-4">
                     <Card className="border-2 border-rose-200">
                       <CardContent className="p-5 space-y-4">
-                        {/* Patient search */}
-                        <div className="space-y-1.5">
-                          <Label>
-                            Search Patient{" "}
-                            <span className="text-xs text-muted-foreground font-normal">
-                              (Register No. or Mobile)
-                            </span>
-                          </Label>
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              className="pl-9"
-                              placeholder="0001/26 or 01XXXXXXXXX — auto-fills details"
-                              value={admitLookup}
-                              onChange={(e) =>
-                                handleAdmitLookup(e.target.value)
-                              }
-                              data-ocid="appointments.admitted.lookup_input"
-                            />
-                          </div>
-                          {admitLookupMsg && (
-                            <p
-                              className={`text-xs font-medium ${admitLookupMsg.startsWith("✓") ? "text-emerald-600" : "text-amber-600"}`}
-                            >
-                              {admitLookupMsg}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Found patient card */}
-                        {admitFoundPatient && (
-                          <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="w-5 h-5 text-rose-600" />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-rose-900 text-sm">
-                                {admitFoundPatient.patientName}
-                              </p>
-                              <div className="flex gap-3 text-xs text-rose-700 mt-0.5 flex-wrap">
-                                {admitFoundPatient.age && (
-                                  <span>Age: {admitFoundPatient.age}</span>
-                                )}
-                                {admitFoundPatient.gender && (
-                                  <span>{admitFoundPatient.gender}</span>
-                                )}
-                                {admitFoundPatient.phone && (
-                                  <span>{admitFoundPatient.phone}</span>
-                                )}
-                                {admitFoundPatient.registerNumber && (
-                                  <span className="font-mono">
-                                    Reg: {admitFoundPatient.registerNumber}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Fallback name/phone */}
-                        {!admitFoundPatient && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                               <Label>
                                 Patient Name{" "}
                                 <span className="text-destructive">*</span>
+                                <span className="block text-xs font-normal" lang="bn">রোগীর নাম</span>
                               </Label>
                               <Input
                                 placeholder="Full name"
@@ -5284,6 +4877,7 @@ export default function LandingPage({
                               <Label>
                                 Phone{" "}
                                 <span className="text-destructive">*</span>
+                                <span className="block text-xs font-normal" lang="bn">ফোন নম্বর</span>
                               </Label>
                               <Input
                                 type="tel"
@@ -5298,14 +4892,14 @@ export default function LandingPage({
                                 data-ocid="appointments.admitted.phone_input"
                               />
                             </div>
-                          </div>
-                        )}
+                        </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label>
                               Admission Date{" "}
                               <span className="text-destructive">*</span>
+                              <span className="block text-xs font-normal" lang="bn">ভর্তির তারিখ</span>
                             </Label>
                             <Input
                               type="date"
@@ -5321,7 +4915,7 @@ export default function LandingPage({
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label>Hospital Name</Label>
+                            <Label>Hospital Name<span className="block text-xs font-normal" lang="bn">হাসপাতালের নাম</span></Label>
                             <Input
                               placeholder="e.g. DMCH, BSMMU"
                               value={admitForm.hospitalName}
@@ -5338,7 +4932,7 @@ export default function LandingPage({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label>Bed / Ward (optional)</Label>
+                            <Label>Bed / Ward (optional)<span className="block text-xs font-normal" lang="bn">বেড / ওয়ার্ড (ঐচ্ছিক)</span></Label>
                             <Input
                               placeholder="e.g. Ward 7, Bed 12"
                               value={admitForm.bedWardNumber}
@@ -5352,7 +4946,7 @@ export default function LandingPage({
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label>Doctor</Label>
+                            <Label>Doctor<span className="block text-xs font-normal" lang="bn">চিকিৎসক</span></Label>
                             <Select
                               value={admitForm.doctor}
                               onValueChange={(v) =>
@@ -5375,7 +4969,7 @@ export default function LandingPage({
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label>Referring Doctor (optional)</Label>
+                          <Label>Referring Doctor (optional)<span className="block text-xs font-normal" lang="bn">রেফারকারী চিকিৎসক (ঐচ্ছিক)</span></Label>
                           <Input
                             placeholder="Referring doctor name"
                             value={admitForm.referringDoctor}
@@ -5390,7 +4984,7 @@ export default function LandingPage({
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label>Admission Reason</Label>
+                          <Label>Admission Reason<span className="block text-xs font-normal" lang="bn">ভর্তির কারণ</span></Label>
                           <Textarea
                             placeholder="Reason for admission / chief complaint..."
                             rows={2}
@@ -5409,10 +5003,11 @@ export default function LandingPage({
                         <Button
                           type="submit"
                           className="w-full h-11 font-semibold bg-rose-600 hover:bg-rose-700"
+                          disabled={admitSubmitting}
                           data-ocid="appointments.admitted.submit_button"
                         >
                           <Building2 className="w-4 h-4 mr-2" />
-                          Submit Admission Request
+                          {admitSubmitting ? "Submitting…" : <span>Submit Admission Request<span className="block text-xs" lang="bn">ভর্তির অনুরোধ পাঠান</span></span>}
                         </Button>
                       </CardContent>
                     </Card>
@@ -5524,32 +5119,21 @@ export default function LandingPage({
                   {siteConfig.aboutSection.clinicNameEn}
                 </span>
               </div>
-              <p className="text-slate-300 text-sm mb-4 max-w-sm">
-                {siteConfig.aboutSection.descriptionEn}
-              </p>
+              {siteConfig.aboutSection.clinicNameBn && <p className="text-lg text-slate-200 mb-3" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.aboutSection.clinicNameBn}</p>}
+              {siteConfig.aboutSection.descriptionEn && <p className="text-slate-300 text-sm mb-1 max-w-sm">{siteConfig.aboutSection.descriptionEn}</p>}
+              {siteConfig.aboutSection.descriptionBn && <p className="text-slate-300 text-sm mb-4 max-w-sm" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.aboutSection.descriptionBn}</p>}
               <div className="space-y-2 text-sm text-slate-300">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>{siteConfig.footerSection.addressEn}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>
-                    {siteConfig.footerSection.phone || armanDoc.phone}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>
-                    {siteConfig.footerSection.email || armanDoc.email}
-                  </span>
-                </div>
+                {siteConfig.footerSection.addressEn && <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-400 shrink-0" /><span>{siteConfig.footerSection.addressEn}</span></div>}
+                {siteConfig.footerSection.addressBn && <div className="flex items-center gap-2" lang="bn"><MapPin className="w-4 h-4 text-blue-400 shrink-0" /><span style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.footerSection.addressBn}</span></div>}
+                {siteConfig.footerSection.phone && <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-blue-400 shrink-0" /><span>{siteConfig.footerSection.phone}</span></div>}
+                {siteConfig.footerSection.email && <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-blue-400 shrink-0" /><span>{siteConfig.footerSection.email}</span></div>}
                 {siteConfig.footerSection.openingHours && (
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-400 shrink-0" />
                     <span>{siteConfig.footerSection.openingHours}</span>
                   </div>
                 )}
+                {siteConfig.footerSection.openingHoursBn && <div className="flex items-center gap-2" lang="bn"><Clock className="w-4 h-4 text-blue-400 shrink-0" /><span style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>{siteConfig.footerSection.openingHoursBn}</span></div>}
               </div>
               {siteConfig.footerSection.socialLinks.length > 0 && (
                 <div className="flex flex-wrap gap-3 mt-3">
@@ -5583,15 +5167,15 @@ export default function LandingPage({
                   <Pencil className="w-3.5 h-3.5" /> Edit Footer
                 </button>
               )}
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteConfig.footerSection.addressEn)}`}
+              {(siteConfig.footerSection.addressEn || siteConfig.footerSection.addressBn) && <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteConfig.footerSection.addressEn || siteConfig.footerSection.addressBn)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 mt-4 text-sm text-blue-400 hover:text-blue-300 transition-colors"
                 data-ocid="footer.get_directions.link"
               >
                 <MapPin className="w-4 h-4" />📍 Get Directions
-              </a>
+              </a>}
             </div>
             {/* Right: Quick Links */}
             <div>
@@ -5608,7 +5192,7 @@ export default function LandingPage({
                   data-ocid="footer.book_appointment.link"
                 >
                   <CalendarDays className="w-3.5 h-3.5 text-blue-400" />
-                  Book Appointment
+                  <span>Book Appointment<span className="block" lang="bn">অ্যাপয়েন্টমেন্ট নিন</span></span>
                 </button>
                 <button
                   type="button"
@@ -5617,7 +5201,7 @@ export default function LandingPage({
                   data-ocid="footer.emergency.button"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                  Emergency WhatsApp
+                  <span>Emergency WhatsApp<span className="block" lang="bn">জরুরি হোয়াটসঅ্যাপ</span></span>
                 </button>
                 <button
                   type="button"
@@ -5670,17 +5254,8 @@ export default function LandingPage({
           {/* Bottom bar */}
           <div className="border-t border-slate-700 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-slate-400 text-center">
-              © {new Date().getFullYear()}{" "}
-              {siteConfig.footerSection.copyrightText} Built with{" "}
-              <Heart className="w-3 h-3 inline text-rose-400" /> using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-slate-200"
-              >
-                caffeine.ai
-              </a>
+              © {new Date().getFullYear()} {siteConfig.footerSection.copyrightText}
+              {siteConfig.footerSection.copyrightTextBn && <span className="block" lang="bn">{siteConfig.footerSection.copyrightTextBn}</span>}
             </p>
             <button
               type="button"
@@ -5747,27 +5322,3 @@ export default function LandingPage({
   );
 }
 
-/**
- * Footer Component
- * Updated for PHP/MySQL backend on cPanel
- */
-function LandingPageFooter({ siteConfig }: { siteConfig: any }) {
-  return (
-    <div className="border-t border-slate-700 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p className="text-xs text-slate-400 text-center">
-        © {new Date().getFullYear()}{" "}
-        {siteConfig?.footerSection?.copyrightText || "Dr. Arman Kabir Care"}
-        . Built with <Heart className="w-3 h-3 inline text-rose-400" /> for
-        healthcare excellence. Powered by PHP &amp; MySQL.
-      </p>
-      <a
-        href="https://drarmankabir.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs text-slate-400 hover:text-slate-200 transition-colors underline"
-      >
-        Visit Website
-      </a>
-    </div>
-  );
-}

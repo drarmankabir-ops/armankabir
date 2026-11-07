@@ -18,7 +18,6 @@ import type {
   SiteConfig,
   SocialLink,
 } from "@/hooks/useSiteConfig";
-import { DEFAULT_SITE_CONFIG } from "@/hooks/useSiteConfig";
 import {
   Megaphone,
   MinusCircle,
@@ -104,6 +103,38 @@ function HeroTab({
           data-ocid="admin_panel.hero.subheading_bn.input"
         />
       </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Supporting line (English)</Label>
+        <Input
+          value={h.heroTaglineEn ?? ""}
+          onChange={(e) => updateHero({ heroTaglineEn: e.target.value })}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Supporting line (Bangla)</Label>
+        <Input
+          value={h.heroTaglineBn ?? ""}
+          onChange={(e) => updateHero({ heroTaglineBn: e.target.value })}
+          style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Description (English)</Label>
+        <Textarea
+          rows={2}
+          value={h.heroDescriptionEn ?? ""}
+          onChange={(e) => updateHero({ heroDescriptionEn: e.target.value })}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Description (Bangla)</Label>
+        <Textarea
+          rows={2}
+          value={h.heroDescriptionBn ?? ""}
+          onChange={(e) => updateHero({ heroDescriptionBn: e.target.value })}
+          style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+        />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label className="text-xs">CTA 1 Label</Label>
@@ -122,6 +153,24 @@ function HeroTab({
           />
         </div>
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">CTA 1 Label (Bangla)</Label>
+          <Input
+            value={h.cta1LabelBn}
+            onChange={(e) => updateHero({ cta1LabelBn: e.target.value })}
+            style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">CTA 2 Label (Bangla)</Label>
+          <Input
+            value={h.cta2LabelBn}
+            onChange={(e) => updateHero({ cta2LabelBn: e.target.value })}
+            style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -134,7 +183,9 @@ function AboutTab({
 }: Pick<Props, "config" | "updateAbout" | "resetSection">) {
   const a = config.aboutSection;
   const [newSpec, setNewSpec] = useState("");
+  const [newSpecBn, setNewSpecBn] = useState("");
   const [newAffil, setNewAffil] = useState("");
+  const [newAffilBn, setNewAffilBn] = useState("");
 
   const addSpecialty = () => {
     if (!newSpec.trim()) return;
@@ -144,6 +195,14 @@ function AboutTab({
   const removeSpecialty = (i: number) => {
     updateAbout({ specialties: a.specialties.filter((_, idx) => idx !== i) });
   };
+  const addSpecialtyBn = () => {
+    if (!newSpecBn.trim()) return;
+    updateAbout({ specialtiesBn: [...(a.specialtiesBn ?? []), newSpecBn.trim()] });
+    setNewSpecBn("");
+  };
+  const removeSpecialtyBn = (i: number) => {
+    updateAbout({ specialtiesBn: (a.specialtiesBn ?? []).filter((_, idx) => idx !== i) });
+  };
   const addAffil = () => {
     if (!newAffil.trim()) return;
     updateAbout({ affiliations: [...a.affiliations, newAffil.trim()] });
@@ -151,6 +210,14 @@ function AboutTab({
   };
   const removeAffil = (i: number) => {
     updateAbout({ affiliations: a.affiliations.filter((_, idx) => idx !== i) });
+  };
+  const addAffilBn = () => {
+    if (!newAffilBn.trim()) return;
+    updateAbout({ affiliationsBn: [...(a.affiliationsBn ?? []), newAffilBn.trim()] });
+    setNewAffilBn("");
+  };
+  const removeAffilBn = (i: number) => {
+    updateAbout({ affiliationsBn: (a.affiliationsBn ?? []).filter((_, idx) => idx !== i) });
   };
 
   return (
@@ -300,6 +367,29 @@ function AboutTab({
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label className="text-xs">Specialties (Bangla)</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {(a.specialtiesBn ?? []).map((specialty, index) => (
+            <span key={`${specialty}-${index}`} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full" lang="bn">
+              {specialty}
+              <button type="button" onClick={() => removeSpecialtyBn(index)} aria-label="Remove" className="hover:text-destructive"><X className="w-3 h-3" /></button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={newSpecBn}
+            onChange={(e) => setNewSpecBn(e.target.value)}
+            placeholder="বিশেষত্ব যোগ করুন"
+            className="h-8 text-xs"
+            style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+            onKeyDown={(e) => e.key === "Enter" && addSpecialtyBn()}
+          />
+          <Button type="button" size="sm" variant="outline" onClick={addSpecialtyBn}><PlusCircle className="w-4 h-4" /></Button>
+        </div>
+      </div>
+
       {/* Affiliations */}
       <div className="space-y-2">
         <Label className="text-xs">Affiliations</Label>
@@ -341,6 +431,29 @@ function AboutTab({
           </Button>
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label className="text-xs">Affiliations (Bangla)</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {(a.affiliationsBn ?? []).map((affiliation, index) => (
+            <span key={`${affiliation}-${index}`} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full border border-blue-100" lang="bn">
+              {affiliation}
+              <button type="button" onClick={() => removeAffilBn(index)} aria-label="Remove" className="hover:text-destructive"><X className="w-3 h-3" /></button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={newAffilBn}
+            onChange={(e) => setNewAffilBn(e.target.value)}
+            placeholder="প্রতিষ্ঠানের নাম যোগ করুন"
+            className="h-8 text-xs"
+            style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+            onKeyDown={(e) => e.key === "Enter" && addAffilBn()}
+          />
+          <Button type="button" size="sm" variant="outline" onClick={addAffilBn}><PlusCircle className="w-4 h-4" /></Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -363,7 +476,7 @@ function EmergencyTab({
   const addContact = () => {
     updateEmergencyContacts([
       ...contacts,
-      { doctorName: "", whatsappNumber: "", prefilledMessage: "" },
+        { doctorName: "", doctorNameBn: "", whatsappNumber: "", prefilledMessage: "", prefilledMessageBn: "" },
     ]);
   };
 
@@ -429,6 +542,16 @@ function EmergencyTab({
             />
           </div>
           <div className="space-y-1.5">
+            <Label className="text-xs">Doctor Name (Bangla)</Label>
+            <Input
+              value={c.doctorNameBn ?? ""}
+              onChange={(e) => update(idx, "doctorNameBn", e.target.value)}
+              lang="bn"
+              style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+              className="h-8 text-xs"
+            />
+          </div>
+          <div className="space-y-1.5">
             <Label className="text-xs">
               WhatsApp Number (international, no +)
             </Label>
@@ -448,6 +571,16 @@ function EmergencyTab({
               placeholder="Hello Doctor..."
               className="h-8 text-xs"
               data-ocid={`admin_panel.emergency.msg.input.${idx + 1}`}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Pre-filled Message (Bangla)</Label>
+            <Input
+              value={c.prefilledMessageBn ?? ""}
+              onChange={(e) => update(idx, "prefilledMessageBn", e.target.value)}
+              lang="bn"
+              style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+              className="h-8 text-xs"
             />
           </div>
         </div>
@@ -545,6 +678,22 @@ function FooterTab({
         />
       </div>
       <div className="space-y-1.5">
+        <Label className="text-xs">Opening Hours (Bangla)</Label>
+        <Input
+          value={f.openingHoursBn ?? ""}
+          onChange={(e) => updateFooter({ openingHoursBn: e.target.value })}
+          style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Copyright Text (Bangla)</Label>
+        <Input
+          value={f.copyrightTextBn ?? ""}
+          onChange={(e) => updateFooter({ copyrightTextBn: e.target.value })}
+          style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+        />
+      </div>
+      <div className="space-y-1.5">
         <Label className="text-xs">Copyright Text</Label>
         <Input
           value={f.copyrightText}
@@ -618,11 +767,16 @@ function FooterTab({
 function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
   const [headingEditing, setHeadingEditing] = useState(false);
   const [headingDraft, setHeadingDraft] = useState(config.faqsSection.heading);
+  const [headingBnDraft, setHeadingBnDraft] = useState(config.faqsSection.headingBn ?? "");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [questionDraft, setQuestionDraft] = useState("");
+  const [questionBnDraft, setQuestionBnDraft] = useState("");
   const [answerDraft, setAnswerDraft] = useState("");
+  const [answerBnDraft, setAnswerBnDraft] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
+  const [newQuestionBn, setNewQuestionBn] = useState("");
   const [newAnswer, setNewAnswer] = useState("");
+  const [newAnswerBn, setNewAnswerBn] = useState("");
   const [saving, setSaving] = useState(false);
 
   const saveFAQs = async (faqs: FAQsSection["faqs"]) => {
@@ -642,7 +796,7 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
   const saveHeading = async () => {
     setSaving(true);
     try {
-      await updateFAQs({ heading: headingDraft.trim() || "Frequently Asked Questions" });
+      await updateFAQs({ heading: headingDraft.trim(), headingBn: headingBnDraft.trim() });
       setHeadingEditing(false);
       toast.success("FAQ heading saved.");
     } catch (error) {
@@ -659,12 +813,16 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
       {
         id: Date.now().toString(36),
         question: newQuestion.trim(),
+        questionBn: newQuestionBn.trim(),
         answer: newAnswer.trim(),
+        answerBn: newAnswerBn.trim(),
       },
     ]);
     if (saved) {
       setNewQuestion("");
+      setNewQuestionBn("");
       setNewAnswer("");
+      setNewAnswerBn("");
     }
   };
 
@@ -673,7 +831,7 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
     const saved = await saveFAQs(
       config.faqsSection.faqs.map((faq) =>
         faq.id === editingId
-          ? { ...faq, question: questionDraft.trim(), answer: answerDraft.trim() }
+          ? { ...faq, question: questionDraft.trim(), questionBn: questionBnDraft.trim(), answer: answerDraft.trim(), answerBn: answerBnDraft.trim() }
           : faq,
       ),
     );
@@ -684,13 +842,15 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         {headingEditing ? (
-          <Input
-            value={headingDraft}
-            onChange={(event) => setHeadingDraft(event.target.value)}
-            aria-label="FAQ section heading"
-          />
+          <div className="grid flex-1 gap-2 sm:grid-cols-2">
+            <Input value={headingDraft} onChange={(event) => setHeadingDraft(event.target.value)} aria-label="FAQ section heading" />
+            <Input value={headingBnDraft} onChange={(event) => setHeadingBnDraft(event.target.value)} aria-label="Bangla FAQ section heading" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }} />
+          </div>
         ) : (
-          <p className="text-sm font-medium">{config.faqsSection.heading}</p>
+          <div>
+            <p className="text-sm font-medium">{config.faqsSection.heading}</p>
+            {config.faqsSection.headingBn && <p className="text-sm" lang="bn">{config.faqsSection.headingBn}</p>}
+          </div>
         )}
         {headingEditing ? (
           <Button size="sm" onClick={saveHeading} disabled={saving}>
@@ -702,6 +862,7 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
             variant="outline"
             onClick={() => {
               setHeadingDraft(config.faqsSection.heading);
+              setHeadingBnDraft(config.faqsSection.headingBn ?? "");
               setHeadingEditing(true);
             }}
           >
@@ -719,11 +880,13 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
                 onChange={(event) => setQuestionDraft(event.target.value)}
                 aria-label="FAQ question"
               />
+              <Input value={questionBnDraft} onChange={(event) => setQuestionBnDraft(event.target.value)} aria-label="Bangla FAQ question" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }} />
               <Textarea
                 value={answerDraft}
                 onChange={(event) => setAnswerDraft(event.target.value)}
                 aria-label="FAQ answer"
               />
+              <Textarea value={answerBnDraft} onChange={(event) => setAnswerBnDraft(event.target.value)} aria-label="Bangla FAQ answer" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }} />
               <div className="flex gap-2">
                 <Button size="sm" onClick={saveEdit} disabled={saving}>
                   Save
@@ -737,7 +900,9 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{faq.question}</p>
+                {faq.questionBn && <p className="text-sm" lang="bn">{faq.questionBn}</p>}
                 <p className="mt-1 text-xs text-muted-foreground">{faq.answer}</p>
+                {faq.answerBn && <p className="mt-1 text-xs text-muted-foreground" lang="bn">{faq.answerBn}</p>}
               </div>
               <Button
                 size="sm"
@@ -745,7 +910,9 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
                 onClick={() => {
                   setEditingId(faq.id);
                   setQuestionDraft(faq.question);
+                  setQuestionBnDraft(faq.questionBn ?? "");
                   setAnswerDraft(faq.answer);
+                  setAnswerBnDraft(faq.answerBn ?? "");
                 }}
               >
                 Edit
@@ -771,11 +938,13 @@ function FAQsTab({ config, updateFAQs }: Pick<Props, "config" | "updateFAQs">) {
           onChange={(event) => setNewQuestion(event.target.value)}
           placeholder="Question"
         />
+        <Input value={newQuestionBn} onChange={(event) => setNewQuestionBn(event.target.value)} placeholder="প্রশ্ন" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }} />
         <Textarea
           value={newAnswer}
           onChange={(event) => setNewAnswer(event.target.value)}
           placeholder="Answer"
         />
+        <Textarea value={newAnswerBn} onChange={(event) => setNewAnswerBn(event.target.value)} placeholder="উত্তর" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }} />
         <Button
           size="sm"
           onClick={addFAQ}

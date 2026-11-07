@@ -61,6 +61,7 @@ import {
 } from "../hooks/useQueries";
 import { buildFollowUpMessage } from "../lib/whatsappTemplates";
 import { storage } from "../lib/storageAdapter";
+import { appointmentService } from "../services/appointments";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -2387,70 +2388,70 @@ function AdmittedPatientsTab() {
 // ─── Public Booking Requests ─────────────────────────────────────────────────
 
 interface PublicBooking {
-  id: string;
+  id: number;
   patientName: string;
   phone: string;
   doctor: string;
-  date?: string;
-  preferredDate?: string;
-  preferredTime?: string;
-  time?: string;
-  reason?: string;
-  submittedAt: string;
+  date: string;
+  time: string;
+  reason: string;
   status: "pending" | "confirmed" | "cancelled";
-  registerNumber?: string;
-  chamber?: string;
-  preferredChamber?: string;
-  appointmentType?: AppointmentType;
-}
-
-function loadPublicBookings(): PublicBooking[] {
-  try {
-    return JSON.parse(
-      storage.getItem("public_appointment_requests") || "[]",
-    );
-  } catch {
-    return [];
-  }
-}
-
-function savePublicBookings(data: PublicBooking[]) {
-  storage.setItem("public_appointment_requests", JSON.stringify(data));
+  chamber: string;
+  appointmentType: AppointmentType;
 }
 
 function PublicBookingRequestsTab() {
-  const [bookings, setBookings] = useState<PublicBooking[]>(loadPublicBookings);
+  const [bookings, setBookings] = useState<PublicBooking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [confirmingBooking, setConfirmingBooking] =
     useState<PublicBooking | null>(null);
   const createPatient = useCreatePatient();
 
-  const persistBookings = (updated: PublicBooking[]) => {
-    setBookings(updated);
-    savePublicBookings(updated);
+  useEffect(() => {
+    let active = true;
+    void appointmentService.getPublicRequests()
+      .then((requests) => {
+        if (active) setBookings(requests);
+      })
+      .catch((error: unknown) => {
+        if (active) toast.error(error instanceof Error ? error.message : "Could not load public requests.");
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const markConfirmed = async (id: number) => {
+    await appointmentService.update({ id, status: "confirmed" });
+    setBookings((current) => current.map((booking) =>
+      booking.id === id ? { ...booking, status: "confirmed" } : booking,
+    ));
   };
 
-  const markConfirmed = (id: string) => {
-    persistBookings(
-      bookings.map((b) => (b.id === id ? { ...b, status: "confirmed" } : b)),
-    );
-  };
-
-  const cancelBooking = (id: string) => {
-    persistBookings(
-      bookings.map((b) => (b.id === id ? { ...b, status: "cancelled" } : b)),
-    );
-    toast.success("Booking cancelled.");
+  const cancelBooking = async (id: number) => {
+    try {
+      await appointmentService.update({ id, status: "cancelled" });
+      setBookings((current) => current.map((booking) =>
+        booking.id === id ? { ...booking, status: "cancelled" } : booking,
+      ));
+      toast.success("Booking cancelled.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not cancel booking.");
+    }
   };
 
   const handlePatientRegister = (data: PatientFormData) => {
     if (!confirmingBooking) return;
     createPatient.mutate(data, {
-      onSuccess: () => {
-        markConfirmed(confirmingBooking.id);
-        toast.success(
-          `Appointment confirmed and ${data.fullName} registered as a patient.`,
-        );
-        setConfirmingBooking(null);
+      onSuccess: async () => {
+        try {
+          await markConfirmed(confirmingBooking.id);
+          toast.success(`Appointment confirmed and ${data.fullName} registered as a patient.`);
+          setConfirmingBooking(null);
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Patient registered, but the request could not be confirmed.");
+        }
       },
       onError: () => {
         toast.error("Failed to register patient. Please try again.");
@@ -2475,7 +2476,11 @@ function PublicBookingRequestsTab() {
 
   return (
     <>
-      {bookings.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-16" role="status">
+          <Loader2 className="w-5 h-5 animate-spin" />
+        </div>
+      ) : bookings.length === 0 ? (
         <div
           className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3"
           data-ocid="public_bookings.empty_state"
@@ -2512,11 +2517,6 @@ function PublicBookingRequestsTab() {
                     <TableCell className="font-medium">
                       <div>
                         {b.patientName}
-                        {b.registerNumber && (
-                          <p className="text-xs font-mono text-muted-foreground">
-                            {b.registerNumber}
-                          </p>
-                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
@@ -2531,22 +2531,22 @@ function PublicBookingRequestsTab() {
                             : "bg-blue-100 text-blue-700 border-blue-200"
                         }
                       >
-                        {b.appointmentType === "admitted"
-                          ? "Admitted"
+                          {b.appointmentType === "admitted"
+                            ? "Admission"
                           : "Chamber"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">{b.doctor}</TableCell>
                     <TableCell className="text-sm">
-                      {b.preferredDate || b.date || "—"}
-                      {(b.preferredTime || b.time) && (
+                      {b.date || "—"}
+                      {b.time && (
                         <span className="text-xs text-muted-foreground ml-1">
-                          {b.preferredTime || b.time}
+                          {b.time}
                         </span>
                       )}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">
-                      {b.preferredChamber || b.chamber || "—"}
+                      {b.chamber || "—"}
                     </TableCell>
                     <TableCell>{statusBadge(b.status)}</TableCell>
                     <TableCell>

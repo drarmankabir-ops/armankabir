@@ -55,7 +55,7 @@ function StarRating({
   );
 }
 
-const emptyForm = { patientName: "", quote: "", rating: 5, date: "" };
+const emptyForm = { patientName: "", patientNameBn: "", quote: "", quoteBn: "", rating: 5, date: "" };
 
 export default function TestimonialsSection({
   isAdmin,
@@ -73,6 +73,7 @@ export default function TestimonialsSection({
   const { testimonials, heading } = config.testimonialsSection;
   const [editHeading, setEditHeading] = useState(false);
   const [headingDraft, setHeadingDraft] = useState(heading);
+  const [headingDraftBn, setHeadingDraftBn] = useState(config.testimonialsSection.headingBn ?? "");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -81,6 +82,10 @@ export default function TestimonialsSection({
   useEffect(() => {
     setHeadingDraft(heading);
   }, [heading]);
+
+  useEffect(() => {
+    setHeadingDraftBn(config.testimonialsSection.headingBn ?? "");
+  }, [config.testimonialsSection.headingBn]);
 
   const save = useCallback(
     async (list: Testimonial[]) => {
@@ -99,7 +104,9 @@ export default function TestimonialsSection({
     setEditId(t.id);
     setForm({
       patientName: t.patientName,
+      patientNameBn: t.patientNameBn ?? "",
       quote: t.quote,
+      quoteBn: t.quoteBn ?? "",
       rating: t.rating,
       date: t.date || "",
     });
@@ -160,9 +167,9 @@ export default function TestimonialsSection({
   };
 
   const saveHeading = async () => {
-    const h = headingDraft.trim() || "What Our Patients Say";
+    const h = headingDraft.trim();
     try {
-      await updateTestimonials({ heading: h });
+      await updateTestimonials({ heading: h, headingBn: headingDraftBn.trim() });
       setEditHeading(false);
       toast.success("Heading updated.");
     } catch (saveError) {
@@ -189,8 +196,7 @@ export default function TestimonialsSection({
         {isError && (
           <p className="mb-4 text-sm text-destructive" role="alert">
             Could not load saved testimonials
-            {error instanceof Error ? `: ${error.message}` : "."} Showing the
-            safe default content.
+            {error instanceof Error ? `: ${error.message}` : "."}
           </p>
         )}
         {/* Header */}
@@ -214,6 +220,14 @@ export default function TestimonialsSection({
                     className="text-lg font-bold h-9 w-64"
                     data-ocid="testimonials.heading.input"
                     autoFocus
+                  />
+                  <Input
+                    value={headingDraftBn}
+                    onChange={(e) => setHeadingDraftBn(e.target.value)}
+                    className="h-9 w-64"
+                    style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+                    aria-label="Bangla testimonial heading"
+                    lang="bn"
                   />
                   <Button
                     size="sm"
@@ -265,8 +279,13 @@ export default function TestimonialsSection({
               </Button>
             )}
           </div>
+          {config.testimonialsSection.headingBn && !editHeading && (
+            <p className="mt-1 text-lg text-foreground" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>
+              {config.testimonialsSection.headingBn}
+            </p>
+          )}
           <p className="text-muted-foreground text-sm">
-            Real feedback from our patients.
+            {testimonials.length > 0 ? "Real feedback from our patients." : ""}
           </p>
         </motion.div>
 
@@ -301,11 +320,17 @@ export default function TestimonialsSection({
                     <blockquote className="mt-3 text-sm text-foreground/80 leading-relaxed flex-1 italic">
                       &ldquo;{t.quote}&rdquo;
                     </blockquote>
+                    {t.quoteBn && (
+                      <blockquote className="mt-2 text-sm text-foreground/80 leading-relaxed" lang="bn" style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}>
+                        {t.quoteBn}
+                      </blockquote>
+                    )}
                     <div className="mt-4 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-foreground">
                           {t.patientName}
                         </p>
+                        {t.patientNameBn && <p className="text-sm text-muted-foreground" lang="bn">{t.patientNameBn}</p>}
                         {t.date && (
                           <p className="text-xs text-muted-foreground">
                             {new Date(t.date).toLocaleDateString("en-BD", {
@@ -371,6 +396,16 @@ export default function TestimonialsSection({
               />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="t-name-bn">Patient Name (Bangla)</Label>
+              <Input
+                id="t-name-bn"
+                value={form.patientNameBn}
+                onChange={(e) => setForm((f) => ({ ...f, patientNameBn: e.target.value }))}
+                lang="bn"
+                style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="t-quote">Quote *</Label>
               <Textarea
                 id="t-quote"
@@ -381,6 +416,17 @@ export default function TestimonialsSection({
                 placeholder="Patient's feedback..."
                 rows={3}
                 data-ocid="testimonials.quote.textarea"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-quote-bn">Quote (Bangla)</Label>
+              <Textarea
+                id="t-quote-bn"
+                value={form.quoteBn}
+                onChange={(e) => setForm((f) => ({ ...f, quoteBn: e.target.value }))}
+                rows={3}
+                lang="bn"
+                style={{ fontFamily: "'Noto Sans Bengali', Arial, sans-serif" }}
               />
             </div>
             <div className="space-y-1.5">

@@ -44,6 +44,15 @@ try {
         $where[] = 'a.status = :status';
         $params[':status'] = $status;
     }
+
+    $publicRequest = getParam('public_request', '');
+    if ($publicRequest !== '') {
+        if (!in_array((string) $publicRequest, ['0', '1'], true)) {
+            errorResponse('public_request must be 0 or 1.', 400);
+        }
+        $where[] = 'a.is_public_request = :public_request';
+        $params[':public_request'] = (int) $publicRequest;
+    }
     
     $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
     
@@ -52,8 +61,9 @@ try {
     $total = (int)$countStmt->fetch()['total'];
     
     $stmt = $db->prepare("
-        SELECT a.*, 
-               p.full_name as patient_name, p.phone as patient_phone,
+         SELECT a.*,
+             COALESCE(p.full_name, a.patient_name) as patient_name,
+             COALESCE(p.phone, a.patient_phone) as patient_phone,
                u.full_name as doctor_name
         FROM appointments a
         LEFT JOIN patients p ON a.patient_id = p.id

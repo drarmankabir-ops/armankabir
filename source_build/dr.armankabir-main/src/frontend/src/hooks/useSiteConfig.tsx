@@ -21,101 +21,57 @@ import type {
   TestimonialsSection,
 } from "../services/landing";
 
-export const DEFAULT_SITE_CONFIG: SiteConfig = {
+export const EMPTY_SITE_CONFIG: SiteConfig = {
   heroSection: {
-    taglineEn: "Dr. Arman Kabir's Care",
-    taglineBn: "ডা. আরমান কবিরের চেম্বার",
-    subheadingEn: "Advanced Healthcare With a Human Touch",
-    subheadingBn: "মানবিক স্পর্শে উন্নত স্বাস্থ্যসেবা",
-    heroTaglineEn: "Healing with Trust and Compassion",
-    heroTaglineBn: "বিশ্বাস ও সহানুভূতির সাথে নিরাময়",
-    heroDescriptionEn:
-      "Expert diagnosis, compassionate treatment, and trusted care for every stage of life.",
-    heroDescriptionBn:
-      "জীবনের প্রতিটি পর্যায়ে বিশেষজ্ঞ রোগ নির্ণয়, সহানুভূতিশীল চিকিৎসা ও বিশ্বস্ত সেবা।",
-    cta1Label: "Book Appointment",
-    cta2Label: "Emergency",
+    taglineEn: "",
+    taglineBn: "",
+    subheadingEn: "",
+    subheadingBn: "",
+    heroTaglineEn: "",
+    heroTaglineBn: "",
+    heroDescriptionEn: "",
+    heroDescriptionBn: "",
+    cta1Label: "",
+    cta1LabelBn: "",
+    cta2Label: "",
+    cta2LabelBn: "",
   },
   aboutSection: {
-    visible: true,
-    clinicNameEn: "Dr. Arman Kabir's Care",
-    clinicNameBn: "ডা. আরমান কবিরের চেম্বার",
-    descriptionEn:
-      "Comprehensive patient management and medical education serving patients and students across Bangladesh.",
-    descriptionBn:
-      "বাংলাদেশ জুড়ে রোগী ও শিক্ষার্থীদের জন্য পূর্ণাঙ্গ রোগী ব্যবস্থাপনা ও চিকিৎসা শিক্ষা।",
-    yearsExperience: 10,
-    patientCount: "500+",
-    doctorCount: 2,
-    specialties: [
-      "Internal Medicine",
-      "Respiratory Medicine",
-      "Diabetes & Endocrinology",
-      "General Practice",
-    ],
-    affiliations: [
-      "BSMMU",
-      "DMCH",
-      "Dhaka Medical College",
-      "National Institute of Diseases of Chest & Hospital",
-    ],
+    visible: false,
+    clinicNameEn: "",
+    clinicNameBn: "",
+    descriptionEn: "",
+    descriptionBn: "",
+    yearsExperience: 0,
+    patientCount: "",
+    doctorCount: 0,
+    specialties: [],
+    specialtiesBn: [],
+    affiliations: [],
+    affiliationsBn: [],
   },
   footerSection: {
-    addressEn: "Dhaka, Bangladesh",
-    addressBn: "ঢাকা, বাংলাদেশ",
-    phone: "+880-1751-959262",
-    email: "dr.armankabir011@gmail.com",
-    openingHours: "Sat–Thu: 9 AM – 8 PM",
-    copyrightText: "Dr. Arman Kabir's Care. All rights reserved.",
+    addressEn: "",
+    addressBn: "",
+    phone: "",
+    email: "",
+    openingHours: "",
+    openingHoursBn: "",
+    copyrightText: "",
+    copyrightTextBn: "",
     socialLinks: [],
   },
-  emergencyContacts: [
-    {
-      doctorName: "Dr. Arman Kabir",
-      whatsappNumber: "8801751959262",
-      prefilledMessage: "Hello Dr. Arman, I need an emergency consultation.",
-    },
-    {
-      doctorName: "Dr. Samia Shikder",
-      whatsappNumber: "880195721221",
-      prefilledMessage: "Hello Dr. Samia, I need an emergency consultation.",
-    },
-  ],
+  emergencyContacts: [],
   testimonialsSection: {
-    heading: "What Our Patients Say",
-    testimonials: [
-      {
-        id: "t1",
-        patientName: "Rahim Uddin",
-        quote:
-          "Dr. Arman Kabir's care is exceptional. He listened carefully and gave clear guidance. I feel much better now.",
-        rating: 5,
-        date: "2025-03-10",
-      },
-      {
-        id: "t2",
-        patientName: "Nasrin Begum",
-        quote:
-          "Dr. Samia is very kind and thorough. The clinic is clean and the staff is helpful. Highly recommend.",
-        rating: 5,
-        date: "2025-02-20",
-      },
-      {
-        id: "t3",
-        patientName: "Karim Hossain",
-        quote:
-          "Excellent service. The online booking is very easy and I got an appointment the same day.",
-        rating: 4,
-        date: "2025-01-15",
-      },
-    ],
+    heading: "",
+    testimonials: [],
   },
   gallerySection: {
-    heading: "Our Clinic Gallery",
+    heading: "",
     photos: [],
   },
   faqsSection: {
-    heading: "Frequently Asked Questions",
+    heading: "",
     faqs: [],
   },
   doctorContentOverrides: {},
@@ -123,43 +79,47 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
 
 function withSiteConfigDefaults(config: SiteConfig | null): SiteConfig {
   return {
-    ...DEFAULT_SITE_CONFIG,
+    ...EMPTY_SITE_CONFIG,
     ...config,
     heroSection: {
-      ...DEFAULT_SITE_CONFIG.heroSection,
+      ...EMPTY_SITE_CONFIG.heroSection,
       ...(config?.heroSection ?? {}),
     },
     aboutSection: {
-      ...DEFAULT_SITE_CONFIG.aboutSection,
+      ...EMPTY_SITE_CONFIG.aboutSection,
       ...(config?.aboutSection ?? {}),
+      specialties: Array.isArray(config?.aboutSection?.specialties) ? config.aboutSection.specialties : [],
+      specialtiesBn: Array.isArray(config?.aboutSection?.specialtiesBn) ? config.aboutSection.specialtiesBn : [],
+      affiliations: Array.isArray(config?.aboutSection?.affiliations) ? config.aboutSection.affiliations : [],
+      affiliationsBn: Array.isArray(config?.aboutSection?.affiliationsBn) ? config.aboutSection.affiliationsBn : [],
     },
     footerSection: {
-      ...DEFAULT_SITE_CONFIG.footerSection,
+      ...EMPTY_SITE_CONFIG.footerSection,
       ...(config?.footerSection ?? {}),
     },
     emergencyContacts: Array.isArray(config?.emergencyContacts)
       ? config.emergencyContacts
-      : DEFAULT_SITE_CONFIG.emergencyContacts,
+      : EMPTY_SITE_CONFIG.emergencyContacts,
     testimonialsSection: {
-      ...DEFAULT_SITE_CONFIG.testimonialsSection,
+      ...EMPTY_SITE_CONFIG.testimonialsSection,
       ...(config?.testimonialsSection ?? {}),
       testimonials: Array.isArray(config?.testimonialsSection?.testimonials)
         ? config.testimonialsSection.testimonials
-        : DEFAULT_SITE_CONFIG.testimonialsSection.testimonials,
+        : EMPTY_SITE_CONFIG.testimonialsSection.testimonials,
     },
     gallerySection: {
-      ...DEFAULT_SITE_CONFIG.gallerySection,
+      ...EMPTY_SITE_CONFIG.gallerySection,
       ...(config?.gallerySection ?? {}),
       photos: Array.isArray(config?.gallerySection?.photos)
         ? config.gallerySection.photos
-        : DEFAULT_SITE_CONFIG.gallerySection.photos,
+        : EMPTY_SITE_CONFIG.gallerySection.photos,
     },
     faqsSection: {
-      ...DEFAULT_SITE_CONFIG.faqsSection,
+      ...EMPTY_SITE_CONFIG.faqsSection,
       ...(config?.faqsSection ?? {}),
       faqs: Array.isArray(config?.faqsSection?.faqs)
         ? config.faqsSection.faqs
-        : DEFAULT_SITE_CONFIG.faqsSection.faqs,
+        : EMPTY_SITE_CONFIG.faqsSection.faqs,
     },
     doctorContentOverrides: config?.doctorContentOverrides ?? {},
   };
@@ -244,8 +204,13 @@ export function useSiteConfig() {
   );
 
   const resetSection = useCallback(
-    (section: keyof SiteConfig) => {
-      mutation.mutate({ [section]: DEFAULT_SITE_CONFIG[section] });
+    async (section: keyof SiteConfig) => {
+      try {
+        const defaults = await landingService.getDefaultSiteConfig();
+        mutation.mutate({ [section]: defaults[section] });
+      } catch (resetError) {
+        toast.error(resetError instanceof Error ? resetError.message : "Could not load default content.");
+      }
     },
     [mutation],
   );

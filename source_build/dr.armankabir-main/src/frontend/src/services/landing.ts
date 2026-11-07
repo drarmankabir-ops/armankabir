@@ -15,20 +15,25 @@ export interface SocialLink {
 
 export interface EmergencyContact {
   doctorName: string;
+  doctorNameBn?: string;
   whatsappNumber: string;
   prefilledMessage: string;
+  prefilledMessageBn?: string;
 }
 
 export interface Testimonial {
   id: string;
   patientName: string;
+  patientNameBn?: string;
   quote: string;
+  quoteBn?: string;
   rating: number;
   date?: string;
 }
 
 export interface TestimonialsSection {
   heading: string;
+  headingBn?: string;
   testimonials: Testimonial[];
 }
 
@@ -36,21 +41,26 @@ export interface GalleryPhoto {
   id: string;
   dataUrl: string;
   caption: string;
+  captionBn?: string;
 }
 
 export interface GallerySection {
   heading: string;
+  headingBn?: string;
   photos: GalleryPhoto[];
 }
 
 export interface FAQItem {
   id: string;
   question: string;
+  questionBn?: string;
   answer: string;
+  answerBn?: string;
 }
 
 export interface FAQsSection {
   heading: string;
+  headingBn?: string;
   faqs: FAQItem[];
 }
 
@@ -64,7 +74,9 @@ export interface HeroSection {
   heroDescriptionEn?: string;
   heroDescriptionBn?: string;
   cta1Label: string;
+  cta1LabelBn: string;
   cta2Label: string;
+  cta2LabelBn: string;
 }
 
 export interface AboutSection {
@@ -77,7 +89,9 @@ export interface AboutSection {
   patientCount: string;
   doctorCount: number;
   specialties: string[];
+  specialtiesBn?: string[];
   affiliations: string[];
+  affiliationsBn?: string[];
 }
 
 export interface FooterSection {
@@ -86,7 +100,9 @@ export interface FooterSection {
   phone: string;
   email: string;
   openingHours: string;
+  openingHoursBn?: string;
   copyrightText: string;
+  copyrightTextBn?: string;
   socialLinks: SocialLink[];
 }
 
@@ -135,6 +151,11 @@ export const landingService = {
         result.siteConfig?.doctorContentOverrides ??
         {},
     } as SiteConfig;
+  },
+
+  /** Fetch PHP-owned initial values for the admin section reset action. */
+  async getDefaultSiteConfig(): Promise<SiteConfig> {
+    return get<SiteConfig>('/frontpage/get.php', { key: 'defaults' });
   },
 
   /** Update site configuration via frontpage save */

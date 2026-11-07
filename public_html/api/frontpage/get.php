@@ -21,6 +21,9 @@ try {
     $db = Database::getInstance();
     $content = loadFrontPageContent($db);
 
+    if ($key === 'defaults') {
+        successResponse(defaultFrontPageConfig());
+    }
     if ($key === 'siteConfig') {
         successResponse($content['siteConfig'] ?: new stdClass());
     }
