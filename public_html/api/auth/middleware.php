@@ -102,9 +102,9 @@ function getAuthUser(): ?array {
         }
         
         return null;
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log('Auth middleware error: ' . $e->getMessage());
-        return null;
+        errorResponse('Unable to verify authentication at this time.', 500);
     }
 }
 
@@ -531,6 +531,11 @@ function requireCsrfToken(): void {
     // Only enforce on state-changing methods
     if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
         return;
+    }
+
+    if (session_status() !== PHP_SESSION_ACTIVE
+        && (startAuthSession() === '' || session_status() !== PHP_SESSION_ACTIVE)) {
+        errorResponse('Unable to initialize a CSRF-protected session.', 500);
     }
     
     $token = '';

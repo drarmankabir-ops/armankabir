@@ -15,10 +15,10 @@ import {
   useRef,
   useState,
 } from "react";
-import type { StaffRole } from "../types";
 import { authService } from "../services/auth";
 import type { DoctorAccount, PatientAccount } from "../services/auth";
 import { settingsService } from "../services/settings";
+import type { StaffRole } from "../types";
 
 export interface AuditLogEntry {
   id: string;
@@ -118,8 +118,12 @@ export function EmailAuthProvider({ children }: { children: React.ReactNode }) {
           const patient = await authService.verifyPatientSession();
           if (patient) setCurrentPatient(patient);
         }
-      } catch {
-        // Session invalid — not authenticated
+      } catch (error) {
+        setAuthError(
+          error instanceof Error
+            ? error.message
+            : "Could not verify the current session.",
+        );
       } finally {
         setIsInitializing(false);
       }

@@ -1545,9 +1545,20 @@ function AppRoot() {
       return;
     }
     let active = true;
-    void authService.verifyStudentSession().then((session) => {
-      if (active && session) setStudentSession(session);
-    });
+    void authService
+      .verifyStudentSession()
+      .then((session) => {
+        if (active && session) setStudentSession(session);
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          toast.error(
+            error instanceof Error
+              ? `Could not verify the classroom session: ${error.message}`
+              : "Could not verify the classroom session.",
+          );
+        }
+      });
     return () => {
       active = false;
     };

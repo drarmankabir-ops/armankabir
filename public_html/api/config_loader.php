@@ -6,6 +6,7 @@
  * exposes cfg() helper. All endpoints should include this file FIRST.
  */
 
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../config.php';
 
 use function cfg as configGet;

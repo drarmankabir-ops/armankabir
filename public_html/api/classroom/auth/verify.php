@@ -31,7 +31,7 @@ try {
         'SELECT ce.course_id, c.title AS course_title, c.category, c.thumbnail_url '
         . 'FROM classroom_enrollments ce '
         . 'JOIN classroom_courses c ON ce.course_id = c.id '
-        . 'WHERE ce.student_id = :student_id AND ce.status = "enrolled" '
+        . "WHERE ce.student_id = :student_id AND ce.status = 'enrolled' "
         . 'ORDER BY ce.enrolled_at DESC',
     );
     $coursesStmt->execute([':student_id' => $student['id']]);

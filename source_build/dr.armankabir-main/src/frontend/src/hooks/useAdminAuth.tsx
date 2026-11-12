@@ -5,12 +5,12 @@
  * Session state is kept in memory only — no localStorage.
  */
 
-import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { initializeServerStorage } from "../lib/storageAdapter";
 import { authService } from "../services/auth";
 import { landingService } from "../services/landing";
-import { toast } from "sonner";
 
 export function useAdminAuth() {
   const queryClient = useQueryClient();
@@ -20,13 +20,26 @@ export function useAdminAuth() {
 
   useEffect(() => {
     let active = true;
-    void authService.verifyAdminSession().then((admin) => {
-      if (active && admin) {
-        setIsAdmin(true);
-        setAdminId(admin.id);
-      }
-      if (active) setIsInitializing(false);
-    });
+    void authService
+      .verifyAdminSession()
+      .then((admin) => {
+        if (active && admin) {
+          setIsAdmin(true);
+          setAdminId(admin.id);
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          toast.error(
+            error instanceof Error
+              ? `Could not verify the administrator session: ${error.message}`
+              : "Could not verify the administrator session.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setIsInitializing(false);
+      });
     return () => {
       active = false;
     };

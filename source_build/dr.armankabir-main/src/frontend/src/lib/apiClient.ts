@@ -9,7 +9,7 @@
 
 const API_BASE = '/api';
 const DEFAULT_TIMEOUT_MS = 30_000;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 2;
 let csrfToken: string | null = null;
 let csrfTokenRequest: Promise<string> | null = null;
 const CSRF_FAILURE_MESSAGE = 'CSRF token validation failed. Please refresh and try again.';
@@ -68,6 +68,7 @@ async function request<T = any>(
   retryCount = 0,
   csrfRetryCount = 0,
 ): Promise<T> {
+  const canRetry = ['GET', 'HEAD'].includes(method.toUpperCase());
   const url = buildUrl(path, params);
   const headers: Record<string, string> = {
     ...customHeaders,
@@ -107,7 +108,7 @@ async function request<T = any>(
       throw new ApiError('Request timed out. Please try again.', 408);
     }
     // Retry on network errors
-    if (retryCount < MAX_RETRIES) {
+    if (canRetry && retryCount < MAX_RETRIES) {
       await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
       return request<T>(method, path, body, params, customHeaders, retryCount + 1, csrfRetryCount);
     }
@@ -136,8 +137,8 @@ async function request<T = any>(
       return request<T>(method, path, body, params, customHeaders, retryCount, 1);
     }
 
-    // Retry on 5xx server errors
-    if (response.status >= 500 && retryCount < MAX_RETRIES) {
+    // Retry only transient gateway/service failures for safe, read-only requests.
+    if ([502, 503, 504].includes(response.status) && canRetry && retryCount < MAX_RETRIES) {
       await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
       return request<T>(method, path, body, params, customHeaders, retryCount + 1, csrfRetryCount);
     }

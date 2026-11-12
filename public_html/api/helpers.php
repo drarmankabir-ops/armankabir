@@ -86,26 +86,68 @@ function checkRateLimit(string $identifier = '', int $maxAttempts = 100, int $wi
     if ($windowSeconds <= 0) $windowSeconds = RATE_LIMIT_WINDOW;
 
     $rateLimitDir = __DIR__ . '/../../server-data/ratelimit';
-    if (!is_dir($rateLimitDir)) {
-        @mkdir($rateLimitDir, 0755, true);
+    if (!is_dir($rateLimitDir) && !@mkdir($rateLimitDir, 0750, true) && !is_dir($rateLimitDir)) {
+        error_log('Rate limiter storage directory could not be created.');
+        errorResponse('Rate limiting is temporarily unavailable.', 503);
     }
 
     $file = $rateLimitDir . '/' . md5($identifier) . '.json';
-
-    $data = ['count' => 0, 'reset' => time() + $windowSeconds];
-    if (file_exists($file)) {
-        $existing = json_decode((string) @file_get_contents($file), true);
-        if ($existing && isset($existing['reset'])) {
-            if (time() < $existing['reset']) {
-                $data = $existing;
-            }
-        }
+    $handle = @fopen($file, 'c+');
+    if ($handle === false) {
+        error_log('Rate limiter counter could not be opened.');
+        errorResponse('Rate limiting is temporarily unavailable.', 503);
     }
 
-    $data['count']++;
+    if (!flock($handle, LOCK_EX)) {
+        fclose($handle);
+        error_log('Rate limiter counter could not be locked.');
+        errorResponse('Rate limiting is temporarily unavailable.', 503);
+    }
 
-    if ($data['count'] > $maxAttempts) {
-        $retryAfter = max(1, (int) $data['reset'] - time());
+    $retryAfter = null;
+    $storageError = null;
+    try {
+        rewind($handle);
+        $contents = stream_get_contents($handle);
+        if ($contents === false) {
+            throw new RuntimeException('Unable to read rate limiter counter.');
+        }
+
+        $existing = json_decode($contents, true);
+        $now = time();
+        $data = is_array($existing)
+            && isset($existing['count'], $existing['reset'])
+            && is_numeric($existing['count'])
+            && is_numeric($existing['reset'])
+            && (int) $existing['reset'] > $now
+                ? ['count' => (int) $existing['count'], 'reset' => (int) $existing['reset']]
+                : ['count' => 0, 'reset' => $now + $windowSeconds];
+        $data['count']++;
+
+        rewind($handle);
+        if (!ftruncate($handle, 0)) {
+            throw new RuntimeException('Unable to reset rate limiter counter.');
+        }
+        $encoded = json_encode($data, JSON_THROW_ON_ERROR);
+        if (fwrite($handle, $encoded) !== strlen($encoded) || !fflush($handle)) {
+            throw new RuntimeException('Unable to persist rate limiter counter.');
+        }
+
+        if ($data['count'] > $maxAttempts) {
+            $retryAfter = max(1, $data['reset'] - $now);
+        }
+    } catch (\Throwable $e) {
+        $storageError = $e;
+    } finally {
+        flock($handle, LOCK_UN);
+        fclose($handle);
+    }
+
+    if ($storageError !== null) {
+        error_log('Rate limiter storage error: ' . $storageError->getMessage());
+        errorResponse('Rate limiting is temporarily unavailable.', 503);
+    }
+    if ($retryAfter !== null) {
         header('Retry-After: ' . $retryAfter);
         errorResponse('Rate limit exceeded. Try again later.', 429, [
             'retry_after' => $retryAfter,
@@ -113,9 +155,6 @@ function checkRateLimit(string $identifier = '', int $maxAttempts = 100, int $wi
             'window' => $windowSeconds,
         ]);
     }
-
-    // Persist the counter so the window actually limits repeated requests.
-    @file_put_contents($file, json_encode($data), LOCK_EX);
 }
 
 // ─── Auth / Database Error Logging ──────────────────────────────────────────

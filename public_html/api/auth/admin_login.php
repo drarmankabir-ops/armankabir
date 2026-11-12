@@ -27,15 +27,26 @@ if ($missing) {
         'missing_fields' => $missing,
     ]);
 }
+if (!is_string($input['username']) || !is_string($input['password'])) {
+    errorResponse('Username and password must be strings.', 400);
+}
 
 $username = trim($input['username']);
 $password = $input['password'];
+if ($username === '' || $password === '') {
+    errorResponse('Username and password are required.', 400);
+}
 
 try {
     $db = Database::getInstance();
     
     // Find admin account
-    $stmt = $db->prepare('SELECT * FROM admin_accounts WHERE username = :username AND is_active = 1 LIMIT 1');
+    $stmt = $db->prepare(
+        'SELECT id, username, password_hash, display_name
+         FROM admin_accounts
+         WHERE username = :username AND is_active = 1
+         LIMIT 1'
+    );
     $stmt->execute([':username' => $username]);
     $admin = $stmt->fetch();
     
@@ -50,13 +61,14 @@ try {
         errorResponse('Invalid username or password', 401);
     }
 
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        session_regenerate_id(true);
+    if (session_status() !== PHP_SESSION_ACTIVE || !session_regenerate_id(true)) {
+        error_log('Admin login could not regenerate the PHP session ID.');
+        errorResponse('Unable to establish a secure login session.', 500);
     }
     
     // Check if password needs rehash (if algorithm/cost changed)
-    if (password_needs_rehash($admin['password_hash'], PASSWORD_BCRYPT)) {
-        $newHash = password_hash($password, PASSWORD_BCRYPT);
+    if (password_needs_rehash($admin['password_hash'], PASSWORD_DEFAULT)) {
+        $newHash = password_hash($password, PASSWORD_DEFAULT);
         $updateStmt = $db->prepare('UPDATE admin_accounts SET password_hash = :hash WHERE id = :id');
         $updateStmt->execute([':hash' => $newHash, ':id' => $admin['id']]);
     }
@@ -68,14 +80,16 @@ try {
     // Create server-side session (stored in admin_sessions for verification)
     $token = createAdminSession($admin['id']);
 
-    setcookie('session_token', $token, [
+    if (!setcookie('session_token', $token, [
         'expires' => time() + SESSION_LIFETIME,
         'path' => '/',
-        'domain' => '',
         'secure' => isSecureCookieRequest(),
         'httponly' => true,
         'samesite' => 'Lax',
-    ]);
+    ])) {
+        error_log('Admin login could not set the session cookie.');
+        errorResponse('Unable to establish a secure login session.', 500);
+    }
     
     // Log audit
     logAudit(null, null, 'admin_login', 'admin', $admin['id']);
@@ -89,7 +103,7 @@ try {
         'is_admin' => true,
     ], 'Login successful');
     
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     error_log('Admin login error: ' . $e->getMessage());
     errorResponse('Login failed. Please try again.', 500);
 }

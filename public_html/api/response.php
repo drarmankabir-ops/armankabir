@@ -38,8 +38,17 @@ if (!class_exists('Response', false)) {
             // CORS is restricted to the canonical site origin in api/.htaccess.
             // Never reflect arbitrary Origin headers when credentials are enabled.
 
-            $json = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            echo $json ?: '{}';
+            try {
+                $json = json_encode(
+                    $body,
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR
+                );
+            } catch (JsonException $e) {
+                error_log('API response JSON encoding failed: ' . $e->getMessage());
+                http_response_code(500);
+                $json = '{"success":false,"message":"Unable to encode API response.","error_code":"internal_error"}';
+            }
+            echo $json;
             self::$sent = true;
 
             if ($terminate) {

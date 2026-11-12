@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Bricolage Grotesque";
-  src: url("/assets/fonts/BricolageGrotesque.woff2") format("woff2");
+  src: url("/assets/fonts/BricolageGrotesque.ttf") format("truetype");
   font-weight: 400 700;
   font-display: swap;
 }

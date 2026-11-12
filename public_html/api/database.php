@@ -6,6 +6,7 @@
  * Uses prepared statements to prevent SQL injection.
  */
 
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../config.php';
 
 class Database {
@@ -39,32 +40,35 @@ class Database {
      */
     public static function getInstance(): PDO {
         if (self::$instance === null) {
-            self::loadConfig();
-            
-            $dsn = sprintf(
-                'mysql:host=%s;dbname=%s;charset=%s',
-                self::$config['host'],
-                self::$config['name'],
-                self::$config['charset']
-            );
-
-            $options = [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
-            ];
-
             try {
+                self::loadConfig();
+
+                $dsn = sprintf(
+                    'mysql:host=%s;dbname=%s;charset=%s',
+                    self::$config['host'],
+                    self::$config['name'],
+                    self::$config['charset']
+                );
+
+                $options = [
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES   => false,
+                ];
+                if (defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
+                    $options[constant('PDO::MYSQL_ATTR_INIT_COMMAND')] =
+                        'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci';
+                }
+
                 self::$instance = new PDO(
                     $dsn,
                     self::$config['user'],
                     self::$config['pass'],
                     $options
                 );
-            } catch (PDOException $e) {
+            } catch (\Throwable $e) {
                 // Log error but don't expose details to client
-                error_log('Database connection failed: ' . $e->getMessage());
+                error_log('Database initialization failed: ' . $e->getMessage());
                 require_once __DIR__ . '/response.php';
                 Response::error('Database connection failed', 500);
             }

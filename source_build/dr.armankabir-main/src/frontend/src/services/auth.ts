@@ -6,7 +6,7 @@
  * PHP session cookies handle authentication.
  */
 
-import { clearCsrfToken, get, post, prepareCsrfToken } from '../lib/apiClient';
+import { ApiError, clearCsrfToken, get, post, prepareCsrfToken } from '../lib/apiClient';
 import type { StaffRole } from '../types';
 
 export interface DoctorAccount {
@@ -62,14 +62,19 @@ function normalizePatient(patient: PatientAccount): PatientAccount {
   };
 }
 
+function isSessionUnavailable(error: unknown): boolean {
+  return error instanceof ApiError && (error.statusCode === 401 || error.statusCode === 403);
+}
+
 export const authService = {
   /** Verify current PHP session and return doctor account */
   async verifySession(): Promise<DoctorAccount | null> {
     try {
       const result = await get<{ user: DoctorAccount }>('/auth/verify.php');
       return result?.user ? normalizeDoctor(result.user) : null;
-    } catch {
-      return null;
+    } catch (error) {
+      if (isSessionUnavailable(error)) return null;
+      throw error;
     }
   },
 
@@ -98,8 +103,9 @@ export const authService = {
     try {
       const result = await get<{ admin: AdminAccount }>('/auth/admin_verify.php');
       return result?.admin ?? null;
-    } catch {
-      return null;
+    } catch (error) {
+      if (isSessionUnavailable(error)) return null;
+      throw error;
     }
   },
 
@@ -108,8 +114,9 @@ export const authService = {
     try {
       const result = await get<{ patient: PatientAccount }>('/auth/patients/verify.php');
       return result?.patient ? normalizePatient(result.patient) : null;
-    } catch {
-      return null;
+    } catch (error) {
+      if (isSessionUnavailable(error)) return null;
+      throw error;
     }
   },
 
@@ -132,8 +139,9 @@ export const authService = {
   } | null> {
     try {
       return await get('/classroom/auth/verify.php');
-    } catch {
-      return null;
+    } catch (error) {
+      if (isSessionUnavailable(error)) return null;
+      throw error;
     }
   },
 
