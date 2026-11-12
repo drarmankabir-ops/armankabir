@@ -6,7 +6,7 @@
  * PHP session cookies handle authentication.
  */
 
-import { clearCsrfToken, get, post } from '../lib/apiClient';
+import { clearCsrfToken, get, post, prepareCsrfToken } from '../lib/apiClient';
 import type { StaffRole } from '../types';
 
 export interface DoctorAccount {
@@ -50,7 +50,7 @@ function normalizeDoctor(user: DoctorAccount): DoctorAccount {
   return {
     ...user,
     name: user.full_name,
-    createdAt: user.created_at,
+    createdAt: user.created_at ?? user.createdAt ?? new Date(0).toISOString(),
   };
 }
 
@@ -81,6 +81,7 @@ export const authService = {
 
   /** Sign in to the public portal content manager */
   async adminSignIn(username: string, password: string): Promise<{ admin: AdminAccount; is_admin: boolean }> {
+    await prepareCsrfToken();
     return post<{ admin: AdminAccount; is_admin: boolean }>('/auth/admin_login.php', { username, password });
   },
 

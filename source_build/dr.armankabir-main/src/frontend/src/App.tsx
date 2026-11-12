@@ -1,4 +1,6 @@
 import { EmailAuthProvider, useEmailAuth, useInactivityTimer } from "./hooks/useEmailAuth";
+import { LanguageProvider } from "./i18n/LanguageProvider";
+import LanguageSelector from "./i18n/LanguageSelector";
 import type { DoctorAccount, PatientAccount } from "./services/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -1198,7 +1200,7 @@ function PendingApprovalsPanel() {
                               acc.role}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(acc.createdAt).toLocaleDateString()}
+                            {new Date(acc.createdAt ?? 0).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -1615,7 +1617,7 @@ function AppRoot() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showPendingPanel, setShowPendingPanel] = useState(false);
-  const [adminUser, setAdminUser] = useState("drarmankabir.com");
+  const [adminUser, setAdminUser] = useState("");
   const [adminPass, setAdminPass] = useState("");
   const [adminError, setAdminError] = useState("");
   const [pendingCount, setPendingCount] = useState(0);
@@ -1957,8 +1959,8 @@ function AppRoot() {
         return;
       }
       setShowAdminModal(false);
-      setAdminUser("drarmankabir.com");
-      setAdminPass("01234");
+      setAdminUser("");
+      setAdminPass("");
       appendAuditLog({
         timestamp: new Date().toISOString(),
         userRole: "admin",
@@ -2553,8 +2555,11 @@ function PatientPortalView({
 
 export default function App() {
   return (
-    <EmailAuthProvider>
-      <AppRoot />
-    </EmailAuthProvider>
+    <LanguageProvider>
+      <EmailAuthProvider>
+        <AppRoot />
+      </EmailAuthProvider>
+      <LanguageSelector />
+    </LanguageProvider>
   );
 }

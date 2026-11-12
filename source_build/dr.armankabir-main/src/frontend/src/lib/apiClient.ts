@@ -11,6 +11,8 @@ const API_BASE = '/api';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 3;
 let csrfToken: string | null = null;
+let csrfTokenRequest: Promise<string> | null = null;
+const CSRF_FAILURE_MESSAGE = 'CSRF token validation failed. Please refresh and try again.';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -64,6 +66,7 @@ async function request<T = any>(
   params?: Record<string, string | number | undefined | null>,
   customHeaders?: Record<string, string>,
   retryCount = 0,
+  csrfRetryCount = 0,
 ): Promise<T> {
   const url = buildUrl(path, params);
   const headers: Record<string, string> = {
@@ -71,17 +74,13 @@ async function request<T = any>(
   };
 
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
-    if (!csrfToken) {
-      const csrf = await request<{ token: string }>('GET', '/auth/csrf.php');
-      csrfToken = csrf.token;
-    }
-    headers['X-CSRF-Token'] = csrfToken;
+    headers['X-CSRF-Token'] = await prepareCsrfToken();
   }
 
   const options: RequestInit = {
     method,
     headers,
-    credentials: 'same-origin', // PHP session cookie
+    credentials: 'include',
   };
 
   if (body !== undefined) {
@@ -110,7 +109,7 @@ async function request<T = any>(
     // Retry on network errors
     if (retryCount < MAX_RETRIES) {
       await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
-      return request<T>(method, path, body, params, customHeaders, retryCount + 1);
+      return request<T>(method, path, body, params, customHeaders, retryCount + 1, csrfRetryCount);
     }
     throw new ApiError('Network error. Please check your connection.', 0);
   }
@@ -125,10 +124,22 @@ async function request<T = any>(
   }
 
   if (!response.ok || !json.success) {
+    if (
+      response.status === 403 &&
+      json.message === CSRF_FAILURE_MESSAGE &&
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase()) &&
+      csrfRetryCount === 0
+    ) {
+      csrfToken = null;
+      csrfTokenRequest = null;
+      await prepareCsrfToken();
+      return request<T>(method, path, body, params, customHeaders, retryCount, 1);
+    }
+
     // Retry on 5xx server errors
     if (response.status >= 500 && retryCount < MAX_RETRIES) {
       await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
-      return request<T>(method, path, body, params, customHeaders, retryCount + 1);
+      return request<T>(method, path, body, params, customHeaders, retryCount + 1, csrfRetryCount);
     }
     throw new ApiError(
       json.message || 'Request failed',
@@ -180,6 +191,25 @@ export async function upload<T = any>(
   return request<T>('POST', path, formData, undefined, {});
 }
 
+export async function prepareCsrfToken(): Promise<string> {
+  if (csrfToken) return csrfToken;
+  if (!csrfTokenRequest) {
+    csrfTokenRequest = request<{ token: string }>('GET', '/auth/csrf.php').then(({ token }) => {
+      if (!token) {
+        throw new ApiError('The server did not provide a CSRF token.', 500);
+      }
+      csrfToken = token;
+      return token;
+    });
+  }
+  try {
+    return await csrfTokenRequest;
+  } finally {
+    csrfTokenRequest = null;
+  }
+}
+
 export function clearCsrfToken(): void {
   csrfToken = null;
+  csrfTokenRequest = null;
 }

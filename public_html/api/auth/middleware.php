@@ -514,6 +514,9 @@ function validateCsrfToken(string $token): bool {
     if (session_status() === PHP_SESSION_NONE) {
         startAuthSession();
     }
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return false;
+    }
     $sessionToken = $_SESSION['csrf_token'] ?? '';
     return !empty($sessionToken) && hash_equals($sessionToken, $token);
 }

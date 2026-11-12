@@ -515,16 +515,17 @@ function logAudit(
  * Whether the current request arrived over HTTPS (directly or via proxy).
  */
 function isSecureCookieRequest(): bool {
-    if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+    $https = strtolower(trim((string) ($_SERVER['HTTPS'] ?? '')));
+    if ($https !== '' && $https !== 'off' && $https !== '0') {
         return true;
     }
 
-    if (($_SERVER['SERVER_PORT'] ?? null) === 443) {
+    if ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443) {
         return true;
     }
 
-    $forwardedProto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
-    return strtolower((string) $forwardedProto) === 'https';
+    $forwardedProto = explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''), 2)[0];
+    return strtolower(trim($forwardedProto)) === 'https';
 }
 
 /**
@@ -545,10 +546,17 @@ function startAuthSession(): string {
         return '';
     }
 
+    $secure = isSecureCookieRequest();
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.cookie_secure', $secure ? '1' : '0');
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.cookie_samesite', 'Lax');
+
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
         'path' => '/',
-        'secure' => isSecureCookieRequest(),
+        'secure' => $secure,
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
